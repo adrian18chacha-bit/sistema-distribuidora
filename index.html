@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distribuidora Chávez - Acceso Seguro</title>
+    <title>Distribuidora Chávez PRO</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
@@ -17,25 +18,20 @@
 <body>
 
 <div id="auth-section" class="container">
-    <div id="login-container" class="mx-auto card p-4 shadow">
-        <div class="text-center mb-4">
-            <h3 class="fw-bold text-primary">DISTRIBUIDORA CHÁVEZ</h3>
-            <p class="text-muted">Inicia sesión para continuar</p>
-        </div>
-        <input type="email" id="login-email" class="form-control mb-3" placeholder="Correo electrónico">
+    <div id="login-container" class="mx-auto card p-4 shadow text-center">
+        <h3 class="fw-bold text-primary">DISTRIBUIDORA CHÁVEZ</h3>
+        <p class="text-muted">Acceso Administrativo</p>
+        <input type="email" id="login-email" class="form-control mb-3" placeholder="Correo">
         <input type="password" id="login-password" class="form-control mb-3" placeholder="Contraseña">
         <button class="btn btn-primary w-100 fw-bold" onclick="login()">ENTRAR</button>
-        <div id="login-error" class="text-danger mt-3 small text-center hidden">Datos incorrectos. Intenta de nuevo.</div>
     </div>
 </div>
 
 <div id="app-section" class="hidden">
     <div class="header-chavez text-center shadow">
         <div class="container d-flex justify-content-between align-items-center">
-            <div style="width: 80px;"></div> <div>
-                <h2 class="fw-bold m-0">DISTRIBUIDORA CHÁVEZ</h2>
-                <p class="m-0 opacity-75">Panel de Administración</p>
-            </div>
+            <div style="width: 80px;"></div>
+            <h2 class="fw-bold m-0">DISTRIBUIDORA CHÁVEZ</h2>
             <button class="btn btn-sm btn-outline-light" onclick="logout()">Salir</button>
         </div>
     </div>
@@ -43,25 +39,27 @@
     <div class="container pb-5">
         <div class="row g-4">
             <div class="col-lg-4">
-                <div class="card p-4 shadow-sm">
+                <div class="card p-4 shadow-sm mb-4">
                     <h5 class="fw-bold text-primary mb-3">Nuevo Registro</h5>
-                    <input type="text" id="cliente" class="form-control mb-2" placeholder="Nombre del Cliente">
-                    <input type="text" id="producto" class="form-control mb-2" placeholder="Producto/Cantidad">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">S/.</span>
-                        <input type="number" id="precio" class="form-control" placeholder="Precio Total">
-                    </div>
-                    <button class="btn btn-primary w-100 fw-bold" onclick="guardarPedido()">GUARDAR PEDIDO</button>
+                    <input type="text" id="cliente" class="form-control mb-2" placeholder="Cliente">
+                    <input type="text" id="producto" class="form-control mb-2" placeholder="Producto">
+                    <input type="number" id="precio" class="form-control mb-3" placeholder="S/. Precio Total">
+                    <button class="btn btn-primary w-100 fw-bold" onclick="guardarPedido()">GUARDAR</button>
+                </div>
+                <div class="card p-4 shadow-sm text-center">
+                    <h5 class="fw-bold mb-3 small text-muted">Estado de Entregas</h5>
+                    <div style="height: 200px;"><canvas id="graficoEntregas"></canvas></div>
                 </div>
             </div>
+
             <div class="col-lg-8">
                 <div class="card p-4 shadow-sm">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="fw-bold m-0">Lista de Pedidos</h5>
+                        <h5 class="fw-bold m-0">Pedidos</h5>
                         <button class="btn btn-success fw-bold btn-sm" onclick="exportarExcelReal()">EXCEL</button>
                     </div>
                     <div class="table-responsive">
-                        <table class="table align-middle">
+                        <table class="table align-middle text-center">
                             <thead class="table-light">
                                 <tr>
                                     <th>Cliente</th>
@@ -84,24 +82,26 @@
 <script>
     const _supabase = supabase.createClient('https://ozdpcjhwbdsuqncgxfpz.supabase.co', 'sb_publishable_aBgdzg-JTQ61i1IkjUYysQ_4lYYJGPQ');
     let pedidosActuales = [];
+    let chartObj = null;
 
-    // --- LÓGICA DE SEGURIDAD ---
+    function renderChart(pen, ent) {
+        const ctx = document.getElementById('graficoEntregas').getContext('2d');
+        if (chartObj) chartObj.destroy();
+        chartObj = new Chart(ctx, {
+            type: 'doughnut',
+            data: { labels: ['Pendiente', 'Listo'], datasets: [{ data: [pen, ent], backgroundColor: ['#ffc107', '#28a745'] }] },
+            options: { maintainAspectRatio: false }
+        });
+    }
+
     async function login() {
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
-        const { data, error } = await _supabase.auth.signInWithPassword({ email, password });
-
-        if (error) {
-            document.getElementById('login-error').classList.remove('hidden');
-        } else {
-            checkUser();
-        }
+        const { error } = await _supabase.auth.signInWithPassword({ email, password });
+        if (!error) checkUser(); else alert("Error en datos");
     }
 
-    async function logout() {
-        await _supabase.auth.signOut();
-        checkUser();
-    }
+    async function logout() { await _supabase.auth.signOut(); location.reload(); }
 
     async function checkUser() {
         const { data: { user } } = await _supabase.auth.getUser();
@@ -109,84 +109,61 @@
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('app-section').classList.remove('hidden');
             cargarPedidos();
-        } else {
-            document.getElementById('auth-section').classList.remove('hidden');
-            document.getElementById('app-section').classList.add('hidden');
         }
     }
 
-    // --- LÓGICA DE LA APP ---
     async function cargarPedidos() {
         const { data, error } = await _supabase.from('pedidos').select('*').order('creado_en', { ascending: false });
-        if (!error) { pedidosActuales = data; render(data); }
+        if (!error) { pedidosActuales = data; actualizarInterfaz(data); }
     }
 
-    function render(lista) {
+    function actualizarInterfaz(lista) {
         const tbody = document.getElementById('tabla-pedidos');
         tbody.innerHTML = '';
+        let pen = 0, ent = 0;
         lista.forEach(p => {
+            p.entregado ? ent++ : pen++;
             tbody.innerHTML += `
-                <tr class="${p.entregado ? 'row-done' : ''}">
+                <tr>
                     <td><b>${p.cliente}</b></td>
                     <td>${p.producto}</td>
                     <td>S/. ${(p.precio_total || 0).toFixed(2)}</td>
                     <td><span class="badge ${p.entregado ? 'bg-success' : 'bg-warning'}">${p.entregado ? 'Listo' : 'Pendiente'}</span></td>
                     <td>
-                        <div class="btn-group">
+                        <div style="display: flex; gap: 10px; justify-content: center;">
                             ${!p.entregado ? `<button class="btn btn-sm btn-success" onclick="marcarEntregado(${p.id})">✓</button>` : ''}
                             <button class="btn btn-sm btn-danger" onclick="eliminarPedido(${p.id})">✕</button>
                         </div>
                     </td>
                 </tr>`;
         });
+        renderChart(pen, ent);
     }
 
     async function guardarPedido() {
-        const cliente = document.getElementById('cliente').value;
-        const producto = document.getElementById('producto').value;
-        const precio = parseFloat(document.getElementById('precio').value);
-        if (cliente && producto && !isNaN(precio)) {
-            await _supabase.from('pedidos').insert([{ cliente, producto, precio_total: precio }]);
-            document.getElementById('cliente').value = '';
-            document.getElementById('producto').value = '';
-            document.getElementById('precio').value = '';
+        const c = document.getElementById('cliente').value;
+        const pr = document.getElementById('producto').value;
+        const p = parseFloat(document.getElementById('precio').value);
+        if (c && pr && p) {
+            await _supabase.from('pedidos').insert([{ cliente: c, producto: pr, precio_total: p }]);
+            document.getElementById('cliente').value = ''; document.getElementById('producto').value = ''; document.getElementById('precio').value = '';
             cargarPedidos();
         }
     }
 
-    async function marcarEntregado(id) {
-        await _supabase.from('pedidos').update({ entregado: true }).eq('id', id);
-        cargarPedidos();
-    }
-
-    async function eliminarPedido(id) {
-        if(confirm("¿Eliminar este pedido?")) {
-            await _supabase.from('pedidos').delete().eq('id', id);
-            cargarPedidos();
-        }
-    }
+    async function marcarEntregado(id) { await _supabase.from('pedidos').update({ entregado: true }).eq('id', id); cargarPedidos(); }
+    async function eliminarPedido(id) { if(confirm("¿Borrar?")) { await _supabase.from('pedidos').delete().eq('id', id); cargarPedidos(); } }
 
     function exportarExcelReal() {
-        const infoParaExcel = pedidosActuales.map(p => {
-            const total = p.precio_total || 0;
-            const base = total / 1.18;
-            const igv = total - base;
-            return {
-                "CLIENTE": p.cliente,
-                "PEDIDO": p.producto,
-                "BASE IMPONIBLE": base.toFixed(2),
-                "IGV (18%)": igv.toFixed(2),
-                "TOTAL (S/.)": total.toFixed(2),
-                "ESTADO": p.entregado ? "Entregado" : "Pendiente"
-            };
-        });
-        const worksheet = XLSX.utils.json_to_sheet(infoParaExcel);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Pedidos");
-        XLSX.writeFile(workbook, "Reporte_Distribuidora_Chavez.xlsx");
+        const info = pedidosActuales.map(p => ({
+            "CLIENTE": p.cliente, "PRODUCTO": p.producto, "TOTAL": p.precio_total, "ESTADO": p.entregado ? "Listo" : "Pendiente"
+        }));
+        const ws = XLSX.utils.json_to_sheet(info);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Data");
+        XLSX.writeFile(wb, "Reporte.xlsx");
     }
 
-    // Ejecutar al cargar la página
     checkUser();
 </script>
 </body>
