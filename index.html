@@ -3,168 +3,146 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Logística Adrián - Dashboard</title>
+    <title>Logística Chávez PRO + Excel</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { background-color: #f0f2f5; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .card { border: none; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .header-gradient { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); color: white; padding: 30px 0; border-radius: 0 0 30px 30px; margin-bottom: 30px; }
-        .btn-ready { background-color: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: bold; }
-        .btn-ready:hover { background-color: #218838; transform: scale(1.05); }
-        .row-done { background-color: #f8f9fa !important; opacity: 0.7; }
-        .badge-status { padding: 5px 10px; border-radius: 20px; font-size: 0.75rem; }
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+        .header-chavez { background: #0047ab; color: white; padding: 25px 0; border-radius: 0 0 25px 25px; margin-bottom: 30px; }
+        .card { border: none; border-radius: 15px; }
+        .btn-excel { background-color: #1d6f42; color: white; }
+        .btn-excel:hover { background-color: #145532; color: white; }
+        .row-done { background-color: #f8f9fa !important; color: #6c757d; }
     </style>
 </head>
 <body>
 
-    <div class="header-gradient text-center shadow">
-        <h1 class="fw-bold">DISTRIBUIDORA CHÁVEZ</h1>
-        <p class="opacity-75">Control Logístico en Tiempo Real</p>
-    </div>
+<div class="header-chavez text-center shadow">
+    <h2 class="fw-bold m-0">DISTRIBUIDORA CHÁVEZ</h2>
+    <p class="m-0 opacity-75">Gestión de Pedidos e IGV 18%</p>
+</div>
 
-    <div class="container">
-        <div class="row g-4">
-            <!-- Panel Lateral -->
-            <div class="col-lg-4">
-                <div class="card p-4 mb-4">
-                    <h5 class="fw-bold mb-3">Nuevo Registro</h5>
-                    <div class="mb-2">
-                        <input type="text" id="cliente" class="form-control" placeholder="Nombre del Cliente">
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" id="producto" class="form-control" placeholder="Ej: 2 Bidones 20L">
-                    </div>
-                    <button class="btn btn-primary w-100 py-2 fw-bold shadow-sm" onclick="guardarPedido()">REGISTRAR</button>
+<div class="container pb-5">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card p-4 shadow-sm">
+                <h5 class="fw-bold text-primary mb-3">Nuevo Registro</h5>
+                <input type="text" id="cliente" class="form-control mb-2" placeholder="Nombre del Cliente">
+                <input type="text" id="producto" class="form-control mb-2" placeholder="Producto/Cantidad">
+                <div class="input-group mb-3">
+                    <span class="input-group-text">S/.</span>
+                    <input type="number" id="precio" class="form-control" placeholder="Precio Total">
                 </div>
-
-                <div class="card p-4 text-center">
-                    <h5 class="fw-bold mb-3">Estado de Entregas</h5>
-                    <div style="position: relative; height:200px; width:100%">
-                        <canvas id="graficoEntregas"></canvas>
-                    </div>
-                </div>
+                <button class="btn btn-primary w-100 fw-bold" onclick="guardarPedido()">GUARDAR PEDIDO</button>
             </div>
+        </div>
 
-            <!-- Panel de Tabla -->
-            <div class="col-lg-8">
-                <div class="card p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="fw-bold m-0 text-primary">Hoja de Ruta del Día</h5>
-                        <input type="text" id="buscador" class="form-control w-50 shadow-sm" placeholder="🔍 Buscar por cliente..." onkeyup="filtrarTabla()">
-                    </div>
-                    
-                    <div class="table-responsive" style="max-height: 450px;">
-                        <table class="table align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Cliente</th>
-                                    <th>Pedido</th>
-                                    <th>Estado</th>
-                                    <th>Acción</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabla-pedidos"></tbody>
-                        </table>
-                    </div>
+        <div class="col-lg-8">
+            <div class="card p-4 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold m-0">Lista de Pedidos</h5>
+                    <button class="btn btn-excel fw-bold" onclick="exportarExcelReal()">DESCARGAR EXCEL</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Pedido</th>
+                                <th>Total</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-pedidos"></tbody>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const SUPABASE_URL = 'https://ozdpcjhwbdsuqncgxfpz.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_aBgdzg-JTQ61i1IkjUYysQ_4lYYJGPQ';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+    const _supabase = supabase.createClient('https://ozdpcjhwbdsuqncgxfpz.supabase.co', 'sb_publishable_aBgdzg-JTQ61i1IkjUYysQ_4lYYJGPQ');
+    let pedidosActuales = [];
 
-        let dataGlobal = [];
-        let chartObj;
-
-        function initChart() {
-            const ctx = document.getElementById('graficoEntregas').getContext('2d');
-            chartObj = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Pendientes', 'Listos'],
-                    datasets: [{
-                        data: [0, 0],
-                        backgroundColor: ['#ffc107', '#28a745'],
-                        hoverOffset: 4
-                    }]
-                },
-                options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-            });
+    async function cargarPedidos() {
+        const { data, error } = await _supabase.from('pedidos').select('*').order('creado_en', { ascending: false });
+        if (!error) {
+            pedidosActuales = data;
+            render(data);
         }
+    }
 
-        async function cargarPedidos() {
-            const { data, error } = await _supabase.from('pedidos').select('*').order('creado_en', { ascending: false });
-            if (!error) {
-                dataGlobal = data;
-                updateUI(data);
-            }
+    function render(lista) {
+        const tbody = document.getElementById('tabla-pedidos');
+        tbody.innerHTML = '';
+        lista.forEach(p => {
+            tbody.innerHTML += `
+                <tr class="${p.entregado ? 'row-done' : ''}">
+                    <td><b>${p.cliente}</b></td>
+                    <td>${p.producto}</td>
+                    <td>S/. ${(p.precio_total || 0).toFixed(2)}</td>
+                    <td><span class="badge ${p.entregado ? 'bg-success' : 'bg-warning'}">${p.entregado ? 'Listo' : 'Pendiente'}</span></td>
+                    <td>
+                        <div class="btn-group">
+                            ${!p.entregado ? `<button class="btn btn-sm btn-success" onclick="marcarEntregado(${p.id})">✓</button>` : ''}
+                            <button class="btn btn-sm btn-danger" onclick="eliminarPedido(${p.id})">✕</button>
+                        </div>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    async function guardarPedido() {
+        const cliente = document.getElementById('cliente').value;
+        const producto = document.getElementById('producto').value;
+        const precio = parseFloat(document.getElementById('precio').value);
+
+        if (cliente && producto && !isNaN(precio)) {
+            await _supabase.from('pedidos').insert([{ cliente, producto, precio_total: precio }]);
+            document.getElementById('cliente').value = '';
+            document.getElementById('producto').value = '';
+            document.getElementById('precio').value = '';
+            cargarPedidos();
         }
+    }
 
-        function updateUI(lista) {
-            const tbody = document.getElementById('tabla-pedidos');
-            tbody.innerHTML = '';
-            
-            let entregados = 0;
-            let pendientes = 0;
-
-            lista.forEach(item => {
-                if(item.entregado) entregados++; else pendientes++;
-                
-                tbody.innerHTML += `
-                    <tr class="${item.entregado ? 'row-done' : ''}">
-                        <td><strong>${item.cliente}</strong></td>
-                        <td>${item.producto}</td>
-                        <td>
-                            <span class="badge-status ${item.entregado ? 'bg-success-subtle text-success' : 'bg-warning-subtle text-warning'}">
-                                ${item.entregado ? '✅ Entregado' : '⏳ Pendiente'}
-                            </span>
-                        </td>
-                        <td>
-                            ${!item.entregado ? `<button class="btn-ready" onclick="marcarEntregado(${item.id})">Listo</button>` : '---'}
-                        </td>
-                    </tr>
-                `;
-            });
-
-            chartObj.data.datasets[0].data = [pendientes, entregados];
-            chartObj.update();
-        }
-
-        async function guardarPedido() {
-            const cliente = document.getElementById('cliente').value;
-            const producto = document.getElementById('producto').value;
-            if (!cliente || !producto) return;
-
-            const { error } = await _supabase.from('pedidos').insert([{ cliente, producto }]);
-            if (!error) {
-                document.getElementById('cliente').value = '';
-                document.getElementById('producto').value = '';
-                cargarPedidos();
-            }
-        }
-
-        async function marcarEntregado(id) {
-            const { error } = await _supabase.from('pedidos').update({ entregado: true }).eq('id', id);
-            if (!error) {
-                cargarPedidos();
-            } else {
-                alert("Error: Asegúrate de habilitar el permiso de UPDATE en Supabase.");
-            }
-        }
-
-        function filtrarTabla() {
-            const term = document.getElementById('buscador').value.toLowerCase();
-            const filtered = dataGlobal.filter(p => p.cliente.toLowerCase().includes(term));
-            updateUI(filtered);
-        }
-
-        initChart();
+    async function marcarEntregado(id) {
+        await _supabase.from('pedidos').update({ entregado: true }).eq('id', id);
         cargarPedidos();
-    </script>
+    }
+
+    async function eliminarPedido(id) {
+        if(confirm("¿Estás seguro de eliminar este pedido?")) {
+            await _supabase.from('pedidos').delete().eq('id', id);
+            cargarPedidos();
+        }
+    }
+
+    function exportarExcelReal() {
+        const infoParaExcel = pedidosActuales.map(p => {
+            const total = p.precio_total || 0;
+            const base = total / 1.18;
+            const igv = total - base;
+            return {
+                "CLIENTE": p.cliente,
+                "PEDIDO": p.producto,
+                "BASE IMPONIBLE": base.toFixed(2),
+                "IGV (18%)": igv.toFixed(2),
+                "TOTAL (S/.)": total.toFixed(2),
+                "ESTADO": p.entregado ? "Entregado" : "Pendiente"
+            };
+        });
+
+        const worksheet = XLSX.utils.json_to_sheet(infoParaExcel);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Pedidos");
+        XLSX.writeFile(workbook, "Reporte_Distribuidora_Chavez.xlsx");
+    }
+
+    cargarPedidos();
+</script>
 </body>
 </html>
