@@ -13,6 +13,11 @@
         .header-chavez { background: #0047ab; color: white; padding: 25px 0; border-radius: 0 0 25px 25px; margin-bottom: 30px; }
         .hidden { display: none !important; }
         .card { border: none; border-radius: 15px; }
+        
+        /* Ajuste para que el nombre se vea completo */
+        .col-cliente { min-width: 150px; text-align: left !important; }
+        .table th { text-align: center; }
+        .btn-actions { display: flex; gap: 12px; justify-content: center; }
     </style>
 </head>
 <body>
@@ -41,9 +46,9 @@
             <div class="col-lg-4">
                 <div class="card p-4 shadow-sm mb-4">
                     <h5 class="fw-bold text-primary mb-3">Nuevo Registro</h5>
-                    <input type="text" id="cliente" class="form-control mb-2" placeholder="Cliente">
-                    <input type="text" id="producto" class="form-control mb-2" placeholder="Producto">
-                    <input type="number" id="precio" class="form-control mb-3" placeholder="S/. Precio Total">
+                    <input type="text" id="cliente" class="form-control mb-2" placeholder="Nombre Completo Cliente">
+                    <input type="text" id="producto" class="form-control mb-2" placeholder="Producto/Cantidad">
+                    <input type="number" id="precio" class="form-control mb-3" placeholder="S/. Total">
                     <button class="btn btn-primary w-100 fw-bold" onclick="guardarPedido()">GUARDAR</button>
                 </div>
                 <div class="card p-4 shadow-sm text-center">
@@ -55,14 +60,14 @@
             <div class="col-lg-8">
                 <div class="card p-4 shadow-sm">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="fw-bold m-0">Pedidos</h5>
-                        <button class="btn btn-success fw-bold btn-sm" onclick="exportarExcelReal()">EXCEL</button>
+                        <h5 class="fw-bold m-0 text-secondary">Lista de Pedidos</h5>
+                        <button class="btn btn-success fw-bold btn-sm shadow-sm" onclick="exportarExcelReal()">DESCARGAR EXCEL</button>
                     </div>
                     <div class="table-responsive">
-                        <table class="table align-middle text-center">
-                            <thead class="table-light">
+                        <table class="table align-middle">
+                            <thead class="table-light text-center">
                                 <tr>
-                                    <th>Cliente</th>
+                                    <th class="col-cliente">Cliente</th>
                                     <th>Pedido</th>
                                     <th>Total</th>
                                     <th>Estado</th>
@@ -98,7 +103,7 @@
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
         const { error } = await _supabase.auth.signInWithPassword({ email, password });
-        if (!error) checkUser(); else alert("Error en datos");
+        if (!error) checkUser(); else alert("Acceso denegado");
     }
 
     async function logout() { await _supabase.auth.signOut(); location.reload(); }
@@ -125,12 +130,12 @@
             p.entregado ? ent++ : pen++;
             tbody.innerHTML += `
                 <tr>
-                    <td><b>${p.cliente}</b></td>
-                    <td>${p.producto}</td>
-                    <td>S/. ${(p.precio_total || 0).toFixed(2)}</td>
-                    <td><span class="badge ${p.entregado ? 'bg-success' : 'bg-warning'}">${p.entregado ? 'Listo' : 'Pendiente'}</span></td>
+                    <td class="col-cliente"><strong>${p.cliente}</strong></td>
+                    <td class="text-center">${p.producto}</td>
+                    <td class="text-center">S/. ${(p.precio_total || 0).toFixed(2)}</td>
+                    <td class="text-center"><span class="badge ${p.entregado ? 'bg-success' : 'bg-warning'}">${p.entregado ? 'Listo' : 'Pendiente'}</span></td>
                     <td>
-                        <div style="display: flex; gap: 10px; justify-content: center;">
+                        <div class="btn-actions">
                             ${!p.entregado ? `<button class="btn btn-sm btn-success" onclick="marcarEntregado(${p.id})">✓</button>` : ''}
                             <button class="btn btn-sm btn-danger" onclick="eliminarPedido(${p.id})">✕</button>
                         </div>
@@ -146,22 +151,28 @@
         const p = parseFloat(document.getElementById('precio').value);
         if (c && pr && p) {
             await _supabase.from('pedidos').insert([{ cliente: c, producto: pr, precio_total: p }]);
-            document.getElementById('cliente').value = ''; document.getElementById('producto').value = ''; document.getElementById('precio').value = '';
+            document.getElementById('cliente').value = ''; 
+            document.getElementById('producto').value = ''; 
+            document.getElementById('precio').value = '';
             cargarPedidos();
         }
     }
 
     async function marcarEntregado(id) { await _supabase.from('pedidos').update({ entregado: true }).eq('id', id); cargarPedidos(); }
-    async function eliminarPedido(id) { if(confirm("¿Borrar?")) { await _supabase.from('pedidos').delete().eq('id', id); cargarPedidos(); } }
+    async function eliminarPedido(id) { if(confirm("¿Seguro que quieres eliminar este registro?")) { await _supabase.from('pedidos').delete().eq('id', id); cargarPedidos(); } }
 
     function exportarExcelReal() {
         const info = pedidosActuales.map(p => ({
-            "CLIENTE": p.cliente, "PRODUCTO": p.producto, "TOTAL": p.precio_total, "ESTADO": p.entregado ? "Listo" : "Pendiente"
+            "CLIENTE": p.cliente, 
+            "PRODUCTO": p.producto, 
+            "TOTAL (S/.)": p.precio_total, 
+            "ESTADO": p.entregado ? "Entregado" : "Por Entregar",
+            "LINK APP": "https://sistema-distribuidora-iota.vercel.app/"
         }));
         const ws = XLSX.utils.json_to_sheet(info);
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Data");
-        XLSX.writeFile(wb, "Reporte.xlsx");
+        XLSX.utils.book_append_sheet(wb, ws, "Registro_Ventas");
+        XLSX.writeFile(wb, "Reporte_Distribuidora_Chavez.xlsx");
     }
 
     checkUser();
