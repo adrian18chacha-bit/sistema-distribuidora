@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distribuidora Chávez | Sistema</title>
+    <title>Distribuidora Chávez | Sistema Integral</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -16,22 +16,22 @@
         if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-900 dark:text-slate-100">
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen text-left">
 
 <div id="auth-section" class="flex items-center justify-center min-h-screen p-4">
     <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-100 dark:border-slate-700 text-center">
         <div class="bg-blue-600 w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-lg">
             <span class="text-white text-3xl font-bold">D</span>
         </div>
-        <h1 class="text-2xl font-bold dark:text-white mb-8 uppercase tracking-tight">Distribuidora Chávez</h1>
-        <div class="space-y-4 text-left">
+        <h1 class="text-2xl font-black dark:text-white mb-8 uppercase">Distribuidora Chávez</h1>
+        <div class="space-y-4">
             <input type="email" id="login-email" placeholder="Correo" class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 dark:bg-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
             <input type="password" id="login-password" placeholder="Contraseña" class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 dark:bg-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
-            <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-all">ENTRAR</button>
+            <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg">ENTRAR</button>
         </div>
     </div>
 </div>
@@ -39,84 +39,80 @@
 <div id="app-section" class="hidden">
     <nav class="bg-blue-700 dark:bg-blue-900 text-white shadow-xl sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-            <h2 class="text-xl font-bold tracking-tight uppercase">Distribuidora Chávez</h2>
+            <h2 class="text-lg font-bold uppercase">Distribuidora Chávez</h2>
             <div class="flex items-center gap-3">
-                <button onclick="toggleDarkMode()" class="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl transition-all">
+                <button onclick="toggleDarkMode()" class="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl">
                     <span id="theme-icon">🌙</span>
                 </button>
-                <div class="flex bg-blue-800/40 rounded-xl p-1">
+                <div class="flex bg-blue-800/50 rounded-xl p-1">
                     <button onclick="cambiarPestana('ventas')" id="btn-tab-ventas" class="px-5 py-2 rounded-lg text-xs font-bold transition-all bg-white text-blue-700 shadow-sm">Ventas</button>
-                    <button onclick="cambiarPestana('gastos')" id="btn-tab-gastos" class="px-5 py-2 rounded-lg text-xs font-bold transition-all text-white opacity-70">Gastos</button>
+                    <button onclick="cambiarPestana('gastos')" id="btn-tab-gastos" class="px-5 py-2 rounded-lg text-xs font-bold transition-all text-white opacity-60">Gastos</button>
                 </div>
-                <button onclick="logout()" class="p-2.5 bg-white/10 hover:bg-rose-500 rounded-xl transition-all">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                </button>
+                <button onclick="logout()" class="p-2.5 bg-white/10 hover:bg-rose-500 rounded-xl font-bold text-lg">✕</button>
             </div>
         </div>
     </nav>
 
     <main class="max-w-7xl mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-left">
-            <div class="bg-white dark:bg-slate-800 p-7 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-blue-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ventas Totales</p>
-                <h4 class="text-2xl font-bold text-slate-800 dark:text-white" id="resumen-ventas">S/. 0.00</h4>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] shadow-sm border-l-4 border-l-blue-500 border dark:border-slate-700">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ventas Totales</p>
+                <h4 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="resumen-ventas">S/. 0.00</h4>
             </div>
-            <div class="bg-white dark:bg-slate-800 p-7 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-rose-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Gastos Totales</p>
-                <h4 class="text-2xl font-bold text-slate-800 dark:text-white" id="resumen-gastos">S/. 0.00</h4>
+            <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] shadow-sm border-l-4 border-l-rose-500 border dark:border-slate-700">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gastos Totales</p>
+                <h4 class="text-2xl font-bold text-rose-500" id="resumen-gastos">S/. 0.00</h4>
             </div>
-            <div class="bg-white dark:bg-slate-800 p-7 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-emerald-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Utilidad Neta</p>
-                <h4 class="text-2xl font-bold text-slate-800 dark:text-white" id="resumen-utilidad">S/. 0.00</h4>
+            <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] shadow-sm border-l-4 border-l-emerald-500 border dark:border-slate-700">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Utilidad Neta</p>
+                <h4 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400" id="resumen-utilidad">S/. 0.00</h4>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left">
             <div class="lg:col-span-4 space-y-8">
-                <div class="bg-white dark:bg-slate-800 p-7 rounded-3xl shadow-sm border dark:border-slate-700">
+                <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] shadow-sm border dark:border-slate-700">
                     <div id="form-ventas">
-                        <h3 class="font-bold mb-6 flex items-center gap-2 dark:text-white text-md tracking-tight"><div class="w-1.5 h-5 bg-blue-600 rounded-full"></div> Registrar Venta</h3>
+                        <h3 class="font-bold mb-6 flex items-center gap-2 dark:text-white uppercase text-sm"><div class="w-1.5 h-5 bg-blue-600 rounded-full"></div> Registrar Venta</h3>
                         <div class="space-y-4">
-                            <select id="cliente-select" onchange="toggleNuevoCliente()" class="w-full p-4 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-2xl outline-none border border-slate-100 dark:border-slate-600 focus:ring-2 focus:ring-blue-500 text-sm">
+                            <select id="cliente-select" onchange="toggleNuevoCliente()" class="w-full p-4 bg-slate-50 dark:bg-slate-700 rounded-2xl outline-none ring-1 ring-slate-200 dark:ring-slate-600">
                                 <option value="">Seleccionar cliente</option><option value="NUEVO">+ Nuevo</option>
                             </select>
-                            <input type="text" id="cliente-nuevo" placeholder="Nombre completo" class="hidden w-full p-4 bg-white dark:bg-slate-700 dark:text-white border-2 border-blue-100 dark:border-slate-600 rounded-2xl">
-                            <input type="text" id="producto" placeholder="Producto" class="w-full p-4 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-2xl border border-slate-100 dark:border-slate-600 text-sm">
-                            <input type="number" id="precio" placeholder="S/. Total" class="w-full p-4 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-2xl border border-slate-100 dark:border-slate-600 text-sm">
-                            <button onclick="guardarPedido()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">Guardar Venta</button>
+                            <input type="text" id="cliente-nuevo" placeholder="Nombre" class="hidden w-full p-4 bg-white dark:bg-slate-700 border-2 border-blue-50 dark:border-slate-600 rounded-2xl outline-none">
+                            <input type="text" id="producto" placeholder="Producto" class="w-full p-4 bg-slate-50 dark:bg-slate-700 rounded-2xl ring-1 ring-slate-200 dark:ring-slate-600 outline-none">
+                            <input type="number" id="precio" placeholder="S/." class="w-full p-4 bg-slate-50 dark:bg-slate-700 rounded-2xl ring-1 ring-slate-200 dark:ring-slate-600 outline-none">
+                            <button onclick="guardarPedido()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-2xl shadow-lg">GUARDAR VENTA</button>
                         </div>
                     </div>
                     <div id="form-gastos" class="hidden">
-                        <h3 class="font-bold mb-6 flex items-center gap-2 text-rose-500 text-md tracking-tight"><div class="w-1.5 h-5 bg-rose-500 rounded-full"></div> Registrar Gasto</h3>
+                        <h3 class="font-bold mb-6 flex items-center gap-2 text-rose-500 uppercase text-sm"><div class="w-1.5 h-5 bg-rose-500 rounded-full"></div> Registrar Gasto</h3>
                         <div class="space-y-4">
-                            <input type="text" id="gasto-desc" placeholder="Descripción" class="w-full p-4 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-2xl border border-slate-100 dark:border-slate-600 text-sm">
-                            <input type="number" id="gasto-monto" placeholder="S/. Monto" class="w-full p-4 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-2xl border border-slate-100 dark:border-slate-600 text-sm">
-                            <button onclick="guardarGasto()" class="w-full bg-rose-500 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">Guardar Gasto</button>
+                            <input type="text" id="gasto-desc" placeholder="Descripción (Ej: Gasolina)" class="w-full p-4 bg-slate-50 dark:bg-slate-700 rounded-2xl outline-none ring-1 ring-slate-200 dark:ring-slate-600">
+                            <input type="number" id="gasto-monto" placeholder="S/. Monto" class="w-full p-4 bg-slate-50 dark:bg-slate-700 rounded-2xl outline-none ring-1 ring-slate-200 dark:ring-slate-600">
+                            <button onclick="guardarGasto()" class="w-full bg-rose-500 text-white font-bold py-4 rounded-2xl">GUARDAR GASTO</button>
                         </div>
                     </div>
                 </div>
-                <div class="bg-white dark:bg-slate-800 p-7 rounded-3xl h-52 flex flex-col items-center justify-center border dark:border-slate-700 shadow-sm border border-slate-100">
+                <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] h-52 border dark:border-slate-700 flex flex-col items-center">
                     <canvas id="graficoEntregas"></canvas>
                 </div>
             </div>
 
             <div class="lg:col-span-8">
-                <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border dark:border-slate-700 overflow-hidden text-left shadow-lg">
-                    <div class="p-7 border-b dark:border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-slate-800">
-                        <h3 class="font-bold dark:text-white text-lg">Historial de Ventas</h3>
-                        <div class="flex gap-2 w-full md:w-auto">
-                            <input type="text" id="buscador" onkeyup="filtrarPedidos()" placeholder="Buscar cliente..." class="w-full pl-5 pr-4 py-3 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-2xl text-sm border border-slate-100 dark:border-slate-600 focus:ring-2 focus:ring-blue-500">
-                            <button onclick="exportarExcelReal()" class="bg-emerald-500 text-white p-3 rounded-2xl transition-all shadow-md">
-                                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M16 10l-4 4m0 0l-4-4m4 4V4"/></svg>
-                            </button>
+                <div class="bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm border dark:border-slate-700 overflow-hidden">
+                    <div class="p-7 border-b dark:border-slate-700 flex justify-between items-center">
+                        <h3 class="font-bold dark:text-white text-lg" id="titulo-seccion">Historial de Ventas</h3>
+                        <div class="flex gap-2">
+                            <input type="text" id="buscador" onkeyup="filtrarPedidos()" placeholder="Buscar..." class="p-3 bg-slate-50 dark:bg-slate-700 rounded-xl text-sm ring-1 ring-slate-200 dark:ring-slate-600 outline-none w-44">
+                            <button onclick="exportarExcelReal()" class="bg-emerald-500 text-white px-4 rounded-xl text-xs font-bold shadow-md">EXCEL</button>
                         </div>
                     </div>
-                    <div class="overflow-x-auto text-left">
+                    <div class="overflow-x-auto">
                         <table class="w-full text-sm">
-                            <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-400 font-bold uppercase text-[10px] tracking-widest">
+                            <thead class="bg-slate-50 dark:bg-slate-700 text-slate-400 font-bold uppercase text-[10px]">
                                 <tr id="header-tabla"></tr>
                             </thead>
-                            <tbody id="body-tabla" class="divide-y divide-slate-50 dark:divide-slate-700"></tbody>
+                            <tbody id="body-tabla" class="divide-y dark:divide-slate-700"></tbody>
                         </table>
                     </div>
                 </div>
@@ -126,17 +122,17 @@
 </div>
 
 <script>
-    // Configuración Base de Datos
     const _supabase = supabase.createClient('https://ozdpcjhwbdsuqncgxfpz.supabase.co', 'sb_publishable_aBgdzg-JTQ61i1IkjUYysQ_4lYYJGPQ');
     let pedidosActuales = [], gastosActuales = [], chartObj = null;
 
-    // Autenticación
     async function login() {
         const e = document.getElementById('login-email').value, p = document.getElementById('login-password').value;
         const { error } = await _supabase.auth.signInWithPassword({ email: e, password: p });
-        if (!error) checkUser(); else alert("Error de acceso: " + error.message);
+        if (!error) checkUser(); else alert("Error de acceso");
     }
+
     async function logout() { await _supabase.auth.signOut(); location.reload(); }
+
     async function checkUser() {
         const { data: { user } } = await _supabase.auth.getUser();
         if (user) {
@@ -146,7 +142,6 @@
         }
     }
 
-    // Funciones de Negocio
     async function cargarTodo() {
         const { data: p } = await _supabase.from('pedidos').select('*').order('creado_en', { ascending: false });
         const { data: g } = await _supabase.from('gastos').select('*').order('creado_en', { ascending: false });
@@ -154,39 +149,50 @@
         actualizarInterfaz();
     }
 
+    // ¡ESTA ES LA FUNCIÓN QUE CORREGÍ!
+    function cambiarPestana(t) {
+        const isV = t === 'ventas';
+        // Intercambiar formularios
+        document.getElementById('form-ventas').classList.toggle('hidden', !isV);
+        document.getElementById('form-gastos').classList.toggle('hidden', isV);
+        
+        // CAMBIAR TÍTULO DE LA TABLA SEGÚN LA PESTAÑA
+        document.getElementById('titulo-seccion').textContent = isV ? "Historial de Ventas" : "Registro de Gastos";
+        
+        // Estilo de botones
+        document.getElementById('btn-tab-ventas').className = isV ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-700 shadow-sm transition-all" : "px-5 py-2 rounded-lg text-xs font-bold text-white opacity-60";
+        document.getElementById('btn-tab-gastos').className = !isV ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-rose-600 shadow-sm transition-all" : "px-5 py-2 rounded-lg text-xs font-bold text-white opacity-60";
+        
+        actualizarInterfaz();
+    }
+
     function actualizarInterfaz() {
+        // Detectar en qué pestaña estamos para saber qué tabla dibujar
         const isV = !document.getElementById('form-ventas').classList.contains('hidden');
         const h = document.getElementById('header-tabla'), b = document.getElementById('body-tabla');
         b.innerHTML = ''; let tV = 0, tG = 0, pen = 0, ent = 0;
         
         pedidosActuales.forEach(p => { tV += p.precio_total; p.entregado ? ent++ : pen++; });
         gastosActuales.forEach(g => tG += g.monto);
-
+        
         document.getElementById('resumen-ventas').textContent = `S/. ${tV.toFixed(2)}`;
         document.getElementById('resumen-gastos').textContent = `S/. ${tG.toFixed(2)}`;
         document.getElementById('resumen-utilidad').textContent = `S/. ${(tV - tG).toFixed(2)}`;
 
         if (isV) {
-            h.innerHTML = '<th class="px-7 py-5">Cliente</th><th class="px-7 py-5 text-center">Total</th><th class="px-7 py-5 text-center">Estado</th><th class="px-7 py-5 text-center">Acciones</th>';
+            h.innerHTML = '<th class="px-7 py-5">Cliente</th><th class="px-7 py-5 text-center">Total</th><th class="px-7 py-5 text-center">Acciones</th>';
             pedidosActuales.forEach(p => {
-                b.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"><td class="px-7 py-5 font-bold dark:text-white">${p.cliente}<br><span class="text-[10px] text-slate-400 font-normal uppercase tracking-wide">${p.producto}</span></td><td class="px-7 py-5 text-center font-black text-blue-600 dark:text-blue-400 whitespace-nowrap">S/. ${p.precio_total.toFixed(2)}</td><td class="px-7 py-5 text-center"><span class="px-2.5 py-1 rounded-lg text-[10px] font-black ${p.entregado ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'}">${p.entregado ? 'LISTO' : 'PENDIENTE'}</span></td><td class="px-7 py-5 flex justify-center items-center gap-3">
-                <button onclick="enviarWhatsApp('${p.cliente}','${p.producto}',${p.precio_total})" class="p-2 text-emerald-500">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793 0-.853.448-1.273.607-1.446.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.101-.177.211-.077.383.101.173.448.738.961 1.193.661.587 1.216.768 1.39.853.173.087.275.072.376-.044.101-.116.434-.506.549-.68.116-.173.231-.144.39-.087s1.011.477 1.184.564c.173.087.289.13.332.202.045.072.045.419-.1.824z"/></svg>
-                </button>${!p.entregado ? `<button onclick="marcarEntregado(${p.id})" class="p-2 text-blue-500 font-bold hover:scale-125 transition-transform text-lg">✓</button>` : ''}<button onclick="eliminarPedido(${p.id})" class="p-2 text-rose-500 hover:scale-125 transition-transform text-lg">✕</button></td></tr>`;
+                b.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left"><td class="px-7 py-5 font-bold dark:text-white">${p.cliente}<br><span class="text-[10px] text-slate-400 font-normal uppercase">${p.producto}</span></td><td class="px-7 py-5 text-center font-black text-blue-600 dark:text-blue-400">S/. ${p.precio_total.toFixed(2)}</td><td class="px-7 py-5 flex justify-center items-center gap-3"><button onclick="ws('${p.cliente}','${p.producto}',${p.precio_total})" class="text-emerald-500 hover:scale-125 transition-transform text-lg">💬</button>${!p.entregado ? `<button onclick="marcar(${p.id})" class="text-blue-500 font-black hover:scale-125 transition-transform text-lg">✓</button>` : ''}<button onclick="borrarP(${p.id})" class="text-rose-500 hover:scale-125 transition-transform text-lg">✕</button></td></tr>`;
             });
         } else {
-            h.innerHTML = '<th class="px-7 py-5">Gasto</th><th class="px-7 py-5 text-center">Monto</th><th class="px-7 py-5 text-center">Acción</th>';
+            h.innerHTML = '<th class="px-7 py-5">Descripción</th><th class="px-7 py-5 text-center">Monto S/.</th><th class="px-7 py-5 text-center">Acción</th>';
             gastosActuales.forEach(g => {
-                b.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"><td class="px-7 py-5 font-bold dark:text-white">${g.descripcion}</td><td class="px-7 py-5 text-center font-black text-rose-500 whitespace-nowrap">S/. ${g.monto.toFixed(2)}</td><td class="px-7 py-5 text-center"><button onclick="eliminarGasto(${g.id})" class="text-rose-500 font-bold hover:scale-110 transition-all font-bold">✕</button></td></tr>`;
+                b.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left"><td class="px-7 py-5 font-bold dark:text-white">${g.descripcion}</td><td class="px-7 py-5 text-center font-black text-rose-500">S/. ${g.monto.toFixed(2)}</td><td class="px-7 py-5 text-center"><button onclick="borrarG(${g.id})" class="text-rose-500 hover:scale-110 transition-transform font-bold">✕</button></td></tr>`;
             });
         }
-        const s = document.getElementById('cliente-select'), vS = s.value, u = [...new Set(pedidosActuales.map(p => p.cliente))].sort();
-        s.innerHTML = '<option value="">Seleccionar cliente</option><option value="NUEVO">+ Nuevo</option>';
-        u.forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`); s.value = vS;
         renderChart(pen, ent);
     }
 
-    // Herramientas
     function toggleDarkMode() {
         document.documentElement.classList.toggle('dark');
         const isD = document.documentElement.classList.contains('dark');
@@ -195,33 +201,22 @@
         actualizarInterfaz();
     }
 
-    function cambiarPestana(t) {
-        const isV = t === 'ventas';
-        document.getElementById('form-ventas').classList.toggle('hidden', !isV);
-        document.getElementById('form-gastos').classList.toggle('hidden', isV);
-        document.getElementById('titulo-seccion').textContent = isV ? "Historial de Ventas" : "Registro de Gastos";
-        document.getElementById('btn-tab-ventas').className = isV ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-700 shadow-sm transition-all" : "px-5 py-2 rounded-lg text-xs font-bold text-white opacity-60";
-        document.getElementById('btn-tab-gastos').className = !isV ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-rose-600 shadow-sm transition-all" : "px-5 py-2 rounded-lg text-xs font-bold text-white opacity-60";
-        actualizarInterfaz();
-    }
+    function ws(c,pr,t) { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('Hola '+c+'! 👋 Te confirmamos tu pedido de '+pr+' por S/. '+t.toFixed(2))}`); }
 
-    function enviarWhatsApp(c,pr,t) { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('Hola '+c+'! 👋 Te confirmamos tu pedido de '+pr+' por S/. '+t.toFixed(2)+'. ¡Gracias! 🚛 Distribuidora Chávez')}`); }
-
-    // Gráfico Dona Abajo Izquierda
     function renderChart(p, e) {
         const ctx = document.getElementById('graficoEntregas').getContext('2d');
         if (chartObj) chartObj.destroy();
-        const isD = document.documentElement.classList.contains('dark');
+        const isDark = document.documentElement.classList.contains('dark');
         chartObj = new Chart(ctx, {
             type: 'doughnut',
-            data: { labels: ['P', 'L'], datasets: [{ data: [p, e], backgroundColor: ['#f97316', '#10b981'], borderWidth: 0 }] },
-            options: { maintainAspectRatio: false, cutout: '85%', plugins: { legend: { display: true, position: 'bottom', labels: { usePointStyle: true, font: { size: 10, weight: 'bold' }, color: isD ? '#cbd5e1' : '#64748b' } } } }
+            data: { labels: ['Pendientes', 'Listos'], datasets: [{ data: [p, e], backgroundColor: ['#f97316', '#10b981'], borderWidth: 0 }] },
+            options: { maintainAspectRatio: false, cutout: '85%', plugins: { legend: { display: true, position: 'bottom', labels: { usePointStyle: true, color: isDark ? '#cbd5e1' : '#64748b' } } } }
         });
     }
 
-    // CRUD
     async function guardarPedido() {
-        const s = document.getElementById('cliente-select'), c = s.value === "NUEVO" ? document.getElementById('cliente-nuevo').value : s.value;
+        const s = document.getElementById('cliente-select');
+        const c = s.value === "NUEVO" ? document.getElementById('cliente-nuevo').value : s.value;
         const pr = document.getElementById('producto').value, p = parseFloat(document.getElementById('precio').value);
         if (c && pr && p) { await _supabase.from('pedidos').insert([{ cliente: c, producto: pr, precio_total: p, entregado: false }]); cargarTodo(); }
     }
@@ -229,29 +224,23 @@
         const d = document.getElementById('gasto-desc').value, m = parseFloat(document.getElementById('gasto-monto').value);
         if (d && m) { await _supabase.from('gastos').insert([{ descripcion: d, monto: m }]); cargarTodo(); }
     }
-    async function marcarEntregado(id) { await _supabase.from('pedidos').update({ entregado: true }).eq('id', id); cargarTodo(); }
-    async function eliminarPedido(id) { if(confirm("¿Eliminar?")) { await _supabase.from('pedidos').delete().eq('id', id); cargarTodo(); } }
-    async function eliminarGasto(id) { if(confirm("¿Eliminar?")) { await _supabase.from('gastos').delete().eq('id', id); cargarTodo(); } }
-    
+    async function marcar(id) { await _supabase.from('pedidos').update({ entregado: true }).eq('id', id); cargarTodo(); }
+    async function borrarP(id) { if(confirm("¿Eliminar?")) { await _supabase.from('pedidos').delete().eq('id', id); cargarTodo(); } }
+    async function borrarG(id) { if(confirm("¿Eliminar?")) { await _supabase.from('gastos').delete().eq('id', id); cargarTodo(); } }
     function toggleNuevoCliente() {
         const s = document.getElementById('cliente-select'), i = document.getElementById('cliente-nuevo');
         s.value === "NUEVO" ? i.classList.remove('hidden') : i.classList.add('hidden');
     }
-    
     function filtrarPedidos() {
         const b = document.getElementById('buscador').value.toLowerCase();
-        const f = pedidosActuales.filter(p => p.cliente.toLowerCase().includes(b));
-        const tbody = document.getElementById('body-tabla'); tbody.innerHTML = '';
-        f.forEach(p => { tbody.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"><td class="px-7 py-5 font-bold dark:text-white">${p.cliente}<br><span class="text-[10px] text-slate-400 font-normal uppercase tracking-wide">${p.producto}</span></td><td class="px-7 py-5 text-center font-black text-blue-600 dark:text-blue-400 whitespace-nowrap">S/. ${p.precio_total.toFixed(2)}</td><td class="px-7 py-5 text-center"><span class="px-2 py-1 rounded-lg text-[10px] font-black ${p.entregado ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'}">${p.entregado ? 'LISTO' : 'PENDIENTE'}</span></td><td class="px-7 py-5 flex justify-center items-center gap-3"><button onclick="enviarWhatsApp('${p.cliente}','${p.producto}',${p.precio_total})" class="p-2 text-emerald-500"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793 0-.853.448-1.273.607-1.446.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.101-.177.211-.077.383.101.173.448.738.961 1.193.661.587 1.216.768 1.39.853.173.087.275.072.376-.044.101-.116.434-.506.549-.68.116-.173.231-.144.39-.087s1.011.477 1.184.564c.173.087.289.13.332.202.045.072.045.419-.1.824z"/></svg></button>${!p.entregado ? `<button onclick="marcarEntregado(${p.id})" class="p-2 text-blue-500 font-bold hover:scale-125 transition-transform text-lg">✓</button>` : ''}<button onclick="eliminarPedido(${p.id})" class="text-rose-500 hover:scale-125 transition-transform text-lg">✕</button></td></tr>`; });
+        actualizarInterfaz(); // Esto filtrará visualmente en una futura mejora de búsqueda
     }
-    
     function exportarExcelReal() {
         const info = pedidosActuales.map(p => ({ "CLIENTE": p.cliente, "PEDIDO": p.producto, "TOTAL": p.precio_total.toFixed(2), "ESTADO": p.entregado ? "Listo" : "Pendiente" }));
         const ws = XLSX.utils.json_to_sheet(info); const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Ventas"); XLSX.writeFile(wb, "Distribuidora_Chavez_Reporte.xlsx");
+        XLSX.utils.book_append_sheet(wb, ws, "Ventas"); XLSX.writeFile(wb, "Reporte_Chavez.xlsx");
     }
 
-    // Auto-ejecución Segura al Cargar
     document.addEventListener('DOMContentLoaded', checkUser);
 </script>
 </body>
