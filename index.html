@@ -12,9 +12,9 @@
         #login-container { max-width: 400px; margin-top: 100px; }
         .header-chavez { background: #0047ab; color: white; padding: 25px 0; border-radius: 0 0 25px 25px; margin-bottom: 30px; }
         .hidden { display: none !important; }
+        .card { border: none; border-radius: 15px; }
         .table td { white-space: nowrap !important; padding: 12px !important; }
         .btn-actions { display: flex; gap: 15px; justify-content: center; }
-        /* Estilo para el combo box */
         .form-select, .form-control { border-radius: 8px; margin-bottom: 10px; }
     </style>
 </head>
@@ -39,19 +39,17 @@
         </div>
     </div>
 
-    <div class="container-fluid px-4">
+    <div class="container-fluid px-4 pb-5">
         <div class="row g-4">
             <div class="col-xl-3 col-lg-4">
                 <div class="card p-4 shadow-sm mb-4">
                     <h5 class="fw-bold text-primary mb-3">Nuevo Registro</h5>
                     
                     <label class="small fw-bold text-muted">Nombre del Cliente:</label>
-                    <div class="input-group mb-2">
-                        <select id="cliente-select" class="form-select" onchange="toggleNuevoCliente()">
-                            <option value="">-- Seleccionar cliente --</option>
-                            <option value="NUEVO">+ Agregar nuevo cliente</option>
-                        </select>
-                    </div>
+                    <select id="cliente-select" class="form-select" onchange="toggleNuevoCliente()">
+                        <option value="">-- Seleccionar cliente --</option>
+                        <option value="NUEVO">+ Agregar nuevo cliente</option>
+                    </select>
                     
                     <input type="text" id="cliente-nuevo" class="form-control hidden" placeholder="Escribe nombre nuevo">
                     
@@ -97,36 +95,41 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+    // Configuración de Supabase
     const _supabase = supabase.createClient('https://ozdpcjhwbdsuqncgxfpz.supabase.co', 'sb_publishable_aBgdzg-JTQ61i1IkjUYysQ_4lYYJGPQ');
     let pedidosActuales = [];
     let chartObj = null;
 
+    // Inicialización del Gráfico
     function renderChart(p, e) {
         const ctx = document.getElementById('graficoEntregas').getContext('2d');
         if (chartObj) chartObj.destroy();
         chartObj = new Chart(ctx, {
             type: 'doughnut',
-            data: { labels: ['Pendiente', 'Listo'], datasets: [{ data: [p, e], backgroundColor: ['#ffc107', '#28a745'] }] },
-            options: { maintainAspectRatio: false }
+            data: { labels: ['Pendiente', 'Listo'], datasets: [{ data: [p, e], backgroundColor: ['#ffc107', '#28a745'], borderWidth: 0 }] },
+            options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
         });
     }
 
+    // Lógica del Combo Box
     function toggleNuevoCliente() {
         const select = document.getElementById('cliente-select');
         const inputNuevo = document.getElementById('cliente-nuevo');
         if (select.value === "NUEVO") {
             inputNuevo.classList.remove('hidden');
+            inputNuevo.focus();
         } else {
             inputNuevo.classList.add('hidden');
             inputNuevo.value = "";
         }
     }
 
+    // Autenticación
     async function login() {
         const e = document.getElementById('login-email').value;
         const p = document.getElementById('login-password').value;
         const { error } = await _supabase.auth.signInWithPassword({ email: e, password: p });
-        if (!error) checkUser(); else alert("Acceso denegado");
+        if (!error) checkUser(); else alert("Acceso denegado. Revisa tus credenciales.");
     }
 
     async function logout() { await _supabase.auth.signOut(); location.reload(); }
@@ -140,6 +143,7 @@
         }
     }
 
+    // Gestión de Datos
     async function cargarPedidos() {
         const { data } = await _supabase.from('pedidos').select('*').order('creado_en', { ascending: false });
         if (data) { 
@@ -152,19 +156,15 @@
     function actualizarComboClientes(lista) {
         const select = document.getElementById('cliente-select');
         const valorActual = select.value;
-        // Obtener nombres únicos y ordenarlos
         const clientesUnicos = [...new Set(lista.map(p => p.cliente))].sort();
         
-        // Limpiar y mantener las primeras 2 opciones fijas
         select.innerHTML = '<option value="">-- Seleccionar cliente --</option><option value="NUEVO">+ Agregar nuevo cliente</option>';
-        
         clientesUnicos.forEach(c => {
             const opt = document.createElement('option');
             opt.value = c;
             opt.textContent = c;
             select.appendChild(opt);
         });
-        
         select.value = valorActual;
     }
 
@@ -176,14 +176,14 @@
             p.entregado ? ent++ : pen++;
             tbody.innerHTML += `
                 <tr>
-                    <td style="text-align: left; font-weight: bold;">${p.cliente}</td>
+                    <td style="text-align: left; font-weight: bold; color: #0047ab;">${p.cliente}</td>
                     <td style="text-align: center;">${p.producto}</td>
                     <td style="text-align: center;">S/. ${(p.precio_total || 0).toFixed(2)}</td>
                     <td style="text-align: center;"><span class="badge ${p.entregado ? 'bg-success' : 'bg-warning'}">${p.entregado ? 'Listo' : 'Pendiente'}</span></td>
                     <td style="text-align: center;">
                         <div class="btn-actions">
-                            ${!p.entregado ? `<button class="btn btn-sm btn-success" onclick="marcarEntregado(${p.id})">✓</button>` : ''}
-                            <button class="btn btn-sm btn-danger" onclick="eliminarPedido(${p.id})">✕</button>
+                            ${!p.entregado ? `<button class="btn btn-sm btn-success shadow-sm" onclick="marcarEntregado(${p.id})">✓</button>` : ''}
+                            <button class="btn btn-sm btn-danger shadow-sm" onclick="eliminarPedido(${p.id})">✕</button>
                         </div>
                     </td>
                 </tr>`;
@@ -194,32 +194,35 @@
     async function guardarPedido() {
         const select = document.getElementById('cliente-select');
         const inputNuevo = document.getElementById('cliente-nuevo');
-        let clienteFinal = select.value;
+        let clienteFinal = select.value === "NUEVO" ? inputNuevo.value.trim() : select.value;
 
-        if (clienteFinal === "NUEVO") {
-            clienteFinal = inputNuevo.value.trim();
-        }
+        const producto = document.getElementById('producto').value.trim();
+        const precio = parseFloat(document.getElementById('precio').value);
 
-        const pr = document.getElementById('producto').value;
-        const p = parseFloat(document.getElementById('precio').value);
-
-        if (clienteFinal && clienteFinal !== "" && pr && p) {
-            await _supabase.from('pedidos').insert([{ cliente: clienteFinal, producto: pr, precio_total: p }]);
-            // Limpiar campos
-            select.value = "";
-            inputNuevo.value = "";
-            inputNuevo.classList.add('hidden');
-            document.getElementById('producto').value = ''; 
-            document.getElementById('precio').value = '';
-            cargarPedidos();
+        if (clienteFinal && producto && !isNaN(precio)) {
+            const { error } = await _supabase.from('pedidos').insert([
+                { cliente: clienteFinal, producto: producto, precio_total: precio, entregado: false }
+            ]);
+            
+            if (!error) {
+                select.value = "";
+                inputNuevo.value = "";
+                inputNuevo.classList.add('hidden');
+                document.getElementById('producto').value = ''; 
+                document.getElementById('precio').value = '';
+                cargarPedidos();
+            } else {
+                alert("Error al guardar: " + error.message);
+            }
         } else {
-            alert("Por favor completa todos los campos.");
+            alert("Por favor completa todos los campos correctamente.");
         }
     }
 
     async function marcarEntregado(id) { await _supabase.from('pedidos').update({ entregado: true }).eq('id', id); cargarPedidos(); }
-    async function eliminarPedido(id) { if(confirm("¿Eliminar registro?")) { await _supabase.from('pedidos').delete().eq('id', id); cargarPedidos(); } }
+    async function eliminarPedido(id) { if(confirm("¿Seguro que deseas eliminar este registro?")) { await _supabase.from('pedidos').delete().eq('id', id); cargarPedidos(); } }
 
+    // Función de Reporte con IGV
     function exportarExcelReal() {
         const info = pedidosActuales.map(p => {
             const total = p.precio_total || 0;
@@ -232,15 +235,15 @@
                 "IGV (18%)": igv.toFixed(2),
                 "TOTAL FINAL (S/.)": total.toFixed(2), 
                 "ESTADO": p.entregado ? "Entregado" : "Pendiente",
-                "SISTEMA URL": "https://sistema-distribuidora-iota.vercel.app/"
+                "LINK SISTEMA": "https://sistema-distribuidora-iota.vercel.app/"
             };
         });
         const ws = XLSX.utils.json_to_sheet(info);
-        const wscols = [{wch: 30}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 18}, {wch: 15}, {wch: 40}];
+        const wscols = [{wch: 35}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 18}, {wch: 15}, {wch: 45}];
         ws['!cols'] = wscols;
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Ventas_Detalladas");
-        XLSX.writeFile(wb, "Reporte_Distribuidora_Chavez_PRO.xlsx");
+        XLSX.utils.book_append_sheet(wb, ws, "Reporte_Ventas");
+        XLSX.writeFile(wb, "Distribuidora_Chavez_PRO_Final.xlsx");
     }
 
     checkUser();
