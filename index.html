@@ -60,7 +60,7 @@
                                 <option value="">Seleccionar cliente</option>
                                 <option value="NUEVO" class="text-blue-600 font-bold">+ Agregar nuevo</option>
                             </select>
-                            <input type="text" id="cliente-nuevo" placeholder="Escribir nombre..." class="hidden mt-3 w-full px-4 py-3 bg-white rounded-xl border-2 border-blue-100 outline-none">
+                            <input type="text" id="cliente-nuevo" placeholder="Escribir nombre completo..." class="hidden mt-3 w-full px-4 py-3 bg-white rounded-xl border-2 border-blue-100 outline-none">
                         </div>
                         <div>
                             <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Producto</label>
@@ -101,7 +101,7 @@
                                     <option value="LISTO">Listos</option>
                                 </select>
                                 <button onclick="exportarExcelReal()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
-                                    Excel
+                                    Descargar Excel
                                 </button>
                             </div>
                         </div>
@@ -118,8 +118,7 @@
                                     <th class="px-6 py-4 text-center">Acción</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabla-pedidos" class="divide-y divide-slate-50">
-                                </tbody>
+                            <tbody id="tabla-pedidos" class="divide-y divide-slate-50"></tbody>
                         </table>
                     </div>
                 </div>
@@ -134,18 +133,15 @@
     let pedidosActuales = [];
     let chartObj = null;
 
-    // --- LÓGICA DE FILTRADO ---
     function filtrarPedidos() {
         const busqueda = document.getElementById('buscador').value.toLowerCase();
         const filtro = document.getElementById('filtro-estado').value;
-        
         const filtrados = pedidosActuales.filter(p => {
             const matchNombre = p.cliente.toLowerCase().includes(busqueda);
             const status = p.entregado ? 'LISTO' : 'PENDIENTE';
-            const matchEstado = filtro === 'TODOS' || status === filtro;
-            return matchNombre && matchEstado;
+            return matchNombre && (filtro === 'TODOS' || status === filtro);
         });
-        actualizarTabla(filtrados, false); // false para no resetear combos al filtrar
+        actualizarTabla(filtrados, false);
     }
 
     function renderChart(p, e) {
@@ -168,7 +164,7 @@
         const e = document.getElementById('login-email').value;
         const p = document.getElementById('login-password').value;
         const { error } = await _supabase.auth.signInWithPassword({ email: e, password: p });
-        if (!error) checkUser(); else alert("Acceso incorrecto");
+        if (!error) checkUser(); else alert("Error de acceso");
     }
 
     async function logout() { await _supabase.auth.signOut(); location.reload(); }
@@ -184,10 +180,7 @@
 
     async function cargarPedidos() {
         const { data } = await _supabase.from('pedidos').select('*').order('creado_en', { ascending: false });
-        if (data) { 
-            pedidosActuales = data; 
-            actualizarTabla(data, true); 
-        }
+        if (data) { pedidosActuales = data; actualizarTabla(data, true); }
     }
 
     function actualizarTabla(lista, actualizarCombos) {
@@ -199,14 +192,13 @@
             u.forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`);
             s.value = v;
         }
-
         const tbody = document.getElementById('tabla-pedidos');
         tbody.innerHTML = '';
         let pen = 0, ent = 0;
         lista.forEach(p => {
             p.entregado ? ent++ : pen++;
             tbody.innerHTML += `
-                <tr class="hover:bg-slate-50 transition-colors">
+                <tr class="hover:bg-slate-50">
                     <td class="px-6 py-4 font-semibold text-slate-700">${p.cliente}</td>
                     <td class="px-6 py-4 text-center text-slate-500">${p.producto}</td>
                     <td class="px-6 py-4 text-center font-bold text-blue-600">S/. ${(p.precio_total || 0).toFixed(2)}</td>
@@ -230,7 +222,6 @@
         let c = s.value === "NUEVO" ? i.value.trim() : s.value;
         const pr = document.getElementById('producto').value;
         const p = parseFloat(document.getElementById('precio').value);
-
         if (c && pr && p) {
             await _supabase.from('pedidos').insert([{ cliente: c, producto: pr, precio_total: p, entregado: false }]);
             s.value = ""; i.value = ""; i.classList.add('hidden');
@@ -242,19 +233,35 @@
     async function marcarEntregado(id) { await _supabase.from('pedidos').update({ entregado: true }).eq('id', id); cargarPedidos(); }
     async function eliminarPedido(id) { if(confirm("¿Eliminar?")) { await _supabase.from('pedidos').delete().eq('id', id); cargarPedidos(); } }
 
+    // --- FUNCIÓN EXCEL CORREGIDA ---
     function exportarExcelReal() {
         const info = pedidosActuales.map(p => {
             const t = p.precio_total || 0;
             return {
-                "CLIENTE": p.cliente, "PEDIDO": p.producto, 
-                "BASE": (t/1.18).toFixed(2), "IGV": (t-(t/1.18)).toFixed(2),
-                "TOTAL": t.toFixed(2), "ESTADO": p.entregado ? "Entregado" : "Pendiente"
+                "NOMBRE DEL CLIENTE": p.cliente, 
+                "PRODUCTO": p.producto, 
+                "BASE (S/.)": (t/1.18).toFixed(2), 
+                "IGV (S/.)": (t-(t/1.18)).toFixed(2),
+                "TOTAL FINAL": t.toFixed(2), 
+                "ESTADO": p.entregado ? "Entregado" : "Pendiente"
             };
         });
         const ws = XLSX.utils.json_to_sheet(info);
+        
+        // AJUSTE DE ANCHOS DE COLUMNA (wch es el ancho en caracteres)
+        const wscols = [
+            {wch: 45}, // Cliente (Mucho más ancho)
+            {wch: 25}, // Producto
+            {wch: 15}, // Base
+            {wch: 15}, // IGV
+            {wch: 15}, // Total
+            {wch: 15}  // Estado
+        ];
+        ws['!cols'] = wscols;
+
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Ventas");
-        XLSX.writeFile(wb, "Reporte_Distribuidora_Chavez.xlsx");
+        XLSX.writeFile(wb, "Reporte_Distribuidora_Chavez_PRO.xlsx");
     }
 
     checkUser();
