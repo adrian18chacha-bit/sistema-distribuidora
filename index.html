@@ -8,62 +8,209 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    
     <script>
         tailwind.config = { darkMode: 'class' }
         if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
     </script>
-    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s; }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100">
 
 <div id="auth-section" class="flex items-center justify-center min-h-screen p-4">
     <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-100 dark:border-slate-700 text-center">
-        <div class="bg-blue-600 w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-6">
+        <div class="bg-blue-600 w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-lg">
             <span class="text-white text-3xl font-bold">D</span>
         </div>
-        <h1 class="text-2xl font-bold dark:text-white mb-8 tracking-wider">DISTRIBUIDORA CHÁVEZ</h1>
+        <h1 class="text-2xl font-bold dark:text-white mb-8 uppercase tracking-widest">Distribuidora Chávez</h1>
         <div class="space-y-4 text-left">
             <input type="email" id="login-email" placeholder="Correo" class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 dark:bg-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
             <input type="password" id="login-password" placeholder="Contraseña" class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 dark:bg-slate-700 dark:text-white outline-none focus:ring-2 focus:ring-blue-500">
-            <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-all">Entrar</button>
+            <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-all">ENTRAR</button>
         </div>
     </div>
 </div>
 
 <div id="app-section" class="hidden">
-    </div>
+    <nav class="bg-blue-700 dark:bg-blue-900 text-white shadow-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+            <h2 class="text-lg font-bold uppercase">Distribuidora Chávez</h2>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleDarkMode()" class="p-2 bg-white/10 hover:bg-white/20 rounded-lg">
+                    <span id="theme-icon">🌙</span>
+                </button>
+                <div class="flex bg-blue-800/50 rounded-xl p-1">
+                    <button onclick="cambiarPestana('ventas')" id="btn-tab-ventas" class="px-4 py-2 rounded-lg text-xs font-bold transition-all">Ventas</button>
+                    <button onclick="cambiarPestana('gastos')" id="btn-tab-gastos" class="px-4 py-2 rounded-lg text-xs font-bold transition-all opacity-60 hover:opacity-100">Gastos</button>
+                </div>
+                <button onclick="logout()" class="p-2 bg-white/10 hover:bg-rose-500 rounded-lg">✕</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border-l-4 border-l-blue-500 border dark:border-slate-700">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Ventas</p>
+                <h4 class="text-2xl font-bold text-blue-600 dark:text-blue-400" id="resumen-ventas">S/. 0.00</h4>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border-l-4 border-l-rose-500 border dark:border-slate-700">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Gastos</p>
+                <h4 class="text-2xl font-bold text-rose-500" id="resumen-gastos">S/. 0.00</h4>
+            </div>
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border-l-4 border-l-emerald-500 border dark:border-slate-700">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Ganancia Neta</p>
+                <h4 class="text-2xl font-bold text-emerald-600 dark:text-emerald-400" id="resumen-utilidad">S/. 0.00</h4>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left">
+            <div class="lg:col-span-4 space-y-6">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border dark:border-slate-700">
+                    <div id="form-ventas">
+                        <h3 class="font-bold mb-4 flex items-center gap-2"><div class="w-1.5 h-5 bg-blue-600 rounded-full"></div> Venta</h3>
+                        <div class="space-y-4">
+                            <select id="cliente-select" onchange="toggleNuevoCliente()" class="w-full p-3 bg-slate-50 dark:bg-slate-700 rounded-xl outline-none ring-1 ring-slate-200 dark:ring-slate-600">
+                                <option value="">Seleccionar cliente</option><option value="NUEVO">+ Nuevo</option>
+                            </select>
+                            <input type="text" id="cliente-nuevo" placeholder="Nombre" class="hidden w-full p-3 bg-white dark:bg-slate-700 border-2 border-blue-50 dark:border-slate-600 rounded-xl">
+                            <input type="text" id="producto" placeholder="Producto" class="w-full p-3 bg-slate-50 dark:bg-slate-700 rounded-xl ring-1 ring-slate-200 dark:ring-slate-600">
+                            <input type="number" id="precio" placeholder="Precio S/." class="w-full p-3 bg-slate-50 dark:bg-slate-700 rounded-xl ring-1 ring-slate-200 dark:ring-slate-600">
+                            <button onclick="guardarPedido()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg">Guardar</button>
+                        </div>
+                    </div>
+                    <div id="form-gastos" class="hidden">
+                        <h3 class="font-bold mb-4 flex items-center gap-2 text-rose-500"><div class="w-1.5 h-5 bg-rose-500 rounded-full"></div> Gasto</h3>
+                        <div class="space-y-4">
+                            <input type="text" id="gasto-desc" placeholder="Descripción" class="w-full p-3 bg-slate-50 dark:bg-slate-700 rounded-xl ring-1 ring-slate-200 dark:ring-slate-600">
+                            <input type="number" id="gasto-monto" placeholder="Monto S/." class="w-full p-3 bg-slate-50 dark:bg-slate-700 rounded-xl ring-1 ring-slate-200 dark:ring-slate-600">
+                            <button onclick="guardarGasto()" class="w-full bg-rose-500 text-white font-bold py-4 rounded-xl shadow-lg">Guardar Gasto</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl h-44 flex items-center justify-center border dark:border-slate-700">
+                    <canvas id="graficoEntregas"></canvas>
+                </div>
+            </div>
+
+            <div class="lg:col-span-8">
+                <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border dark:border-slate-700 overflow-hidden">
+                    <div class="p-6 border-b dark:border-slate-700 flex justify-between items-center bg-white dark:bg-slate-800">
+                        <h3 class="font-bold" id="titulo-seccion">Historial</h3>
+                        <div class="flex gap-2">
+                            <input type="text" id="buscador" onkeyup="filtrarPedidos()" placeholder="Buscar..." class="p-2 bg-slate-50 dark:bg-slate-700 rounded-xl text-sm ring-1 ring-slate-200 dark:ring-slate-600 outline-none">
+                            <button onclick="exportarExcelReal()" class="bg-emerald-500 text-white px-4 rounded-xl text-xs font-bold">Excel</button>
+                        </div>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-400 font-bold uppercase text-[10px]">
+                                <tr id="header-tabla"></tr>
+                            </thead>
+                            <tbody id="body-tabla" class="divide-y dark:divide-slate-700"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
 
 <script>
-    // Configuración de Supabase
+    // Configuración Base de Datos
     const _supabase = supabase.createClient('https://ozdpcjhwbdsuqncgxfpz.supabase.co', 'sb_publishable_aBgdzg-JTQ61i1IkjUYysQ_4lYYJGPQ');
+    let pedidosActuales = [], gastosActuales = [], chartObj = null;
 
+    // Autenticación
     async function login() {
-        const email = document.getElementById('login-email').value;
-        const pass = document.getElementById('login-password').value;
-        
-        const { data, error } = await _supabase.auth.signInWithPassword({ email, password: pass });
-        if (error) {
-            alert("Error: " + error.message);
-        } else {
-            checkUser();
-        }
+        const e = document.getElementById('login-email').value, p = document.getElementById('login-password').value;
+        const { error } = await _supabase.auth.signInWithPassword({ email: e, password: p });
+        if (!error) checkUser(); else alert("Error: " + error.message);
     }
-
+    async function logout() { await _supabase.auth.signOut(); location.reload(); }
     async function checkUser() {
         const { data: { user } } = await _supabase.auth.getUser();
         if (user) {
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('app-section').classList.remove('hidden');
-            // Aquí llamarías a cargarTodo()
+            cambiarPestana('ventas'); cargarTodo();
         }
     }
 
-    // Ejecutar al cargar la página
+    // Funciones de Negocio
+    async function cargarTodo() {
+        const { data: p } = await _supabase.from('pedidos').select('*').order('creado_en', { ascending: false });
+        const { data: g } = await _supabase.from('gastos').select('*').order('creado_en', { ascending: false });
+        pedidosActuales = p || []; gastosActuales = g || [];
+        actualizarInterfaz();
+    }
+
+    function actualizarInterfaz() {
+        const v = !document.getElementById('form-ventas').classList.contains('hidden');
+        const h = document.getElementById('header-tabla'), b = document.getElementById('body-tabla');
+        b.innerHTML = ''; let tV = 0, tG = 0, pen = 0, ent = 0;
+        
+        pedidosActuales.forEach(p => { tV += p.precio_total; p.entregado ? ent++ : pen++; });
+        gastosActuales.forEach(g => tG += g.monto);
+
+        document.getElementById('resumen-ventas').textContent = `S/. ${tV.toFixed(2)}`;
+        document.getElementById('resumen-gastos').textContent = `S/. ${tG.toFixed(2)}`;
+        document.getElementById('resumen-utilidad').textContent = `S/. ${(tV - tG).toFixed(2)}`;
+
+        if (v) {
+            h.innerHTML = '<th class="px-6 py-4">Cliente</th><th class="px-6 py-4 text-center">Total</th><th class="px-6 py-4 text-center">Acciones</th>';
+            pedidosActuales.forEach(p => {
+                b.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"><td class="px-6 py-4 font-bold">${p.cliente}<br><span class="text-[10px] text-slate-400 font-normal">${p.producto}</span></td><td class="px-6 py-4 text-center font-black text-blue-600 dark:text-blue-400">S/. ${p.precio_total.toFixed(2)}</td><td class="px-6 py-4 flex justify-center items-center gap-1"><button onclick="whatsapp('${p.cliente}','${p.producto}',${p.precio_total})" class="p-2 text-emerald-500">💬</button>${!p.entregado ? `<button onclick="marcar(${p.id})" class="p-2 text-blue-500 font-bold">✓</button>` : ''}<button onclick="borrarP(${p.id})" class="p-2 text-rose-500">✕</button></td></tr>`;
+            });
+        } else {
+            h.innerHTML = '<th class="px-6 py-4">Gasto</th><th class="px-6 py-4 text-center">Monto</th><th class="px-6 py-4 text-center">Acción</th>';
+            gastosActuales.forEach(g => {
+                b.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors"><td class="px-6 py-4 font-bold">${g.descripcion}</td><td class="px-6 py-4 text-center font-black text-rose-500">S/. ${g.monto.toFixed(2)}</td><td class="px-6 py-4 text-center"><button onclick="borrarG(${g.id})" class="text-rose-500">✕</button></td></tr>`;
+            });
+        }
+        renderChart(pen, ent);
+    }
+
+    // Herramientas
+    function toggleDarkMode() {
+        document.documentElement.classList.toggle('dark');
+        const isD = document.documentElement.classList.contains('dark');
+        localStorage.setItem('theme', isD ? 'dark' : 'light');
+        document.getElementById('theme-icon').textContent = isD ? '☀️' : '🌙';
+    }
+    function cambiarPestana(t) {
+        const isV = t === 'ventas';
+        document.getElementById('form-ventas').classList.toggle('hidden', !isV);
+        document.getElementById('form-gastos').classList.toggle('hidden', isV);
+        document.getElementById('btn-tab-ventas').className = isV ? "px-4 py-2 rounded-lg text-xs font-bold bg-white text-blue-700 shadow-sm" : "px-4 py-2 rounded-lg text-xs font-bold text-white opacity-60";
+        document.getElementById('btn-tab-gastos').className = !isV ? "px-4 py-2 rounded-lg text-xs font-bold bg-white text-rose-600 shadow-sm" : "px-4 py-2 rounded-lg text-xs font-bold text-white opacity-60";
+        actualizarInterfaz();
+    }
+    function whatsapp(c,pr,t) { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('Hola '+c+'! Pedido: '+pr+' por S/. '+t.toFixed(2))}`); }
+    
+    // Gráfico
+    function renderChart(p, e) {
+        const ctx = document.getElementById('graficoEntregas').getContext('2d');
+        if (chartObj) chartObj.destroy();
+        chartObj = new Chart(ctx, { type: 'doughnut', data: { datasets: [{ data: [p, e], backgroundColor: ['#f97316', '#10b981'], borderWidth: 0 }] }, options: { cutout: '80%' }});
+    }
+
+    // CRUD (Ventas y Gastos)
+    async function guardarPedido() {
+        const c = document.getElementById('cliente-select').value === "NUEVO" ? document.getElementById('cliente-nuevo').value : document.getElementById('cliente-select').value;
+        const pr = document.getElementById('producto').value, p = parseFloat(document.getElementById('precio').value);
+        if (c && pr && p) { await _supabase.from('pedidos').insert([{ cliente: c, producto: pr, precio_total: p, entregado: false }]); cargarTodo(); }
+    }
+    async function guardarGasto() {
+        const d = document.getElementById('gasto-desc').value, m = parseFloat(document.getElementById('gasto-monto').value);
+        if (d && m) { await _supabase.from('gastos').insert([{ descripcion: d, monto: m }]); cargarTodo(); }
+    }
+    async function marcar(id) { await _supabase.from('pedidos').update({ entregado: true }).eq('id', id); cargarTodo(); }
+    async function borrarP(id) { if(confirm("¿Eliminar?")) { await _supabase.from('pedidos').delete().eq('id', id); cargarTodo(); } }
+    async function borrarG(id) { if(confirm("¿Eliminar?")) { await _supabase.from('gastos').delete().eq('id', id); cargarTodo(); } }
+
     window.onload = checkUser;
 </script>
 </body>
