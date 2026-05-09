@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distribuidora Chávez | Sistema Integral</title>
+    <title>Distribuidora Chávez | Gestión Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
+        .tab-active { @apply bg-white text-blue-700 shadow-sm; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen text-slate-900">
@@ -20,12 +21,12 @@
             <div class="bg-blue-600 w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg">
                 <span class="text-white text-3xl font-bold">D</span>
             </div>
-            <h1 class="text-2xl font-bold text-slate-800 uppercase">Distribuidora Chávez</h1>
+            <h1 class="text-2xl font-bold text-slate-800 uppercase tracking-wider">Distribuidora Chávez</h1>
         </div>
         <div class="space-y-4">
             <input type="email" id="login-email" placeholder="Correo" class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500 transition-all">
             <input type="password" id="login-password" placeholder="Contraseña" class="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-            <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-all">Entrar al Sistema</button>
+            <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-all">Entrar</button>
         </div>
     </div>
 </div>
@@ -33,109 +34,111 @@
 <div id="app-section" class="hidden">
     <nav class="bg-blue-700 text-white shadow-xl sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-            <h2 class="text-xl font-bold tracking-tight uppercase">Distribuidora Chávez</h2>
-            <div class="flex items-center gap-4">
-                <div class="hidden md:flex bg-white/10 rounded-lg p-1">
-                    <button onclick="cambiarPestana('ventas')" class="px-4 py-2 rounded-md text-sm font-bold transition-all" id="btn-tab-ventas">Ventas</button>
-                    <button onclick="cambiarPestana('gastos')" class="px-4 py-2 rounded-md text-sm font-bold transition-all" id="btn-tab-gastos">Gastos</button>
+            <h2 class="text-lg md:text-xl font-bold tracking-tight uppercase">Distribuidora Chávez</h2>
+            <div class="flex items-center gap-2">
+                <div class="flex bg-blue-800/50 rounded-xl p-1">
+                    <button onclick="cambiarPestana('ventas')" id="btn-tab-ventas" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all">Ventas</button>
+                    <button onclick="cambiarPestana('gastos')" id="btn-tab-gastos" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all text-blue-200 hover:text-white">Gastos</button>
                 </div>
-                <button onclick="logout()" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg font-semibold transition-all">Salir</button>
+                <button onclick="logout()" class="p-2 bg-white/10 hover:bg-rose-500 rounded-lg transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                </button>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase">Total Ventas</p>
-                <h4 class="text-2xl font-bold text-blue-600" id="resumen-ventas">S/. 0.00</h4>
+    <main class="max-w-7xl mx-auto px-4 py-6 md:py-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 border-l-4 border-l-blue-500">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Ventas Totales</p>
+                <h4 class="text-xl font-bold text-slate-800" id="resumen-ventas">S/. 0.00</h4>
             </div>
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase">Total Gastos</p>
-                <h4 class="text-2xl font-bold text-rose-500" id="resumen-gastos">S/. 0.00</h4>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 border-l-4 border-l-rose-500">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Gastos Totales</p>
+                <h4 class="text-xl font-bold text-slate-800" id="resumen-gastos">S/. 0.00</h4>
             </div>
-            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase">Utilidad Real</p>
-                <h4 class="text-2xl font-bold text-emerald-600" id="resumen-utilidad">S/. 0.00</h4>
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 border-l-4 border-l-emerald-500">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Utilidad Neta</p>
+                <h4 class="text-xl font-bold text-slate-800" id="resumen-utilidad">S/. 0.00</h4>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
-            <div class="lg:col-span-4 space-y-8">
+            <div class="lg:col-span-4 space-y-6">
                 <div id="form-ventas" class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                    <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <span class="w-2 h-6 bg-blue-600 rounded-full"></span> Nueva Venta
+                    <h3 class="text-md font-bold text-slate-800 mb-5 flex items-center gap-2">
+                        <div class="w-1.5 h-5 bg-blue-600 rounded-full"></div> Registrar Venta
                     </h3>
                     <div class="space-y-4">
-                        <select id="cliente-select" onchange="toggleNuevoCliente()" class="w-full px-4 py-3 bg-slate-50 rounded-xl border outline-none focus:ring-2 focus:ring-blue-500">
+                        <select id="cliente-select" onchange="toggleNuevoCliente()" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
                             <option value="">Seleccionar cliente</option>
-                            <option value="NUEVO">+ Agregar nuevo</option>
+                            <option value="NUEVO" class="text-blue-600 font-bold">+ Cliente Nuevo</option>
                         </select>
-                        <input type="text" id="cliente-nuevo" placeholder="Nombre completo" class="hidden w-full px-4 py-3 bg-white border-2 border-blue-100 rounded-xl outline-none">
-                        <input type="text" id="producto" placeholder="Producto" class="w-full px-4 py-3 bg-slate-50 rounded-xl border outline-none">
-                        <input type="number" id="precio" placeholder="Precio Total S/." class="w-full px-4 py-3 bg-slate-50 rounded-xl border outline-none">
-                        <button onclick="guardarPedido()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl transition-all shadow-lg active:scale-95">Registrar Venta</button>
+                        <input type="text" id="cliente-nuevo" placeholder="Nombre del cliente" class="hidden w-full px-4 py-3 bg-white border-2 border-blue-50 rounded-xl outline-none text-sm">
+                        <input type="text" id="producto" placeholder="Producto (ej. Bidón 20L)" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none ring-1 ring-slate-200 outline-none text-sm">
+                        <input type="number" id="precio" placeholder="Precio Total S/." class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none ring-1 ring-slate-200 outline-none text-sm">
+                        <button onclick="guardarPedido()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-95">Guardar Pedido</button>
                     </div>
                 </div>
 
                 <div id="form-gastos" class="hidden bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
-                    <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
-                        <span class="w-2 h-6 bg-rose-500 rounded-full"></span> Nuevo Gasto
+                    <h3 class="text-md font-bold text-slate-800 mb-5 flex items-center gap-2">
+                        <div class="w-1.5 h-5 bg-rose-500 rounded-full"></div> Registrar Gasto
                     </h3>
                     <div class="space-y-4">
-                        <input type="text" id="gasto-desc" placeholder="Descripción (Ej: Gasolina)" class="w-full px-4 py-3 bg-slate-50 rounded-xl border outline-none">
-                        <input type="number" id="gasto-monto" placeholder="Monto S/." class="w-full px-4 py-3 bg-slate-50 rounded-xl border outline-none">
-                        <button onclick="guardarGasto()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 rounded-2xl transition-all shadow-lg active:scale-95">Registrar Gasto</button>
+                        <input type="text" id="gasto-desc" placeholder="Descripción del gasto" class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none ring-1 ring-slate-200 outline-none text-sm">
+                        <input type="number" id="gasto-monto" placeholder="Monto S/." class="w-full px-4 py-3 bg-slate-50 rounded-xl border-none ring-1 ring-slate-200 outline-none text-sm">
+                        <button onclick="guardarGasto()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-95">Guardar Gasto</button>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 text-center">
-                    <h3 class="text-sm font-bold text-slate-400 uppercase mb-4 text-left">Estado de Pedidos</h3>
-                    <div class="relative h-48"><canvas id="graficoEntregas"></canvas></div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                    <div class="h-40 flex items-center justify-center">
+                        <canvas id="graficoEntregas"></canvas>
+                    </div>
                 </div>
             </div>
 
             <div class="lg:col-span-8">
                 <div id="tabla-ventas-container" class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div class="p-6 border-b flex flex-col md:flex-row justify-between items-center gap-4">
-                        <h3 class="font-bold text-lg">Historial de Ventas</h3>
-                        <div class="flex gap-2 w-full md:w-auto">
-                            <input type="text" id="buscador" onkeyup="filtrarPedidos()" placeholder="Buscar..." class="px-4 py-2 bg-slate-50 border rounded-xl text-sm outline-none w-full">
-                            <button onclick="exportarExcelReal()" class="bg-emerald-500 text-white px-4 rounded-xl text-sm font-bold">Excel</button>
+                    <div class="p-5 border-b flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <h3 class="font-bold text-slate-800">Historial de Ventas</h3>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <input type="text" id="buscador" onkeyup="filtrarPedidos()" placeholder="Buscar cliente..." class="px-4 py-2 bg-slate-50 rounded-xl text-sm outline-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 w-full sm:w-48">
+                            <button onclick="exportarExcelReal()" class="bg-emerald-500 text-white px-3 rounded-xl hover:bg-emerald-600 transition-all">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            </button>
                         </div>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-50 text-xs font-bold uppercase text-slate-400">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px]">
                                 <tr>
                                     <th class="px-6 py-4">Cliente</th>
-                                    <th class="px-6 py-4 text-center">Pedido</th>
                                     <th class="px-6 py-4 text-center">Total</th>
                                     <th class="px-6 py-4 text-center">Estado</th>
-                                    <th class="px-6 py-4 text-center">Acción</th>
+                                    <th class="px-6 py-4 text-center">Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabla-pedidos" class="divide-y"></tbody>
+                            <tbody id="tabla-pedidos" class="divide-y divide-slate-50"></tbody>
                         </table>
                     </div>
                 </div>
 
                 <div id="tabla-gastos-container" class="hidden bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div class="p-6 border-b flex justify-between items-center">
-                        <h3 class="font-bold text-lg">Registro de Gastos</h3>
+                    <div class="p-5 border-b">
+                        <h3 class="font-bold text-slate-800">Registro de Gastos</h3>
                     </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-50 text-xs font-bold uppercase text-slate-400">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[10px]">
                                 <tr>
                                     <th class="px-6 py-4">Descripción</th>
-                                    <th class="px-6 py-4 text-center">Fecha</th>
                                     <th class="px-6 py-4 text-center">Monto</th>
                                     <th class="px-6 py-4 text-center">Acción</th>
                                 </tr>
                             </thead>
-                            <tbody id="tabla-gastos-body" class="divide-y"></tbody>
+                            <tbody id="tabla-gastos-body" class="divide-y divide-slate-50"></tbody>
                         </table>
                     </div>
                 </div>
@@ -158,8 +161,8 @@
         document.getElementById('form-gastos').classList.toggle('hidden', esVentas);
         document.getElementById('tabla-gastos-container').classList.toggle('hidden', esVentas);
         
-        document.getElementById('btn-tab-ventas').className = esVentas ? "px-4 py-2 rounded-md text-sm font-bold bg-white text-blue-700 shadow-sm" : "px-4 py-2 rounded-md text-sm font-bold text-white hover:bg-white/10";
-        document.getElementById('btn-tab-gastos').className = !esVentas ? "px-4 py-2 rounded-md text-sm font-bold bg-white text-rose-600 shadow-sm" : "px-4 py-2 rounded-md text-sm font-bold text-white hover:bg-white/10";
+        document.getElementById('btn-tab-ventas').className = esVentas ? "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-white text-blue-700 shadow-sm" : "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold text-blue-200 hover:text-white";
+        document.getElementById('btn-tab-gastos').className = !esVentas ? "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-white text-rose-600 shadow-sm" : "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold text-blue-200 hover:text-white";
     }
 
     async function login() {
@@ -189,37 +192,63 @@
         actualizarInterfaz();
     }
 
+    function enviarWhatsApp(cliente, producto, total) {
+        const mensaje = encodeURIComponent(`¡Hola ${cliente}! 👋 Te confirmamos tu pedido de ${producto} por un total de S/. ${total.toFixed(2)}. ¡Gracias por confiar en Distribuidora Chávez! 🚛💧`);
+        window.open(`https://api.whatsapp.com/send?text=${mensaje}`, '_blank');
+    }
+
     function actualizarInterfaz() {
-        // Actualizar Ventas
+        // TABLA VENTAS
         const tbodyV = document.getElementById('tabla-pedidos');
         tbodyV.innerHTML = '';
         let tVentas = 0, pen = 0, ent = 0;
+        
         pedidosActuales.forEach(p => {
             tVentas += (p.precio_total || 0);
             p.entregado ? ent++ : pen++;
-            tbodyV.innerHTML += `<tr class="hover:bg-slate-50"><td class="px-6 py-4 font-semibold">${p.cliente}</td><td class="px-6 py-4 text-center">${p.producto}</td><td class="px-6 py-4 text-center font-bold text-blue-600">S/. ${(p.precio_total || 0).toFixed(2)}</td><td class="px-6 py-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold ${p.entregado ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">${p.entregado ? 'Listo' : 'Pendiente'}</span></td><td class="px-6 py-4 flex justify-center gap-2">${!p.entregado ? `<button onclick="marcarEntregado(${p.id})" class="text-emerald-500 hover:bg-emerald-50 p-2 rounded-lg">✓</button>` : ''}<button onclick="eliminarPedido(${p.id})" class="text-rose-500 hover:bg-rose-50 p-2 rounded-lg">✕</button></td></tr>`;
+            tbodyV.innerHTML += `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 font-bold text-slate-700">${p.cliente}<br><span class="text-[10px] text-slate-400 font-normal">${p.producto}</span></td>
+                    <td class="px-6 py-4 text-center font-black text-blue-600 whitespace-nowrap">S/. ${(p.precio_total || 0).toFixed(2)}</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-2 py-1 rounded-lg text-[10px] font-black ${p.entregado ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}">
+                            ${p.entregado ? 'LISTO' : 'PENDIENTE'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 flex justify-center items-center gap-1">
+                        <button onclick="enviarWhatsApp('${p.cliente}', '${p.producto}', ${p.precio_total})" class="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-all" title="WhatsApp">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793 0-.853.448-1.273.607-1.446.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.101-.177.211-.077.383.101.173.448.738.961 1.193.661.587 1.216.768 1.39.853.173.087.275.072.376-.044.101-.116.434-.506.549-.68.116-.173.231-.144.39-.087s1.011.477 1.184.564c.173.087.289.13.332.202.045.072.045.419-.1.824z"/></svg>
+                        </button>
+                        ${!p.entregado ? `<button onclick="marcarEntregado(${p.id})" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-all" title="Listo">✓</button>` : ''}
+                        <button onclick="eliminarPedido(${p.id})" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all" title="Eliminar">✕</button>
+                    </td>
+                </tr>`;
         });
 
-        // Actualizar Gastos
+        // TABLA GASTOS
         const tbodyG = document.getElementById('tabla-gastos-body');
         tbodyG.innerHTML = '';
         let tGastos = 0;
         gastosActuales.forEach(g => {
             tGastos += (g.monto || 0);
-            const fecha = new Date(g.creado_en).toLocaleDateString();
-            tbodyG.innerHTML += `<tr class="hover:bg-slate-50"><td class="px-6 py-4 font-semibold">${g.descripcion}</td><td class="px-6 py-4 text-center text-slate-500">${fecha}</td><td class="px-6 py-4 text-center font-bold text-rose-500">S/. ${(g.monto || 0).toFixed(2)}</td><td class="px-6 py-4 text-center"><button onclick="eliminarGasto(${g.id})" class="text-rose-500 hover:bg-rose-50 p-2 rounded-lg text-sm">Eliminar</button></td></tr>`;
+            tbodyG.innerHTML += `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 font-bold text-slate-700">${g.descripcion}</td>
+                    <td class="px-6 py-4 text-center font-black text-rose-500 whitespace-nowrap">S/. ${(g.monto || 0).toFixed(2)}</td>
+                    <td class="px-6 py-4 text-center">
+                        <button onclick="eliminarGasto(${g.id})" class="text-rose-500 hover:bg-rose-50 p-2 rounded-lg">✕</button>
+                    </td>
+                </tr>`;
         });
 
-        // Actualizar Resumen
         document.getElementById('resumen-ventas').textContent = `S/. ${tVentas.toFixed(2)}`;
         document.getElementById('resumen-gastos').textContent = `S/. ${tGastos.toFixed(2)}`;
         document.getElementById('resumen-utilidad').textContent = `S/. ${(tVentas - tGastos).toFixed(2)}`;
         
-        // Actualizar Combo
         const s = document.getElementById('cliente-select');
         const v = s.value;
         const u = [...new Set(pedidosActuales.map(p => p.cliente))].sort();
-        s.innerHTML = '<option value="">Seleccionar cliente</option><option value="NUEVO">+ Agregar nuevo</option>';
+        s.innerHTML = '<option value="">Seleccionar cliente</option><option value="NUEVO">+ Cliente Nuevo</option>';
         u.forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`);
         s.value = v;
 
@@ -238,14 +267,23 @@
 
     async function eliminarGasto(id) { if(confirm("¿Eliminar gasto?")) { await _supabase.from('gastos').delete().eq('id', id); cargarTodo(); } }
 
-    // Reutilizamos tus funciones previas de pedidos (filtrar, guardar, marcar, borrar) adaptadas a cargarTodo()
     function filtrarPedidos() {
         const b = document.getElementById('buscador').value.toLowerCase();
         const filt = pedidosActuales.filter(p => p.cliente.toLowerCase().includes(b));
         const tbodyV = document.getElementById('tabla-pedidos');
         tbodyV.innerHTML = '';
         filt.forEach(p => {
-            tbodyV.innerHTML += `<tr class="hover:bg-slate-50"><td class="px-6 py-4 font-semibold">${p.cliente}</td><td class="px-6 py-4 text-center">${p.producto}</td><td class="px-6 py-4 text-center font-bold text-blue-600">S/. ${(p.precio_total || 0).toFixed(2)}</td><td class="px-6 py-4 text-center"><span class="px-3 py-1 rounded-full text-xs font-bold ${p.entregado ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}">${p.entregado ? 'Listo' : 'Pendiente'}</span></td><td class="px-6 py-4 flex justify-center gap-2">${!p.entregado ? `<button onclick="marcarEntregado(${p.id})" class="text-emerald-500 hover:bg-emerald-50 p-2 rounded-lg">✓</button>` : ''}<button onclick="eliminarPedido(${p.id})" class="text-rose-500 hover:bg-rose-50 p-2 rounded-lg">✕</button></td></tr>`;
+            tbodyV.innerHTML += `
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-4 font-bold text-slate-700">${p.cliente}<br><span class="text-[10px] text-slate-400 font-normal">${p.producto}</span></td>
+                    <td class="px-6 py-4 text-center font-black text-blue-600 whitespace-nowrap">S/. ${(p.precio_total || 0).toFixed(2)}</td>
+                    <td class="px-6 py-4 text-center"><span class="px-2 py-1 rounded-lg text-[10px] font-black ${p.entregado ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}">${p.entregado ? 'LISTO' : 'PENDIENTE'}</span></td>
+                    <td class="px-6 py-4 flex justify-center items-center gap-1">
+                        <button onclick="enviarWhatsApp('${p.cliente}', '${p.producto}', ${p.precio_total})" class="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-all"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793 0-.853.448-1.273.607-1.446.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.101-.177.211-.077.383.101.173.448.738.961 1.193.661.587 1.216.768 1.39.853.173.087.275.072.376-.044.101-.116.434-.506.549-.68.116-.173.231-.144.39-.087s1.011.477 1.184.564c.173.087.289.13.332.202.045.072.045.419-.1.824z"/></svg></button>
+                        ${!p.entregado ? `<button onclick="marcarEntregado(${p.id})" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg">✓</button>` : ''}
+                        <button onclick="eliminarPedido(${p.id})" class="text-rose-500 hover:bg-rose-50 p-2 rounded-lg">✕</button>
+                    </td>
+                </tr>`;
         });
     }
 
@@ -271,8 +309,8 @@
         if (chartObj) chartObj.destroy();
         chartObj = new Chart(ctx, {
             type: 'doughnut',
-            data: { labels: ['Pendiente', 'Listo'], datasets: [{ data: [p, e], backgroundColor: ['#f59e0b', '#10b981'], borderWidth: 0 }] },
-            options: { maintainAspectRatio: false, cutout: '75%', plugins: { legend: { position: 'bottom' } } }
+            data: { labels: ['P', 'L'], datasets: [{ data: [p, e], backgroundColor: ['#fff7ed', '#ecfdf5'], borderColor: ['#f97316', '#10b981'], borderWidth: 1 }] },
+            options: { maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false } } }
         });
     }
 
