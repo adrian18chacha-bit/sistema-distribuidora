@@ -14,10 +14,13 @@
         .hidden { display: none !important; }
         .card { border: none; border-radius: 15px; }
         
-        /* Ajuste para que el nombre se vea completo */
-        .col-cliente { min-width: 150px; text-align: left !important; }
-        .table th { text-align: center; }
-        .btn-actions { display: flex; gap: 12px; justify-content: center; }
+        /* Ajuste para nombres completos y tabla espaciosa */
+        .table td, .table th { 
+            white-space: nowrap; /* Evita que el nombre se parta en dos filas */
+            padding: 12px 15px !important; 
+        }
+        .col-cliente { text-align: left !important; font-weight: bold; color: #333; }
+        .btn-actions { display: flex; gap: 15px; justify-content: center; }
     </style>
 </head>
 <body>
@@ -41,33 +44,32 @@
         </div>
     </div>
 
-    <div class="container pb-5">
-        <div class="row g-4">
-            <div class="col-lg-4">
+    <div class="container-fluid px-4 pb-5"> <div class="row g-4">
+            <div class="col-xl-3 col-lg-4">
                 <div class="card p-4 shadow-sm mb-4">
                     <h5 class="fw-bold text-primary mb-3">Nuevo Registro</h5>
-                    <input type="text" id="cliente" class="form-control mb-2" placeholder="Nombre Completo Cliente">
-                    <input type="text" id="producto" class="form-control mb-2" placeholder="Producto/Cantidad">
-                    <input type="number" id="precio" class="form-control mb-3" placeholder="S/. Total">
+                    <input type="text" id="cliente" class="form-control mb-2" placeholder="Nombre completo">
+                    <input type="text" id="producto" class="form-control mb-2" placeholder="Producto">
+                    <input type="number" id="precio" class="form-control mb-3" placeholder="S/. Precio">
                     <button class="btn btn-primary w-100 fw-bold" onclick="guardarPedido()">GUARDAR</button>
                 </div>
                 <div class="card p-4 shadow-sm text-center">
                     <h5 class="fw-bold mb-3 small text-muted">Estado de Entregas</h5>
-                    <div style="height: 200px;"><canvas id="graficoEntregas"></canvas></div>
+                    <div style="height: 220px;"><canvas id="graficoEntregas"></canvas></div>
                 </div>
             </div>
 
-            <div class="col-lg-8">
+            <div class="col-xl-9 col-lg-8">
                 <div class="card p-4 shadow-sm">
                     <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="fw-bold m-0 text-secondary">Lista de Pedidos</h5>
-                        <button class="btn btn-success fw-bold btn-sm shadow-sm" onclick="exportarExcelReal()">DESCARGAR EXCEL</button>
+                        <h5 class="fw-bold m-0">Registro de Pedidos</h5>
+                        <button class="btn btn-success fw-bold btn-sm" onclick="exportarExcelReal()">DESCARGAR EXCEL</button>
                     </div>
                     <div class="table-responsive">
-                        <table class="table align-middle">
+                        <table class="table table-hover align-middle">
                             <thead class="table-light text-center">
                                 <tr>
-                                    <th class="col-cliente">Cliente</th>
+                                    <th style="text-align: left;">Cliente</th>
                                     <th>Pedido</th>
                                     <th>Total</th>
                                     <th>Estado</th>
@@ -94,8 +96,8 @@
         if (chartObj) chartObj.destroy();
         chartObj = new Chart(ctx, {
             type: 'doughnut',
-            data: { labels: ['Pendiente', 'Listo'], datasets: [{ data: [pen, ent], backgroundColor: ['#ffc107', '#28a745'] }] },
-            options: { maintainAspectRatio: false }
+            data: { labels: ['Pendiente', 'Listo'], datasets: [{ data: [pen, ent], backgroundColor: ['#ffc107', '#28a745'], borderWidth: 0 }] },
+            options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
         });
     }
 
@@ -103,7 +105,7 @@
         const email = document.getElementById('login-email').value;
         const password = document.getElementById('login-password').value;
         const { error } = await _supabase.auth.signInWithPassword({ email, password });
-        if (!error) checkUser(); else alert("Acceso denegado");
+        if (!error) checkUser(); else alert("Datos incorrectos");
     }
 
     async function logout() { await _supabase.auth.signOut(); location.reload(); }
@@ -130,7 +132,7 @@
             p.entregado ? ent++ : pen++;
             tbody.innerHTML += `
                 <tr>
-                    <td class="col-cliente"><strong>${p.cliente}</strong></td>
+                    <td class="col-cliente">${p.cliente}</td>
                     <td class="text-center">${p.producto}</td>
                     <td class="text-center">S/. ${(p.precio_total || 0).toFixed(2)}</td>
                     <td class="text-center"><span class="badge ${p.entregado ? 'bg-success' : 'bg-warning'}">${p.entregado ? 'Listo' : 'Pendiente'}</span></td>
@@ -151,28 +153,31 @@
         const p = parseFloat(document.getElementById('precio').value);
         if (c && pr && p) {
             await _supabase.from('pedidos').insert([{ cliente: c, producto: pr, precio_total: p }]);
-            document.getElementById('cliente').value = ''; 
-            document.getElementById('producto').value = ''; 
-            document.getElementById('precio').value = '';
+            document.getElementById('cliente').value = ''; document.getElementById('producto').value = ''; document.getElementById('precio').value = '';
             cargarPedidos();
         }
     }
 
     async function marcarEntregado(id) { await _supabase.from('pedidos').update({ entregado: true }).eq('id', id); cargarPedidos(); }
-    async function eliminarPedido(id) { if(confirm("¿Seguro que quieres eliminar este registro?")) { await _supabase.from('pedidos').delete().eq('id', id); cargarPedidos(); } }
+    async function eliminarPedido(id) { if(confirm("¿Eliminar registro?")) { await _supabase.from('pedidos').delete().eq('id', id); cargarPedidos(); } }
 
     function exportarExcelReal() {
         const info = pedidosActuales.map(p => ({
             "CLIENTE": p.cliente, 
             "PRODUCTO": p.producto, 
             "TOTAL (S/.)": p.precio_total, 
-            "ESTADO": p.entregado ? "Entregado" : "Por Entregar",
-            "LINK APP": "https://sistema-distribuidora-iota.vercel.app/"
+            "ESTADO": p.entregado ? "Entregado" : "Pendiente",
+            "APP URL": "https://sistema-distribuidora-iota.vercel.app/"
         }));
         const ws = XLSX.utils.json_to_sheet(info);
+        
+        // Auto-ajustar ancho de columnas en Excel
+        const colWidths = Object.keys(info[0]).map(key => ({ wch: Math.max(...info.map(obj => obj[key] ? obj[key].toString().length : 0), key.length) + 2 }));
+        ws['!cols'] = colWidths;
+
         const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Registro_Ventas");
-        XLSX.writeFile(wb, "Reporte_Distribuidora_Chavez.xlsx");
+        XLSX.utils.book_append_sheet(wb, ws, "Ventas");
+        XLSX.writeFile(wb, "Reporte_Chavez_Final.xlsx");
     }
 
     checkUser();
