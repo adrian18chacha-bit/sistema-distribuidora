@@ -10,10 +10,9 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-50 min-h-screen text-slate-900">
 
 <div id="auth-section" class="flex items-center justify-center min-h-screen px-4">
     <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100">
@@ -25,9 +24,9 @@
             <p class="text-slate-500 text-sm mt-1">Ingresa al sistema administrativo</p>
         </div>
         <div class="space-y-4">
-            <input type="email" id="login-email" placeholder="Correo electrónico" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
-            <input type="password" id="login-password" placeholder="Contraseña" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all">
-            <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-200 transition-all active:scale-95">Iniciar Sesión</button>
+            <input type="email" id="login-email" placeholder="Correo electrónico" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+            <input type="password" id="login-password" placeholder="Contraseña" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+            <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg transition-all active:scale-95">Iniciar Sesión</button>
         </div>
     </div>
 </div>
@@ -39,7 +38,7 @@
                 <div class="bg-white/20 p-2 rounded-lg">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                 </div>
-                <h2 class="text-xl font-bold tracking-tight">DISTRIBUIDORA CHÁVEZ</h2>
+                <h2 class="text-xl font-bold tracking-tight uppercase">Distribuidora Chávez</h2>
             </div>
             <button onclick="logout()" class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-lg text-sm font-semibold transition-all">Cerrar Sesión</button>
         </div>
@@ -54,28 +53,24 @@
                         <span class="w-2 h-6 bg-blue-600 rounded-full"></span>
                         Nuevo Registro
                     </h3>
-                    
-                    <div class="space-y-5">
+                    <div class="space-y-4 text-left">
                         <div>
                             <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Nombre del Cliente</label>
-                            <select id="cliente-select" onchange="toggleNuevoCliente()" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                            <select id="cliente-select" onchange="toggleNuevoCliente()" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500 transition-all">
                                 <option value="">Seleccionar cliente</option>
                                 <option value="NUEVO" class="text-blue-600 font-bold">+ Agregar nuevo</option>
                             </select>
-                            <input type="text" id="cliente-nuevo" placeholder="Nombre completo" class="hidden mt-3 w-full px-4 py-3 bg-white rounded-xl border-2 border-blue-100 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                            <input type="text" id="cliente-nuevo" placeholder="Escribir nombre..." class="hidden mt-3 w-full px-4 py-3 bg-white rounded-xl border-2 border-blue-100 outline-none">
                         </div>
-
                         <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Producto / Pedido</label>
-                            <input type="text" id="producto" placeholder="Ej: Bidón 20L" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                            <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Producto</label>
+                            <input type="text" id="producto" placeholder="Ej: Bidón 20L" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 outline-none">
                         </div>
-
                         <div>
-                            <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Precio Final (S/.)</label>
-                            <input type="number" id="precio" placeholder="0.00" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                            <label class="text-xs font-bold text-slate-400 uppercase mb-2 block">Precio Total (S/.)</label>
+                            <input type="number" id="precio" placeholder="0.00" class="w-full px-4 py-3 bg-slate-50 rounded-xl border border-slate-200 outline-none">
                         </div>
-
-                        <button onclick="guardarPedido()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg shadow-blue-100 transition-all transform active:scale-95">Guardar Pedido</button>
+                        <button onclick="guardarPedido()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-95">Guardar Pedido</button>
                     </div>
                 </div>
 
@@ -89,18 +84,34 @@
 
             <div class="lg:col-span-8">
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-                    <div class="p-6 border-b border-slate-50 flex items-center justify-between bg-white">
-                        <h3 class="font-bold text-slate-800 text-lg">Historial de Ventas</h3>
-                        <button onclick="exportarExcelReal()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold shadow-md shadow-emerald-100 transition-all flex items-center gap-2">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                            Exportar Excel
-                        </button>
+                    <div class="p-6 border-b border-slate-50 bg-white">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                            <div class="text-left">
+                                <h3 class="font-bold text-slate-800 text-lg">Historial de Ventas</h3>
+                                <p class="text-xs text-slate-400">Filtra y gestiona tus pedidos</p>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <div class="relative">
+                                    <input type="text" id="buscador" onkeyup="filtrarPedidos()" placeholder="Buscar cliente..." class="pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-48">
+                                    <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                </div>
+                                <select id="filtro-estado" onchange="filtrarPedidos()" class="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none">
+                                    <option value="TODOS">Todos</option>
+                                    <option value="PENDIENTE">Pendientes</option>
+                                    <option value="LISTO">Listos</option>
+                                </select>
+                                <button onclick="exportarExcelReal()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2">
+                                    Excel
+                                </button>
+                            </div>
+                        </div>
                     </div>
+
                     <div class="overflow-x-auto">
-                        <table class="w-full">
+                        <table class="w-full text-left">
                             <thead class="bg-slate-50 text-slate-400 text-xs font-bold uppercase">
                                 <tr>
-                                    <th class="px-6 py-4 text-left">Cliente</th>
+                                    <th class="px-6 py-4">Cliente</th>
                                     <th class="px-6 py-4 text-center">Producto</th>
                                     <th class="px-6 py-4 text-center">Total</th>
                                     <th class="px-6 py-4 text-center">Estado</th>
@@ -113,7 +124,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </main>
 </div>
@@ -124,25 +134,27 @@
     let pedidosActuales = [];
     let chartObj = null;
 
+    // --- LÓGICA DE FILTRADO ---
+    function filtrarPedidos() {
+        const busqueda = document.getElementById('buscador').value.toLowerCase();
+        const filtro = document.getElementById('filtro-estado').value;
+        
+        const filtrados = pedidosActuales.filter(p => {
+            const matchNombre = p.cliente.toLowerCase().includes(busqueda);
+            const status = p.entregado ? 'LISTO' : 'PENDIENTE';
+            const matchEstado = filtro === 'TODOS' || status === filtro;
+            return matchNombre && matchEstado;
+        });
+        actualizarTabla(filtrados, false); // false para no resetear combos al filtrar
+    }
+
     function renderChart(p, e) {
         const ctx = document.getElementById('graficoEntregas').getContext('2d');
         if (chartObj) chartObj.destroy();
         chartObj = new Chart(ctx, {
             type: 'doughnut',
-            data: { 
-                labels: ['Pendiente', 'Listo'], 
-                datasets: [{ 
-                    data: [p, e], 
-                    backgroundColor: ['#f59e0b', '#10b981'],
-                    hoverOffset: 4,
-                    borderWidth: 0
-                }] 
-            },
-            options: { 
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } } },
-                cutout: '70%'
-            }
+            data: { labels: ['Pendiente', 'Listo'], datasets: [{ data: [p, e], backgroundColor: ['#f59e0b', '#10b981'], borderWidth: 0 }] },
+            options: { maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } }
         });
     }
 
@@ -156,7 +168,7 @@
         const e = document.getElementById('login-email').value;
         const p = document.getElementById('login-password').value;
         const { error } = await _supabase.auth.signInWithPassword({ email: e, password: p });
-        if (!error) checkUser(); else alert("Error de acceso");
+        if (!error) checkUser(); else alert("Acceso incorrecto");
     }
 
     async function logout() { await _supabase.auth.signOut(); location.reload(); }
@@ -174,21 +186,20 @@
         const { data } = await _supabase.from('pedidos').select('*').order('creado_en', { ascending: false });
         if (data) { 
             pedidosActuales = data; 
-            actualizarCombos(data);
-            actualizarTabla(data); 
+            actualizarTabla(data, true); 
         }
     }
 
-    function actualizarCombos(lista) {
-        const s = document.getElementById('cliente-select');
-        const v = s.value;
-        const u = [...new Set(lista.map(p => p.cliente))].sort();
-        s.innerHTML = '<option value="">Seleccionar cliente</option><option value="NUEVO">+ Agregar nuevo</option>';
-        u.forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`);
-        s.value = v;
-    }
+    function actualizarTabla(lista, actualizarCombos) {
+        if (actualizarCombos) {
+            const s = document.getElementById('cliente-select');
+            const v = s.value;
+            const u = [...new Set(pedidosActuales.map(p => p.cliente))].sort();
+            s.innerHTML = '<option value="">Seleccionar cliente</option><option value="NUEVO">+ Agregar nuevo</option>';
+            u.forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`);
+            s.value = v;
+        }
 
-    function actualizarTabla(lista) {
         const tbody = document.getElementById('tabla-pedidos');
         tbody.innerHTML = '';
         let pen = 0, ent = 0;
@@ -196,7 +207,7 @@
             p.entregado ? ent++ : pen++;
             tbody.innerHTML += `
                 <tr class="hover:bg-slate-50 transition-colors">
-                    <td class="px-6 py-4 font-semibold text-slate-700 whitespace-nowrap">${p.cliente}</td>
+                    <td class="px-6 py-4 font-semibold text-slate-700">${p.cliente}</td>
                     <td class="px-6 py-4 text-center text-slate-500">${p.producto}</td>
                     <td class="px-6 py-4 text-center font-bold text-blue-600">S/. ${(p.precio_total || 0).toFixed(2)}</td>
                     <td class="px-6 py-4 text-center">
@@ -204,9 +215,9 @@
                             ${p.entregado ? 'Listo' : 'Pendiente'}
                         </span>
                     </td>
-                    <td class="px-6 py-4 flex justify-center gap-3">
-                        ${!p.entregado ? `<button onclick="marcarEntregado(${p.id})" class="text-emerald-500 hover:bg-emerald-50 p-2 rounded-lg transition-all">✓</button>` : ''}
-                        <button onclick="eliminarPedido(${p.id})" class="text-rose-500 hover:bg-rose-50 p-2 rounded-lg transition-all">✕</button>
+                    <td class="px-6 py-4 flex justify-center gap-2">
+                        ${!p.entregado ? `<button onclick="marcarEntregado(${p.id})" class="text-emerald-500 hover:bg-emerald-50 p-2 rounded-lg">✓</button>` : ''}
+                        <button onclick="eliminarPedido(${p.id})" class="text-rose-500 hover:bg-rose-50 p-2 rounded-lg">✕</button>
                     </td>
                 </tr>`;
         });
@@ -243,7 +254,7 @@
         const ws = XLSX.utils.json_to_sheet(info);
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Ventas");
-        XLSX.writeFile(wb, "Reporte_Chavez_Tailwind.xlsx");
+        XLSX.writeFile(wb, "Reporte_Distribuidora_Chavez.xlsx");
     }
 
     checkUser();
