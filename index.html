@@ -3,120 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Distribuidora Chávez | Dashboard Pro</title>
+    <title>Distribuidora Chávez | Gestión Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
+        // Configuración para activar el modo oscuro con una clase
         tailwind.config = {
             darkMode: 'class',
-            theme: { extend: { fontFamily: { sans: ['Inter', 'sans-serif'] } } }
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
         }
-        if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark');
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease; }
+        .tab-active { @apply bg-white text-blue-700 shadow-sm; }
     </style>
 </head>
-<body class="bg-[#f8fafc] dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen">
+<body class="bg-slate-50 dark:bg-slate-900 min-h-screen text-slate-900 dark:text-slate-100">
 
-<div id="auth-section" class="flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl w-full max-w-md border border-slate-100 dark:border-slate-700 text-center">
-        <div class="bg-[#2563eb] w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-6 shadow-lg shadow-blue-200 dark:shadow-none">
-            <span class="text-white text-3xl font-bold">D</span>
+<div id="auth-section" class="flex items-center justify-center min-h-screen px-4">
+    <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-slate-100 dark:border-slate-700">
+        <div class="text-center mb-8">
+            <div class="bg-blue-600 w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg">
+                <span class="text-white text-3xl font-bold">D</span>
+            </div>
+            <h1 class="text-2xl font-bold text-slate-800 dark:text-white uppercase tracking-wider">Distribuidora Chávez</h1>
         </div>
-        <h1 class="text-2xl font-bold dark:text-white mb-8 uppercase tracking-tight">Distribuidora Chávez</h1>
-        <div class="space-y-4 text-left">
-            <input type="email" id="login-email" placeholder="Correo" class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 dark:bg-slate-700 outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-            <input type="password" id="login-password" placeholder="Contraseña" class="w-full px-4 py-3 rounded-xl border dark:border-slate-600 dark:bg-slate-700 outline-none focus:ring-2 focus:ring-blue-500 transition-all">
-            <button onclick="login()" class="w-full bg-[#2563eb] hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-all">ENTRAR</button>
+        <div class="space-y-4">
+            <input type="email" id="login-email" placeholder="Correo" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700 outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+            <input type="password" id="login-password" placeholder="Contraseña" class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-700 outline-none focus:ring-2 focus:ring-blue-500 transition-all">
+            <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg active:scale-95 transition-all">Entrar</button>
         </div>
     </div>
 </div>
 
 <div id="app-section" class="hidden">
-    <nav class="bg-[#2563eb] dark:bg-blue-900 text-white shadow-lg sticky top-0 z-50 transition-colors">
+    <nav class="bg-blue-700 dark:bg-blue-900 text-white shadow-xl sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-            <h2 class="text-xl font-bold tracking-tight uppercase">Distribuidora Chávez</h2>
-            <div class="flex items-center gap-3">
-                <button onclick="toggleDarkMode()" class="p-2.5 bg-white/10 hover:bg-white/20 rounded-xl transition-all" title="Modo Noche">
-                    <span id="theme-icon" class="text-lg">🌙</span>
+            <h2 class="text-lg md:text-xl font-bold tracking-tight uppercase">Distribuidora Chávez</h2>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleDarkMode()" class="p-2 bg-white/10 hover:bg-white/20 rounded-lg transition-all" title="Modo Noche">
+                    <svg id="moon-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
                 </button>
-                <div class="flex bg-blue-800/40 rounded-xl p-1">
-                    <button onclick="cambiarPestana('ventas')" id="btn-tab-ventas" class="px-5 py-2 rounded-lg text-xs font-bold transition-all bg-white text-blue-700 shadow-sm">Ventas</button>
-                    <button onclick="cambiarPestana('gastos')" id="btn-tab-gastos" class="px-5 py-2 rounded-lg text-xs font-bold transition-all text-white opacity-70">Gastos</button>
+                <div class="flex bg-blue-800/50 rounded-xl p-1">
+                    <button onclick="cambiarPestana('ventas')" id="btn-tab-ventas" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all">Ventas</button>
+                    <button onclick="cambiarPestana('gastos')" id="btn-tab-gastos" class="px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold transition-all text-blue-200 hover:text-white">Gastos</button>
                 </div>
-                <button onclick="logout()" class="p-2.5 bg-white/10 hover:bg-rose-500 rounded-xl transition-all">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                <button onclick="logout()" class="p-2 bg-white/10 hover:bg-rose-500 rounded-lg transition-all">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                 </button>
             </div>
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-blue-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ventas Totales</p>
-                <h4 class="text-2xl font-bold text-slate-800 dark:text-white" id="resumen-ventas">S/. 0.00</h4>
+    <main class="max-w-7xl mx-auto px-4 py-6 md:py-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-blue-500">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Ventas Totales</p>
+                <h4 class="text-xl font-bold text-slate-800 dark:text-white" id="resumen-ventas">S/. 0.00</h4>
             </div>
-            <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-rose-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Gastos Totales</p>
-                <h4 class="text-2xl font-bold text-slate-800 dark:text-white" id="resumen-gastos">S/. 0.00</h4>
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-rose-500">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Gastos Totales</p>
+                <h4 class="text-xl font-bold text-slate-800 dark:text-white" id="resumen-gastos">S/. 0.00</h4>
             </div>
-            <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-emerald-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Utilidad Neta</p>
-                <h4 class="text-2xl font-bold text-slate-800 dark:text-white" id="resumen-utilidad">S/. 0.00</h4>
+            <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-emerald-500">
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Utilidad Neta</p>
+                <h4 class="text-xl font-bold text-slate-800 dark:text-white" id="resumen-utilidad">S/. 0.00</h4>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 text-left">
-            <div class="lg:col-span-4 space-y-8">
-                <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700">
-                    <div id="form-ventas">
-                        <h3 class="font-bold mb-6 flex items-center gap-2 dark:text-white text-md tracking-tight"><div class="w-1.5 h-5 bg-blue-600 rounded-full"></div> Registrar Venta</h3>
-                        <div class="space-y-4">
-                            <select id="cliente-select" onchange="toggleNuevoCliente()" class="w-full p-4 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-2xl outline-none border border-slate-100 dark:border-slate-600 focus:ring-2 focus:ring-blue-500">
-                                <option value="">Seleccionar cliente</option><option value="NUEVO">+ Cliente Nuevo</option>
-                            </select>
-                            <input type="text" id="cliente-nuevo" placeholder="Nombre completo" class="hidden w-full p-4 bg-white dark:bg-slate-700 dark:text-white border-2 border-blue-50 dark:border-slate-600 rounded-2xl">
-                            <input type="text" id="producto" placeholder="Producto (ej. Bidón 20L)" class="w-full p-4 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-2xl border border-slate-100 dark:border-slate-600">
-                            <input type="number" id="precio" placeholder="Precio Total S/." class="w-full p-4 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-2xl border border-slate-100 dark:border-slate-600">
-                            <button onclick="guardarPedido()" class="w-full bg-[#2563eb] text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">Guardar Pedido</button>
-                        </div>
-                    </div>
-                    <div id="form-gastos" class="hidden">
-                        <h3 class="font-bold mb-6 flex items-center gap-2 text-rose-500 text-md tracking-tight"><div class="w-1.5 h-5 bg-rose-500 rounded-full"></div> Registrar Gasto</h3>
-                        <div class="space-y-4">
-                            <input type="text" id="gasto-desc" placeholder="Descripción del gasto" class="w-full p-4 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-2xl border border-slate-100 dark:border-slate-600">
-                            <input type="number" id="gasto-monto" placeholder="Monto S/." class="w-full p-4 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-2xl border border-slate-100 dark:border-slate-600">
-                            <button onclick="guardarGasto()" class="w-full bg-rose-500 text-white font-bold py-4 rounded-2xl shadow-lg">Guardar Gasto</button>
-                        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-4 space-y-6">
+                <div id="form-ventas" class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <h3 class="text-md font-bold text-slate-800 dark:text-white mb-5 flex items-center gap-2">
+                        <div class="w-1.5 h-5 bg-blue-600 rounded-full"></div> Registrar Venta
+                    </h3>
+                    <div class="space-y-4 text-left">
+                        <select id="cliente-select" onchange="toggleNuevoCliente()" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl border-none ring-1 ring-slate-200 dark:ring-slate-600 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                            <option value="">Seleccionar cliente</option>
+                            <option value="NUEVO" class="text-blue-600 font-bold">+ Cliente Nuevo</option>
+                        </select>
+                        <input type="text" id="cliente-nuevo" placeholder="Nombre del cliente" class="hidden w-full px-4 py-3 bg-white dark:bg-slate-700 dark:text-white border-2 border-blue-50 dark:border-slate-600 rounded-xl outline-none text-sm">
+                        <input type="text" id="producto" placeholder="Producto (ej. Bidón 20L)" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl border-none ring-1 ring-slate-200 dark:ring-slate-600 outline-none text-sm">
+                        <input type="number" id="precio" placeholder="Precio Total S/." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl border-none ring-1 ring-slate-200 dark:ring-slate-600 outline-none text-sm">
+                        <button onclick="guardarPedido()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-95">Guardar Pedido</button>
                     </div>
                 </div>
-                <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] h-52 flex items-center justify-center border border-slate-100 dark:border-slate-700">
-                    <canvas id="graficoEntregas"></canvas>
+
+                <div id="form-gastos" class="hidden bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <h3 class="text-md font-bold text-slate-800 dark:text-white mb-5 flex items-center gap-2">
+                        <div class="w-1.5 h-5 bg-rose-500 rounded-full"></div> Registrar Gasto
+                    </h3>
+                    <div class="space-y-4">
+                        <input type="text" id="gasto-desc" placeholder="Descripción del gasto" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl border-none ring-1 ring-slate-200 dark:ring-slate-600 outline-none text-sm">
+                        <input type="number" id="gasto-monto" placeholder="Monto S/." class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl border-none ring-1 ring-slate-200 dark:ring-slate-600 outline-none text-sm">
+                        <button onclick="guardarGasto()" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-95">Guardar Gasto</button>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <div class="h-40 flex items-center justify-center">
+                        <canvas id="graficoEntregas"></canvas>
+                    </div>
                 </div>
             </div>
 
             <div class="lg:col-span-8">
-                <div class="bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
-                    <div class="p-7 border-b dark:border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4">
-                        <h3 class="font-bold dark:text-white text-lg">Historial de Ventas</h3>
-                        <div class="flex gap-2 w-full md:w-auto">
-                            <input type="text" id="buscador" onkeyup="filtrarPedidos()" placeholder="Buscar cliente..." class="w-full pl-5 pr-4 py-3 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-2xl text-sm outline-none border border-slate-100 dark:border-slate-600 focus:ring-2 focus:ring-blue-500">
-                            <button onclick="exportarExcelReal()" class="bg-[#10b981] hover:bg-emerald-600 text-white p-3 rounded-2xl shadow-md transition-all">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1M16 10l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <div id="tabla-ventas-container" class="bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+                    <div class="p-5 border-b dark:border-slate-700 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <h3 class="font-bold text-slate-800 dark:text-white">Historial de Ventas</h3>
+                        <div class="flex gap-2 w-full sm:w-auto">
+                            <input type="text" id="buscador" onkeyup="filtrarPedidos()" placeholder="Buscar cliente..." class="px-4 py-2 bg-slate-50 dark:bg-slate-700 dark:text-white rounded-xl text-sm outline-none ring-1 ring-slate-200 dark:ring-slate-600 focus:ring-2 focus:ring-blue-500 w-full sm:w-48">
+                            <button onclick="exportarExcelReal()" class="bg-emerald-500 text-white px-3 rounded-xl hover:bg-emerald-600 transition-all">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                             </button>
                         </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-sm">
-                            <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-400 font-bold uppercase text-[10px] tracking-widest">
-                                <tr id="header-tabla"></tr>
+                    <div class="overflow-x-auto text-left">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-400 font-bold uppercase text-[10px]">
+                                <tr>
+                                    <th class="px-6 py-4">Cliente</th>
+                                    <th class="px-6 py-4 text-center">Total</th>
+                                    <th class="px-6 py-4 text-center">Estado</th>
+                                    <th class="px-6 py-4 text-center">Acciones</th>
+                                </tr>
                             </thead>
-                            <tbody id="body-tabla" class="divide-y divide-slate-50 dark:divide-slate-700"></tbody>
+                            <tbody id="tabla-pedidos" class="divide-y divide-slate-50 dark:divide-slate-700"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div id="tabla-gastos-container" class="hidden bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden text-left">
+                    <div class="p-5 border-b dark:border-slate-700">
+                        <h3 class="font-bold text-slate-800 dark:text-white">Registro de Gastos</h3>
+                    </div>
+                    <div class="overflow-x-auto text-left">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-400 font-bold uppercase text-[10px]">
+                                <tr>
+                                    <th class="px-6 py-4">Descripción</th>
+                                    <th class="px-6 py-4 text-center">Monto</th>
+                                    <th class="px-6 py-4 text-center">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-gastos-body" class="divide-y divide-slate-50 dark:divide-slate-700"></tbody>
                         </table>
                     </div>
                 </div>
@@ -125,126 +161,203 @@
     </main>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
     const _supabase = supabase.createClient('https://ozdpcjhwbdsuqncgxfpz.supabase.co', 'sb_publishable_aBgdzg-JTQ61i1IkjUYysQ_4lYYJGPQ');
-    let pedidosActuales = [], gastosActuales = [], chartObj = null;
+    let pedidosActuales = [];
+    let gastosActuales = [];
+    let chartObj = null;
+
+    // Función para alternar modo noche
+    function toggleDarkMode() {
+        document.documentElement.classList.toggle('dark');
+        const isDark = document.documentElement.classList.contains('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    // Aplicar tema guardado al cargar
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.classList.add('dark');
+    }
+
+    function cambiarPestana(tab) {
+        const esVentas = tab === 'ventas';
+        document.getElementById('form-ventas').classList.toggle('hidden', !esVentas);
+        document.getElementById('tabla-ventas-container').classList.toggle('hidden', !esVentas);
+        document.getElementById('form-gastos').classList.toggle('hidden', esVentas);
+        document.getElementById('tabla-gastos-container').classList.toggle('hidden', esVentas);
+        
+        document.getElementById('btn-tab-ventas').className = esVentas ? "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-white text-blue-700 shadow-sm" : "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold text-blue-200 hover:text-white";
+        document.getElementById('btn-tab-gastos').className = !esVentas ? "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold bg-white text-rose-600 shadow-sm" : "px-3 py-1.5 rounded-lg text-xs md:text-sm font-bold text-blue-200 hover:text-white";
+    }
 
     async function login() {
-        const e = document.getElementById('login-email').value, p = document.getElementById('login-password').value;
+        const e = document.getElementById('login-email').value;
+        const p = document.getElementById('login-password').value;
         const { error } = await _supabase.auth.signInWithPassword({ email: e, password: p });
-        if (!error) checkUser(); else alert("Acceso denegado: " + error.message);
+        if (!error) checkUser(); else alert("Error de acceso");
     }
+
     async function logout() { await _supabase.auth.signOut(); location.reload(); }
-    
+
     async function checkUser() {
         const { data: { user } } = await _supabase.auth.getUser();
         if (user) {
             document.getElementById('auth-section').classList.add('hidden');
             document.getElementById('app-section').classList.remove('hidden');
-            cambiarPestana('ventas'); cargarTodo();
+            cambiarPestana('ventas');
+            cargarTodo();
         }
     }
 
     async function cargarTodo() {
         const { data: p } = await _supabase.from('pedidos').select('*').order('creado_en', { ascending: false });
         const { data: g } = await _supabase.from('gastos').select('*').order('creado_en', { ascending: false });
-        pedidosActuales = p || []; gastosActuales = g || [];
+        pedidosActuales = p || [];
+        gastosActuales = g || [];
         actualizarInterfaz();
+    }
+
+    function enviarWhatsApp(cliente, producto, total) {
+        const mensaje = encodeURIComponent(`¡Hola ${cliente}! 👋 Te confirmamos tu pedido de ${producto} por un total de S/. ${total.toFixed(2)}. ¡Gracias por confiar en Distribuidora Chávez! 🚛💧`);
+        window.open(`https://api.whatsapp.com/send?text=${mensaje}`, '_blank');
     }
 
     function actualizarInterfaz() {
-        const isV = !document.getElementById('form-ventas').classList.contains('hidden');
-        const h = document.getElementById('header-tabla'), b = document.getElementById('body-tabla');
-        b.innerHTML = ''; let tV = 0, tG = 0, pen = 0, ent = 0;
+        const tbodyV = document.getElementById('tabla-pedidos');
+        tbodyV.innerHTML = '';
+        let tVentas = 0, pen = 0, ent = 0;
         
-        pedidosActuales.forEach(p => { tV += p.precio_total; p.entregado ? ent++ : pen++; });
-        gastosActuales.forEach(g => tG += g.monto);
-        
-        document.getElementById('resumen-ventas').textContent = `S/. ${tV.toFixed(2)}`;
-        document.getElementById('resumen-gastos').textContent = `S/. ${tG.toFixed(2)}`;
-        document.getElementById('resumen-utilidad').textContent = `S/. ${(tV - tG).toFixed(2)}`;
-
-        if (isV) {
-            h.innerHTML = '<th class="px-7 py-5 text-left">Cliente</th><th class="px-7 py-5 text-center">Total</th><th class="px-7 py-5 text-center">Estado</th><th class="px-7 py-5 text-center">Acciones</th>';
-            pedidosActuales.forEach(p => {
-                b.innerHTML += `
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all">
-                    <td class="px-7 py-5 font-bold dark:text-white">${p.cliente}<br><span class="text-[10px] text-slate-400 font-normal uppercase">${p.producto}</span></td>
-                    <td class="px-7 py-5 text-center font-black text-blue-600 dark:text-blue-400">S/. ${p.precio_total.toFixed(2)}</td>
-                    <td class="px-7 py-5 text-center"><span class="px-2 py-1 rounded-lg text-[10px] font-black ${p.entregado ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'}">${p.entregado ? 'LISTO' : 'PENDIENTE'}</span></td>
-                    <td class="px-7 py-5 flex justify-center items-center gap-3">
-                        <button onclick="ws('${p.cliente}','${p.producto}',${p.precio_total})" class="text-emerald-500 hover:scale-125 transition-transform">
+        pedidosActuales.forEach(p => {
+            tVentas += (p.precio_total || 0);
+            p.entregado ? ent++ : pen++;
+            tbodyV.innerHTML += `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">${p.cliente}<br><span class="text-[10px] text-slate-400 font-normal uppercase">${p.producto}</span></td>
+                    <td class="px-6 py-4 text-center font-black text-blue-600 dark:text-blue-400 whitespace-nowrap">S/. ${(p.precio_total || 0).toFixed(2)}</td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-2 py-1 rounded-lg text-[10px] font-black ${p.entregado ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}">
+                            ${p.entregado ? 'LISTO' : 'PENDIENTE'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 flex justify-center items-center gap-1">
+                        <button onclick="enviarWhatsApp('${p.cliente}', '${p.producto}', ${p.precio_total})" class="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-all" title="WhatsApp">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793 0-.853.448-1.273.607-1.446.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.101-.177.211-.077.383.101.173.448.738.961 1.193.661.587 1.216.768 1.39.853.173.087.275.072.376-.044.101-.116.434-.506.549-.68.116-.173.231-.144.39-.087s1.011.477 1.184.564c.173.087.289.13.332.202.045.072.045.419-.1.824z"/></svg>
                         </button>
-                        ${!p.entregado ? `<button onclick="marcar(${p.id})" class="text-blue-500 font-black hover:scale-125 transition-transform text-lg">✓</button>` : ''}
-                        <button onclick="borrarP(${p.id})" class="text-rose-500 hover:scale-125 transition-transform text-lg">✕</button>
+                        ${!p.entregado ? `<button onclick="marcarEntregado(${p.id})" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg transition-all" title="Listo">✓</button>` : ''}
+                        <button onclick="eliminarPedido(${p.id})" class="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-all" title="Eliminar">✕</button>
                     </td>
                 </tr>`;
-            });
-        } else {
-            h.innerHTML = '<th class="px-7 py-5 text-left">Gasto</th><th class="px-7 py-5 text-center">Monto</th><th class="px-7 py-5 text-center">Acción</th>';
-            gastosActuales.forEach(g => {
-                b.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all"><td class="px-7 py-5 font-bold dark:text-white">${g.descripcion}</td><td class="px-7 py-5 text-center font-black text-rose-500">S/. ${g.monto.toFixed(2)}</td><td class="px-7 py-5 text-center"><button onclick="borrarG(${g.id})" class="text-rose-500 font-bold hover:scale-110 transition-all">✕</button></td></tr>`;
-            });
-        }
+        });
+
+        const tbodyG = document.getElementById('tabla-gastos-body');
+        tbodyG.innerHTML = '';
+        let tGastos = 0;
+        gastosActuales.forEach(g => {
+            tGastos += (g.monto || 0);
+            tbodyG.innerHTML += `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">${g.descripcion}</td>
+                    <td class="px-6 py-4 text-center font-black text-rose-500 whitespace-nowrap">S/. ${(g.monto || 0).toFixed(2)}</td>
+                    <td class="px-6 py-4 text-center">
+                        <button onclick="eliminarGasto(${g.id})" class="text-rose-500 hover:bg-rose-50 p-2 rounded-lg">✕</button>
+                    </td>
+                </tr>`;
+        });
+
+        document.getElementById('resumen-ventas').textContent = `S/. ${tVentas.toFixed(2)}`;
+        document.getElementById('resumen-gastos').textContent = `S/. ${tGastos.toFixed(2)}`;
+        document.getElementById('resumen-utilidad').textContent = `S/. ${(tVentas - tGastos).toFixed(2)}`;
+        
         const s = document.getElementById('cliente-select');
+        const v = s.value;
         const u = [...new Set(pedidosActuales.map(p => p.cliente))].sort();
-        const vS = s.value;
         s.innerHTML = '<option value="">Seleccionar cliente</option><option value="NUEVO">+ Cliente Nuevo</option>';
-        u.forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`); s.value = vS;
+        u.forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`);
+        s.value = v;
+
         renderChart(pen, ent);
     }
 
-    function toggleDarkMode() {
-        const d = document.documentElement;
-        d.classList.toggle('dark');
-        const isD = d.classList.contains('dark');
-        localStorage.setItem('theme', isD ? 'dark' : 'light');
-        document.getElementById('theme-icon').textContent = isD ? '☀️' : '🌙';
+    async function guardarGasto() {
+        const d = document.getElementById('gasto-desc').value;
+        const m = parseFloat(document.getElementById('gasto-monto').value);
+        if (d && !isNaN(m)) {
+            await _supabase.from('gastos').insert([{ descripcion: d, monto: m }]);
+            document.getElementById('gasto-desc').value = ''; document.getElementById('gasto-monto').value = '';
+            cargarTodo();
+        }
     }
-    function cambiarPestana(t) {
-        const isV = t === 'ventas';
-        document.getElementById('form-ventas').classList.toggle('hidden', !isV);
-        document.getElementById('form-gastos').classList.toggle('hidden', isV);
-        document.getElementById('btn-tab-ventas').className = isV ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-700 shadow-sm" : "px-5 py-2 rounded-lg text-xs font-bold text-white opacity-70 hover:opacity-100";
-        document.getElementById('btn-tab-gastos').className = !isV ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-rose-600 shadow-sm" : "px-5 py-2 rounded-lg text-xs font-bold text-white opacity-70 hover:opacity-100";
-        actualizarInterfaz();
+
+    async function eliminarGasto(id) { if(confirm("¿Eliminar gasto?")) { await _supabase.from('gastos').delete().eq('id', id); cargarTodo(); } }
+
+    function filtrarPedidos() {
+        const b = document.getElementById('buscador').value.toLowerCase();
+        const filt = pedidosActuales.filter(p => p.cliente.toLowerCase().includes(b));
+        const tbodyV = document.getElementById('tabla-pedidos');
+        tbodyV.innerHTML = '';
+        filt.forEach(p => {
+            tbodyV.innerHTML += `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    <td class="px-6 py-4 font-bold text-slate-700 dark:text-slate-300">${p.cliente}<br><span class="text-[10px] text-slate-400 font-normal uppercase">${p.producto}</span></td>
+                    <td class="px-6 py-4 text-center font-black text-blue-600 dark:text-blue-400 whitespace-nowrap">S/. ${(p.precio_total || 0).toFixed(2)}</td>
+                    <td class="px-6 py-4 text-center"><span class="px-2 py-1 rounded-lg text-[10px] font-black ${p.entregado ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}">${p.entregado ? 'LISTO' : 'PENDIENTE'}</span></td>
+                    <td class="px-6 py-4 flex justify-center items-center gap-1">
+                        <button onclick="enviarWhatsApp('${p.cliente}', '${p.producto}', ${p.precio_total})" class="p-2 text-emerald-500 hover:bg-emerald-50 rounded-lg transition-all"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793 0-.853.448-1.273.607-1.446.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.101-.177.211-.077.383.101.173.448.738.961 1.193.661.587 1.216.768 1.39.853.173.087.275.072.376-.044.101-.116.434-.506.549-.68.116-.173.231-.144.39-.087s1.011.477 1.184.564c.173.087.289.13.332.202.045.072.045.419-.1.824z"/></svg></button>
+                        ${!p.entregado ? `<button onclick="marcarEntregado(${p.id})" class="p-2 text-blue-500 hover:bg-blue-50 rounded-lg">✓</button>` : ''}
+                        <button onclick="eliminarPedido(${p.id})" class="text-rose-500 hover:bg-rose-50 p-2 rounded-lg">✕</button>
+                    </td>
+                </tr>`;
+        });
     }
-    function ws(c,pr,t) { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('¡Hola '+c+'! 👋 Te confirmamos tu pedido de '+pr+' por un total de S/. '+t.toFixed(2)+'. ¡Gracias por confiar en Distribuidora Chávez! 🚛💧')}`); }
+
+    async function guardarPedido() {
+        const s = document.getElementById('cliente-select');
+        const i = document.getElementById('cliente-nuevo');
+        let c = s.value === "NUEVO" ? i.value.trim() : s.value;
+        const pr = document.getElementById('producto').value;
+        const p = parseFloat(document.getElementById('precio').value);
+        if (c && pr && p) {
+            await _supabase.from('pedidos').insert([{ cliente: c, producto: pr, precio_total: p, entregado: false }]);
+            s.value = ""; i.value = ""; i.classList.add('hidden');
+            document.getElementById('producto').value = ''; document.getElementById('precio').value = '';
+            cargarTodo();
+        }
+    }
+
+    async function marcarEntregado(id) { await _supabase.from('pedidos').update({ entregado: true }).eq('id', id); cargarTodo(); }
+    async function eliminarPedido(id) { if(confirm("¿Eliminar?")) { await _supabase.from('pedidos').delete().eq('id', id); cargarTodo(); } }
+
     function renderChart(p, e) {
         const ctx = document.getElementById('graficoEntregas').getContext('2d');
         if (chartObj) chartObj.destroy();
-        chartObj = new Chart(ctx, { type: 'doughnut', data: { datasets: [{ data: [p, e], backgroundColor: ['#f97316', '#10b981'], borderWidth: 0 }] }, options: { cutout: '85%' }});
+        chartObj = new Chart(ctx, {
+            type: 'doughnut',
+            data: { datasets: [{ data: [p, e], backgroundColor: ['#f97316', '#10b981'], borderWidth: 0 }] },
+            options: { maintainAspectRatio: false, cutout: '80%', plugins: { legend: { display: false } } }
+        });
     }
-    async function guardarPedido() {
-        const s = document.getElementById('cliente-select');
-        const c = s.value === "NUEVO" ? document.getElementById('cliente-nuevo').value : s.value;
-        const pr = document.getElementById('producto').value, p = parseFloat(document.getElementById('precio').value);
-        if (c && pr && p) { await _supabase.from('pedidos').insert([{ cliente: c, producto: pr, precio_total: p, entregado: false }]); cargarTodo(); }
-    }
-    async function guardarGasto() {
-        const d = document.getElementById('gasto-desc').value, m = parseFloat(document.getElementById('gasto-monto').value);
-        if (d && m) { await _supabase.from('gastos').insert([{ descripcion: d, monto: m }]); cargarTodo(); }
-    }
-    async function marcar(id) { await _supabase.from('pedidos').update({ entregado: true }).eq('id', id); cargarTodo(); }
-    async function borrarP(id) { if(confirm("¿Eliminar?")) { await _supabase.from('pedidos').delete().eq('id', id); cargarTodo(); } }
-    async function borrarG(id) { if(confirm("¿Eliminar?")) { await _supabase.from('gastos').delete().eq('id', id); cargarTodo(); } }
+
     function toggleNuevoCliente() {
-        const s = document.getElementById('cliente-select'), i = document.getElementById('cliente-nuevo');
+        const s = document.getElementById('cliente-select');
+        const i = document.getElementById('cliente-nuevo');
         s.value === "NUEVO" ? i.classList.remove('hidden') : i.classList.add('hidden');
     }
-    function filtrarPedidos() {
-        const b = document.getElementById('buscador').value.toLowerCase();
-        const f = pedidosActuales.filter(p => p.cliente.toLowerCase().includes(b));
-        const body = document.getElementById('body-tabla'); body.innerHTML = '';
-        f.forEach(p => { body.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all"><td class="px-7 py-5 font-bold dark:text-white">${p.cliente}<br><span class="text-[10px] text-slate-400 font-normal uppercase">${p.producto}</span></td><td class="px-7 py-5 text-center font-black text-blue-600 dark:text-blue-400">S/. ${p.precio_total.toFixed(2)}</td><td class="px-7 py-5 text-center"><span class="px-2 py-1 rounded-lg text-[10px] font-black ${p.entregado ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'}">${p.entregado ? 'LISTO' : 'PENDIENTE'}</span></td><td class="px-7 py-5 flex justify-center items-center gap-3"><button onclick="ws('${p.cliente}','${p.producto}',${p.precio_total})" class="text-emerald-500 hover:scale-125 transition-transform"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793 0-.853.448-1.273.607-1.446.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.101-.177.211-.077.383.101.173.448.738.961 1.193.661.587 1.216.768 1.39.853.173.087.275.072.376-.044.101-.116.434-.506.549-.68.116-.173.231-.144.39-.087s1.011.477 1.184.564c.173.087.289.13.332.202.045.072.045.419-.1.824z"/></svg></button>${!p.entregado ? `<button onclick="marcar(${p.id})" class="text-blue-500 font-black hover:scale-125 transition-transform">✓</button>` : ''}<button onclick="borrarP(${p.id})" class="text-rose-500 hover:scale-125 transition-transform">✕</button></td></tr>`; });
-    }
+
     function exportarExcelReal() {
-        const info = pedidosActuales.map(p => ({ "CLIENTE": p.cliente, "PEDIDO": p.producto, "TOTAL": p.precio_total.toFixed(2), "ESTADO": p.entregado ? "Listo" : "Pendiente" }));
-        const ws = XLSX.utils.json_to_sheet(info); const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Ventas"); XLSX.writeFile(wb, "Reporte_Distribuidora_Chavez.xlsx");
+        const info = pedidosActuales.map(p => {
+            const t = p.precio_total || 0;
+            return { "CLIENTE": p.cliente, "PEDIDO": p.producto, "BASE": (t/1.18).toFixed(2), "IGV": (t-(t/1.18)).toFixed(2), "TOTAL": t.toFixed(2), "ESTADO": p.entregado ? "Listo" : "Pendiente" };
+        });
+        const ws = XLSX.utils.json_to_sheet(info);
+        const wscols = [{wch: 40}, {wch: 25}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 15}];
+        ws['!cols'] = wscols;
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Ventas");
+        XLSX.writeFile(wb, "Reporte_Distribuidora_Chavez.xlsx");
     }
-    window.onload = checkUser;
+
+    checkUser();
 </script>
 </body>
 </html>
