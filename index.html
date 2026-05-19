@@ -66,6 +66,9 @@
                 <option value="todos">🕒 Todo el Historial</option>
                 <option value="hoy">📅 Solo Ventas de Hoy</option>
                 <option value="mes">📊 Balance de este Mes</option>
+                <option value="semana1">📈 Últimas 1 Semana</option>
+                <option value="semana2">📈 Últimas 2 Semanas</option>
+                <option value="semana4">📈 Últimas 4 Semanas</option>
             </select>
         </div>
 
@@ -117,24 +120,6 @@
                         <div class="h-56">
                             <canvas id="graficoEntregas"></canvas>
                         </div>
-                    </div>
-                </div>
-
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] mt-6 border border-slate-100 dark:border-slate-700 shadow-sm">
-                    <div class="flex items-center justify-between mb-3 gap-3">
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ventas por semana</p>
-                            <h4 class="text-sm font-bold dark:text-white" id="titulo-semanal">Últimas 8 semanas</h4>
-                        </div>
-                        <select id="semanas-count" onchange="renderVentasPorSemana()" class="p-2.5 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-xl outline-none border border-slate-100 dark:border-slate-600 text-sm font-bold">
-                            <option value="4">4</option>
-                            <option value="6">6</option>
-                            <option value="8" selected>8</option>
-                            <option value="12">12</option>
-                        </select>
-                    </div>
-                    <div class="h-64">
-                        <canvas id="graficoVentasSemana"></canvas>
                     </div>
                 </div>
 
@@ -222,6 +207,18 @@
                 } else if (filtro === 'mes') {
                     return fechaItem.getMonth() === hoy.getMonth() && 
                            fechaItem.getFullYear() === hoy.getFullYear();
+                } else if (filtro === 'semana1') {
+                    const hace1Sem = new Date(hoy);
+                    hace1Sem.setDate(hace1Sem.getDate() - 7);
+                    return fechaItem >= hace1Sem && fechaItem <= hoy;
+                } else if (filtro === 'semana2') {
+                    const hace2Sem = new Date(hoy);
+                    hace2Sem.setDate(hace2Sem.getDate() - 14);
+                    return fechaItem >= hace2Sem && fechaItem <= hoy;
+                } else if (filtro === 'semana4') {
+                    const hace4Sem = new Date(hoy);
+                    hace4Sem.setDate(hace4Sem.getDate() - 28);
+                    return fechaItem >= hace4Sem && fechaItem <= hoy;
                 }
                 return true;
             });
@@ -308,7 +305,6 @@
         }
         
         renderChart(pen, ent);
-        renderVentasPorSemana();
     }
 
     function renderVentasPorSemana() {
