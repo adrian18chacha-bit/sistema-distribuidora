@@ -10,6 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -485,113 +486,85 @@
         const { subtotal, igv } = totalToSubtotalIGV(total);
         const fecha = new Date(pedido.creado_en).toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit' });
         const estado = pedido.entregado ? 'LISTO' : 'PENDIENTE';
-
-        const w = window.open('', '_blank');
-        if (!w) {
-            alert('Habilita ventanas emergentes para imprimir el recibo');
-            return;
-        }
-
         const empresa = 'Distribuidora Chávez';
+        const logo = 'https://cdn-icons-png.flaticon.com/512/3105/3105807.png';
+
         const html = `
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Recibo #${idPedido}</title>
-  <style>
-    body{font-family: Arial, Helvetica, sans-serif; margin:24px; color:#111;}
-    .head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; border-bottom:1px solid #ddd; padding-bottom:12px;}
-    h1{margin:0; font-size:18px;}
-    .meta{font-size:12px; color:#444; text-align:right;}
-    .box{border:1px solid #ddd; padding:14px; margin-top:16px;}
-    table{width:100%; border-collapse:collapse; margin-top:10px;}
-    th,td{border-bottom:1px solid #eee; padding:8px 6px; font-size:12px;}
-    th{background:#f7f7f7; text-align:left;}
-    .right{text-align:right;}
-    .sum{margin-top:14px; display:flex; justify-content:flex-end;}
-    .sum table{width:320px;}
-    .total td{font-weight:bold; font-size:13px; border-bottom:none;}
-    .status{display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:bold; border:1px solid #ddd;}
-    .status.ok{background:#ecfdf5; border-color:#bbf7d0; color:#047857;}
-    .status.no{background:#fffbeb; border-color:#fde68a; color:#b45309;}
-    .foot{margin-top:20px; font-size:11px; color:#666;}
-    @media print{ body{margin:0;} .box{margin:0;} .head{margin:0;} }
-  </style>
-</head>
-<body>
-  <div class="head">
-    <div>
-      <h1>${empresa}</h1>
-      <div style="font-size:12px;color:#444;margin-top:4px;">Recibo de Venta</div>
+<div style="font-family: Arial, Helvetica, sans-serif; padding: 20px; color: #111; width: 100%; max-width: 600px;">
+  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0d6efd; padding-bottom: 16px; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 12px;">
+      <img src="${logo}" style="width: 48px; height: 48px; border-radius: 8px;" />
+      <div>
+        <h1 style="margin: 0; font-size: 20px; font-weight: bold; color: #0d6efd;">${empresa}</h1>
+        <div style="font-size: 11px; color: #666; margin-top: 2px;">Recibo de Venta</div>
+      </div>
     </div>
-    <div class="meta">
-      <div><b>Recibo:</b> #${idPedido}</div>
-      <div><b>Fecha:</b> ${fecha}</div>
+    <div style="text-align: right;">
+      <div style="font-size: 13px; font-weight: bold;"><b>Recibo:</b> #${idPedido}</div>
+      <div style="font-size: 13px; color: #666;"><b>Fecha:</b> ${fecha}</div>
     </div>
   </div>
 
-  <div class="box">
-    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
-      <div>
-        <div style="font-size:12px;color:#444;"><b>Cliente:</b> ${pedido.cliente}</div>
-      </div>
-      <div class="status ${pedido.entregado ? 'ok' : 'no'}">${estado}</div>
+  <div style="border: 1px solid #ddd; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <div style="font-size: 13px;"><b>Cliente:</b> ${pedido.cliente}</div>
+      <span style="display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; ${pedido.entregado ? 'background: #ecfdf5; border: 1px solid #bbf7d0; color: #047857;' : 'background: #fffbeb; border: 1px solid #fde68a; color: #b45309;'}">${estado}</span>
     </div>
 
-    <table>
-      <thead>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 12px;">
+      <thead style="background: #f7f7f7;">
         <tr>
-          <th style="width:45%">Producto</th>
-          <th class="right" style="width:25%">Subtotal</th>
-          <th class="right" style="width:15%">IGV</th>
-          <th class="right" style="width:15%">Total</th>
+          <th style="padding: 8px; text-align: left; font-size: 12px; border-bottom: 1px solid #eee;">Producto</th>
+          <th style="padding: 8px; text-align: right; font-size: 12px; border-bottom: 1px solid #eee;">Subtotal</th>
+          <th style="padding: 8px; text-align: right; font-size: 12px; border-bottom: 1px solid #eee;">IGV (18%)</th>
+          <th style="padding: 8px; text-align: right; font-size: 12px; border-bottom: 1px solid #eee;">Total</th>
         </tr>
       </thead>
       <tbody>
         <tr>
-          <td>${pedido.producto}</td>
-          <td class="right">S/. ${subtotal.toFixed(2)}</td>
-          <td class="right">S/. ${igv.toFixed(2)}</td>
-          <td class="right">S/. ${total.toFixed(2)}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #eee;">${pedido.producto}</td>
+          <td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;">S/. ${subtotal.toFixed(2)}</td>
+          <td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;">S/. ${igv.toFixed(2)}</td>
+          <td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee; font-weight: bold; color: #0d6efd;">S/. ${total.toFixed(2)}</td>
         </tr>
       </tbody>
     </table>
 
-    <div class="sum">
-      <table>
-        <tr>
-          <td style="border-bottom:none; padding:6px 0; font-size:12px; color:#444;">Subtotal</td>
-          <td class="right" style="border-bottom:none; padding:6px 0; font-size:12px; font-weight:bold;">S/. ${subtotal.toFixed(2)}</td>
-        </tr>
-        <tr>
-          <td style="border-bottom:none; padding:6px 0; font-size:12px; color:#444;">IGV (18%)</td>
-          <td class="right" style="border-bottom:none; padding:6px 0; font-size:12px; font-weight:bold;">S/. ${igv.toFixed(2)}</td>
-        </tr>
-        <tr class="total">
-          <td style="padding:8px 0; border-bottom:none; font-size:13px;">TOTAL</td>
-          <td class="right" style="padding:8px 0; border-bottom:none; font-size:13px;">S/. ${total.toFixed(2)}</td>
-        </tr>
-      </table>
+    <div style="text-align: right; margin-top: 16px; border-top: 1px solid #eee; padding-top: 12px;">
+      <div style="display: flex; justify-content: flex-end; gap: 40px; font-size: 13px; margin-bottom: 8px;">
+        <span>Subtotal:</span>
+        <span style="font-weight: bold; min-width: 80px; text-align: right;">S/. ${subtotal.toFixed(2)}</span>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 40px; font-size: 13px; margin-bottom: 12px;">
+        <span>IGV (18%):</span>
+        <span style="font-weight: bold; min-width: 80px; text-align: right;">S/. ${igv.toFixed(2)}</span>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 40px; font-size: 15px; font-weight: bold; color: #0d6efd; border-top: 2px solid #0d6efd; padding-top: 12px;">
+        <span>TOTAL:</span>
+        <span style="min-width: 80px; text-align: right;">S/. ${total.toFixed(2)}</span>
+      </div>
     </div>
   </div>
 
-  <div class="foot">
-    * Este recibo se imprime desde el navegador. Para guardarlo como PDF: Imprimir → Guardar como PDF.
+  <div style="font-size: 11px; color: #999; text-align: center; margin-top: 20px; border-top: 1px solid #eee; padding-top: 12px;">
+    Gracias por tu compra • Distribuidora Chávez
   </div>
-
-  <script>
-    setTimeout(() => { window.focus(); window.print(); }, 150);
-  <\/script>
-</body>
-</html>
+</div>
 `;
 
-        w.document.open();
-        w.document.write(html);
-        w.document.close();
-      }
+        const element = document.createElement('div');
+        element.innerHTML = html;
+
+        const opt = {
+            margin: 10,
+            filename: `Recibo_${empresa.replace(/\s+/g, '_')}_#${idPedido}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+        };
+
+        html2pdf().set(opt).from(element).save();
+    }
 
     document.addEventListener('DOMContentLoaded', checkUser);
 
