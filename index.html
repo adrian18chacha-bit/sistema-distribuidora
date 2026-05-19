@@ -48,7 +48,7 @@
                     <button onclick="cambiarPestana('ventas')" id="btn-tab-ventas" class="px-5 py-2 rounded-lg text-xs font-bold transition-all bg-white text-blue-700 shadow-sm">Ventas</button>
                     <button onclick="cambiarPestana('gastos')" id="btn-tab-gastos" class="px-5 py-2 rounded-lg text-xs font-bold transition-all text-white opacity-60">Gastos</button>
                 </div>
-                <button onclick="logout()" class="p-2.5 bg-white/10 hover:bg-rose-500 rounded-xl transition-all">
+                <button onclick="logout()" class="p-2.5 bg-white/10 hover:bg-rose-500 rounded-xl transition-all" title="Cerrar Sesión">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                 </button>
             </div>
@@ -56,13 +56,23 @@
     </nav>
 
     <main class="max-w-7xl mx-auto px-4 py-8">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+            <h3 class="text-lg font-bold dark:text-white uppercase tracking-tight text-slate-800">Panel Financiero</h3>
+            <select id="filtro-fecha" onchange="aplicarFiltros()" class="w-full sm:w-auto p-3 bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-sm text-slate-600 cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-slate-700">
+                <option value="todos">🕒 Todo el Historial</option>
+                <option value="hoy">📅 Solo Ventas de Hoy</option>
+                <option value="mes">📊 Balance de este Mes</option>
+            </select>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-blue-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ventas Totales</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ventas</p>
                 <h4 class="text-2xl font-bold text-slate-800 dark:text-white" id="resumen-ventas">S/. 0.00</h4>
             </div>
             <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-rose-500">
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Gastos Totales</p>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Gastos</p>
                 <h4 class="text-2xl font-bold text-slate-800 dark:text-white" id="resumen-gastos">S/. 0.00</h4>
             </div>
             <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-emerald-500">
@@ -103,7 +113,7 @@
             <div class="lg:col-span-8">
                 <div class="bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
                     <div class="p-7 border-b dark:border-slate-700 flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-slate-800">
-                        <h3 class="font-bold dark:text-white text-lg" id="titulo-seccion">Historial de Ventas</h3>
+                        <h3 class="font-bold dark:text-white text-lg" id="titulo-seccion">Registros</h3>
                         <div class="flex gap-2 w-full md:w-auto">
                             <div class="relative w-full">
                                 <input type="text" id="buscador" onkeyup="filtrarPedidos()" placeholder="Buscar cliente..." class="w-full pl-5 pr-4 py-3 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-2xl text-sm outline-none border border-slate-100 dark:border-slate-600 focus:ring-2 focus:ring-blue-500">
@@ -127,14 +137,18 @@
 
 <script>
     const _supabase = supabase.createClient('https://ozdpcjhwbdsuqncgxfpz.supabase.co', 'sb_publishable_aBgdzg-JTQ61i1IkjUYysQ_4lYYJGPQ');
-    let pedidosActuales = [], gastosActuales = [], chartObj = null;
+    
+    // Arrays Globales: DB original vs Actual (Filtrado)
+    let pedidosDB = [], gastosDB = [];
+    let pedidosActuales = [], gastosActuales = [];
+    let chartObj = null;
 
-    // Control de Inicio de Sesión Seguro
     async function login() {
         const e = document.getElementById('login-email').value, p = document.getElementById('login-password').value;
         const { error } = await _supabase.auth.signInWithPassword({ email: e, password: p });
         if (!error) checkUser(); else alert("Error de acceso: Credenciales incorrectas");
     }
+    
     async function logout() { await _supabase.auth.signOut(); location.reload(); }
     
     async function checkUser() {
@@ -146,23 +160,56 @@
         }
     }
 
+    // 1. CARGA TODO DESDE SUPABASE UNA SOLA VEZ
     async function cargarTodo() {
         const { data: p } = await _supabase.from('pedidos').select('*').order('creado_en', { ascending: false });
         const { data: g } = await _supabase.from('gastos').select('*').order('creado_en', { ascending: false });
-        pedidosActuales = p || []; gastosActuales = g || [];
+        pedidosDB = p || []; gastosDB = g || [];
+        
+        // Carga los combos de clientes únicos globalmente
+        const s = document.getElementById('cliente-select');
+        const vS = s.value;
+        const u = [...new Set(pedidosDB.map(ped => ped.cliente))].sort();
+        s.innerHTML = '<option value="">Seleccionar cliente</option><option value="NUEVO">+ Cliente Nuevo</option>';
+        u.forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`); s.value = vS;
+
+        aplicarFiltros(); // Aplica el filtro de fecha actual
+    }
+
+    // 2. FILTRA POR FECHA SIN VOLVER A CONSULTAR A LA BASE DE DATOS
+    function aplicarFiltros() {
+        const filtro = document.getElementById('filtro-fecha').value;
+        const hoy = new Date();
+        
+        const filtrarPorFecha = (arr) => {
+            if (filtro === 'todos') return arr;
+            return arr.filter(item => {
+                const fechaItem = new Date(item.creado_en);
+                if (filtro === 'hoy') {
+                    return fechaItem.getDate() === hoy.getDate() && 
+                           fechaItem.getMonth() === hoy.getMonth() && 
+                           fechaItem.getFullYear() === hoy.getFullYear();
+                } else if (filtro === 'mes') {
+                    return fechaItem.getMonth() === hoy.getMonth() && 
+                           fechaItem.getFullYear() === hoy.getFullYear();
+                }
+                return true;
+            });
+        };
+
+        pedidosActuales = filtrarPorFecha(pedidosDB);
+        gastosActuales = filtrarPorFecha(gastosDB);
         actualizarInterfaz();
     }
 
-    // ARREGLO CLAVE: Cambia completamente los datos de la interfaz según la pestaña
     function cambiarPestana(t) {
         const isV = t === 'ventas';
         document.getElementById('form-ventas').classList.toggle('hidden', !isV);
         document.getElementById('form-gastos').classList.toggle('hidden', isV);
         
-        // Corrige el título e inputs dinámicamente
         document.getElementById('titulo-seccion').textContent = isV ? "Historial de Ventas" : "Registro de Gastos";
         document.getElementById('buscador').placeholder = isV ? "Buscar cliente..." : "Buscar gasto...";
-        document.getElementById('btn-excel').classList.toggle('hidden', !isV); // Ocultar excel en gastos
+        document.getElementById('btn-excel').classList.toggle('hidden', !isV);
         
         document.getElementById('btn-tab-ventas').className = isV ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-blue-700 shadow-sm transition-all" : "px-5 py-2 rounded-lg text-xs font-bold text-white opacity-70";
         document.getElementById('btn-tab-gastos').className = !isV ? "px-5 py-2 rounded-lg text-xs font-bold bg-white text-rose-600 shadow-sm transition-all" : "px-5 py-2 rounded-lg text-xs font-bold text-white opacity-70";
@@ -174,7 +221,9 @@
         const isV = !document.getElementById('form-ventas').classList.contains('hidden');
         const h = document.getElementById('header-tabla'), b = document.getElementById('body-tabla');
         b.innerHTML = ''; let tV = 0, tG = 0, pen = 0, ent = 0;
+        const query = document.getElementById('buscador').value.toLowerCase();
         
+        // Calcular Resumen
         pedidosActuales.forEach(p => { tV += p.precio_total; p.entregado ? ent++ : pen++; });
         gastosActuales.forEach(g => tG += g.monto);
         
@@ -182,16 +231,16 @@
         document.getElementById('resumen-gastos').textContent = `S/. ${tG.toFixed(2)}`;
         document.getElementById('resumen-utilidad').textContent = `S/. ${(tV - tG).toFixed(2)}`;
 
-        const query = document.getElementById('buscador').value.toLowerCase();
-
+        // Dibujar Tablas
         if (isV) {
             h.innerHTML = '<th class="px-7 py-5 text-left">Cliente</th><th class="px-7 py-5 text-center">Total</th><th class="px-7 py-5 text-center">Estado</th><th class="px-7 py-5 text-center">Acciones</th>';
             const filtrados = pedidosActuales.filter(p => p.cliente.toLowerCase().includes(query));
             
             filtrados.forEach(p => {
+                const fStr = new Date(p.creado_en).toLocaleDateString('es-PE', { day:'numeric', month:'short' });
                 b.innerHTML += `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left">
-                    <td class="px-7 py-5 font-bold dark:text-white">${p.cliente}<br><span class="text-[10px] text-slate-400 font-normal uppercase">${p.producto}</span></td>
+                    <td class="px-7 py-5 font-bold dark:text-white">${p.cliente}<br><span class="text-[10px] text-slate-400 font-normal uppercase">${p.producto} • ${fStr}</span></td>
                     <td class="px-7 py-5 text-center font-black text-blue-600 dark:text-blue-400">S/. ${p.precio_total.toFixed(2)}</td>
                     <td class="px-7 py-5 text-center"><span class="px-2.5 py-1 rounded-lg text-[10px] font-black ${p.entregado ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'}">${p.entregado ? 'LISTO' : 'PENDIENTE'}</span></td>
                     <td class="px-7 py-5 flex justify-center items-center gap-3">
@@ -208,27 +257,19 @@
             const filtradosG = gastosActuales.filter(g => g.descripcion.toLowerCase().includes(query));
             
             filtradosG.forEach(g => {
+                const fStr = new Date(g.creado_en).toLocaleDateString('es-PE', { day:'numeric', month:'short' });
                 b.innerHTML += `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left">
-                    <td class="px-7 py-5 font-bold dark:text-white">${g.descripcion}</td>
+                    <td class="px-7 py-5 font-bold dark:text-white">${g.descripcion}<br><span class="text-[10px] text-slate-400 font-normal uppercase">${fStr}</span></td>
                     <td class="px-7 py-5 text-center font-black text-rose-500">S/. ${g.monto.toFixed(2)}</td>
-                    <td class="px-7 py-5 text-center">
-                        <button onclick="eliminarGasto(${g.id})" class="text-rose-500 font-bold hover:scale-125 transition-transform text-lg">✕</button>
-                    </td>
+                    <td class="px-7 py-5 text-center"><button onclick="eliminarGasto(${g.id})" class="text-rose-500 font-bold hover:scale-125 transition-transform text-lg">✕</button></td>
                 </tr>`;
             });
         }
         
-        // Combo Box de Clientes
-        const s = document.getElementById('cliente-select'), vS = s.value;
-        const u = [...new Set(pedidosActuales.map(p => p.cliente))].sort();
-        s.innerHTML = '<option value="">Seleccionar cliente</option><option value="NUEVO">+ Cliente Nuevo</option>';
-        u.forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`); s.value = vS;
-        
         renderChart(pen, ent);
     }
 
-    // Herramientas Globales
     function toggleDarkMode() {
         document.documentElement.classList.toggle('dark');
         const isD = document.documentElement.classList.contains('dark');
@@ -238,7 +279,7 @@
     }
 
     function enviarWhatsApp(c, pr, t) {
-        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('¡Hola ' + c + '! 👋 Te confirmamos tu pedido de ' + pr + ' por un total de S/. ' + t.toFixed(2) + '. ¡Gracias por tu confianza! 🚛💧')}`, '_blank');
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('¡Hola ' + c + '! 👋 Confirmamos tu pedido de ' + pr + ' por S/. ' + t.toFixed(2) + '. ¡Gracias! 🚛💧')}`, '_blank');
     }
 
     function renderChart(p, e) {
@@ -247,25 +288,11 @@
         const isDark = document.documentElement.classList.contains('dark');
         chartObj = new Chart(ctx, {
             type: 'doughnut',
-            data: {
-                labels: ['Pendientes', 'Listos'],
-                datasets: [{ data: [p, e], backgroundColor: ['#f97316', '#10b981'], borderWidth: 0 }]
-            },
-            options: {
-                maintainAspectRatio: false,
-                cutout: '83%',
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'bottom',
-                        labels: { usePointStyle: true, font: { size: 10, weight: 'bold' }, color: isDark ? '#cbd5e1' : '#64748b', padding: 12 }
-                    }
-                }
-            }
+            data: { labels: ['Pendientes', 'Listos'], datasets: [{ data: [p, e], backgroundColor: ['#f97316', '#10b981'], borderWidth: 0 }] },
+            options: { maintainAspectRatio: false, cutout: '83%', plugins: { legend: { display: true, position: 'bottom', labels: { usePointStyle: true, font: { size: 10, weight: 'bold' }, color: isDark ? '#cbd5e1' : '#64748b', padding: 12 } } } }
         });
     }
 
-    // Base de Datos CRUD
     async function guardarPedido() {
         const s = document.getElementById('cliente-select'), c = s.value === "NUEVO" ? document.getElementById('cliente-nuevo').value : s.value;
         const pr = document.getElementById('producto').value, p = parseFloat(document.getElementById('precio').value);
@@ -298,19 +325,11 @@
     function filtrarPedidos() { actualizarInterfaz(); }
 
     function exportarExcelReal() {
-        const info = pedidosActuales.map(p => {
-            const t = p.precio_total || 0;
-            return { "CLIENTE": p.cliente, "PEDIDO": p.producto, "BASE": (t/1.18).toFixed(2), "IGV": (t-(t/1.18)).toFixed(2), "TOTAL": t.toFixed(2), "ESTADO": p.entregado ? "Listo" : "Pendiente" };
-        });
-        const ws = XLSX.utils.json_to_sheet(info);
-        const wscols = [{wch: 35}, {wch: 25}, {wch: 12}, {wch: 12}, {wch: 12}, {wch: 15}];
-        ws['!cols'] = wscols;
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Ventas");
-        XLSX.writeFile(wb, "Reporte_Distribuidora_Chavez.xlsx");
+        const info = pedidosActuales.map(p => ({ "FECHA": new Date(p.creado_en).toLocaleDateString(), "CLIENTE": p.cliente, "PEDIDO": p.producto, "TOTAL": p.precio_total.toFixed(2), "ESTADO": p.entregado ? "Listo" : "Pendiente" }));
+        const ws = XLSX.utils.json_to_sheet(info); const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Ventas"); XLSX.writeFile(wb, "Reporte_Distribuidora_Chavez.xlsx");
     }
 
-    // Inicialización del DOM Segura
     document.addEventListener('DOMContentLoaded', checkUser);
 </script>
 </body>
