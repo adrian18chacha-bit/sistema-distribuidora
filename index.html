@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0d6efd">
+    <link rel="manifest" href="./manifest.json">
     <title>Distribuidora Chávez | Sistema Integral</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -66,7 +68,8 @@
             </select>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
             <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 border-l-4 border-l-blue-500">
                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Ventas</p>
                 <h4 class="text-2xl font-bold text-slate-800 dark:text-white" id="resumen-ventas">S/. 0.00</h4>
@@ -105,9 +108,35 @@
                         </div>
                     </div>
                 </div>
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] h-56 flex flex-col items-center justify-center border border-slate-100 dark:border-slate-700 shadow-sm">
-                    <canvas id="graficoEntregas"></canvas>
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] flex flex-col items-center justify-center border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <div class="w-full">
+                        <div class="flex items-center justify-between mb-3">
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Distribución Pedidos</p>
+                        </div>
+                        <div class="h-56">
+                            <canvas id="graficoEntregas"></canvas>
+                        </div>
+                    </div>
                 </div>
+
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] mt-6 border border-slate-100 dark:border-slate-700 shadow-sm">
+                    <div class="flex items-center justify-between mb-3 gap-3">
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ventas por semana</p>
+                            <h4 class="text-sm font-bold dark:text-white" id="titulo-semanal">Últimas 8 semanas</h4>
+                        </div>
+                        <select id="semanas-count" onchange="renderVentasPorSemana()" class="p-2.5 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-xl outline-none border border-slate-100 dark:border-slate-600 text-sm font-bold">
+                            <option value="4">4</option>
+                            <option value="6">6</option>
+                            <option value="8" selected>8</option>
+                            <option value="12">12</option>
+                        </select>
+                    </div>
+                    <div class="h-64">
+                        <canvas id="graficoVentasSemana"></canvas>
+                    </div>
+                </div>
+
             </div>
 
             <div class="lg:col-span-8">
@@ -247,8 +276,18 @@
                         <button onclick="enviarWhatsApp('${p.cliente}','${p.producto}',${p.precio_total})" class="text-emerald-500 hover:scale-125 transition-transform" title="WhatsApp">
                             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793 0-.853.448-1.273.607-1.446.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.101-.177.211-.077.383.101.173.448.738.961 1.193.661.587 1.216.768 1.39.853.173.087.275.072.376-.044.101-.116.434-.506.549-.68.116-.173.231-.144.39-.087s1.011.477 1.184.564c.173.087.289.13.332.202.045.072.045.419-.1.824z"/></svg>
                         </button>
+                        <button onclick="generarReciboPDF(${p.id})" class="text-slate-800 dark:text-slate-100 hover:scale-125 transition-transform text-lg" title="Recibo">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7 3v4h4" />
+                                <path d="M7 13h10" />
+                                <path d="M7 17h7" />
+                                <path d="M7 7h10" />
+                                <path d="M5 21h14a2 2 0 0 0 2-2V8l-6-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z" />
+                            </svg>
+                        </button>
                         ${!p.entregado ? `<button onclick="marcarEntregado(${p.id})" class="text-blue-500 font-black hover:scale-125 transition-transform text-lg" title="Listo">✓</button>` : ''}
                         <button onclick="eliminarPedido(${p.id})" class="text-rose-500 hover:scale-125 transition-transform text-lg" title="Eliminar">✕</button>
+
                     </td>
                 </tr>`;
             });
@@ -268,9 +307,80 @@
         }
         
         renderChart(pen, ent);
+        renderVentasPorSemana();
+    }
+
+    function renderVentasPorSemana() {
+        const semanasCount = parseInt(document.getElementById('semanas-count')?.value || '8', 10);
+        const pedidos = pedidosActuales || [];
+        const isDark = document.documentElement.classList.contains('dark');
+
+        const fechas = pedidos.map(p => new Date(p.creado_en)).filter(d => !isNaN(d));
+        const endDate = fechas.length ? new Date(Math.max(...fechas.map(d => d.getTime()))) : new Date();
+        const startDate = new Date(endDate);
+        startDate.setDate(startDate.getDate() - (semanasCount * 7));
+
+        const buckets = Array.from({ length: semanasCount }, () => 0);
+
+        const getWeekIndex = (d) => {
+            const diffDays = Math.floor((d.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+            const idx = Math.floor(diffDays / 7);
+            if (idx < 0) return 0;
+            if (idx >= semanasCount) return semanasCount - 1;
+            return idx;
+        };
+
+        pedidos.forEach(p => {
+            const d = new Date(p.creado_en);
+            if (isNaN(d) || d < startDate) return;
+            const idx = getWeekIndex(d);
+            buckets[idx] += Number(p.precio_total) || 0;
+        });
+
+        const labels = buckets.map((_, i) => `Semana ${i + 1}`);
+        const canvas = document.getElementById('graficoVentasSemana');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        if (window.__chartVentasSemana) window.__chartVentasSemana.destroy();
+
+        window.__chartVentasSemana = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Ventas (Total)',
+                    data: buckets.map(v => Number(v.toFixed(2))),
+                    backgroundColor: '#10b981'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `S/. ${Number(context.raw).toFixed(2)}`
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: { color: isDark ? '#cbd5e1' : '#64748b' },
+                        grid: { color: isDark ? 'rgba(148,163,184,0.2)' : 'rgba(100,116,139,0.15)' }
+                    },
+                    x: {
+                        ticks: { color: isDark ? '#cbd5e1' : '#64748b' },
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
     }
 
     function toggleDarkMode() {
+
         document.documentElement.classList.toggle('dark');
         const isD = document.documentElement.classList.contains('dark');
         localStorage.setItem('theme', isD ? 'dark' : 'light');
@@ -284,7 +394,9 @@
 
     function renderChart(p, e) {
         const ctx = document.getElementById('graficoEntregas').getContext('2d');
+
         if (chartObj) chartObj.destroy();
+
         const isDark = document.documentElement.classList.contains('dark');
         chartObj = new Chart(ctx, {
             type: 'doughnut',
@@ -324,13 +436,173 @@
     
     function filtrarPedidos() { actualizarInterfaz(); }
 
-    function exportarExcelReal() {
-        const info = pedidosActuales.map(p => ({ "FECHA": new Date(p.creado_en).toLocaleDateString(), "CLIENTE": p.cliente, "PEDIDO": p.producto, "TOTAL": p.precio_total.toFixed(2), "ESTADO": p.entregado ? "Listo" : "Pendiente" }));
-        const ws = XLSX.utils.json_to_sheet(info); const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Ventas"); XLSX.writeFile(wb, "Reporte_Distribuidora_Chavez.xlsx");
+    function calcIGV(subtotal) {
+        const IGV = 0.18; // 18%
+        const s = Number(subtotal);
+        return Number.isFinite(s) ? (s * IGV) : 0;
     }
 
+    // Asumimos que precio_total guarda el TOTAL CON IGV.
+    function totalToSubtotalIGV(totalConIGV) {
+        const total = Number(totalConIGV);
+        if (!Number.isFinite(total)) return { subtotal: 0, igv: 0 };
+        const subtotal = total / 1.18;
+        const igv = total - subtotal;
+        return { subtotal, igv };
+    }
+
+    function exportarExcelReal() {
+        const info = pedidosActuales.map(p => {
+            const total = Number(p.precio_total) || 0;
+            const { subtotal, igv } = totalToSubtotalIGV(total);
+            return {
+                "FECHA": new Date(p.creado_en).toLocaleDateString('es-PE'),
+                "CLIENTE": p.cliente,
+                "PRODUCTO": p.producto,
+                "SUBTOTAL": subtotal.toFixed(2),
+                "IGV": igv.toFixed(2),
+                "TOTAL": total.toFixed(2),
+                "ESTADO": p.entregado ? "Listo" : "Pendiente"
+            };
+        });
+        const ws = XLSX.utils.json_to_sheet(info);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Ventas");
+        XLSX.writeFile(wb, "Reporte_Distribuidora_Chavez.xlsx");
+    }
+
+
+    function generarReciboPDF(idPedido) {
+        const pedido = pedidosDB.find(p => String(p.id) === String(idPedido));
+        if (!Number.isFinite(idPedido)) idPedido = Number(idPedido);
+
+        if (!pedido) {
+            alert('No se encontró el pedido');
+            return;
+        }
+
+        const total = Number(pedido.precio_total) || 0;
+        const { subtotal, igv } = totalToSubtotalIGV(total);
+        const fecha = new Date(pedido.creado_en).toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        const estado = pedido.entregado ? 'LISTO' : 'PENDIENTE';
+
+        const w = window.open('', '_blank');
+        if (!w) {
+            alert('Habilita ventanas emergentes para imprimir el recibo');
+            return;
+        }
+
+        const empresa = 'Distribuidora Chávez';
+        const html = `
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Recibo #${idPedido}</title>
+  <style>
+    body{font-family: Arial, Helvetica, sans-serif; margin:24px; color:#111;}
+    .head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; border-bottom:1px solid #ddd; padding-bottom:12px;}
+    h1{margin:0; font-size:18px;}
+    .meta{font-size:12px; color:#444; text-align:right;}
+    .box{border:1px solid #ddd; padding:14px; margin-top:16px;}
+    table{width:100%; border-collapse:collapse; margin-top:10px;}
+    th,td{border-bottom:1px solid #eee; padding:8px 6px; font-size:12px;}
+    th{background:#f7f7f7; text-align:left;}
+    .right{text-align:right;}
+    .sum{margin-top:14px; display:flex; justify-content:flex-end;}
+    .sum table{width:320px;}
+    .total td{font-weight:bold; font-size:13px; border-bottom:none;}
+    .status{display:inline-block; padding:4px 10px; border-radius:999px; font-size:12px; font-weight:bold; border:1px solid #ddd;}
+    .status.ok{background:#ecfdf5; border-color:#bbf7d0; color:#047857;}
+    .status.no{background:#fffbeb; border-color:#fde68a; color:#b45309;}
+    .foot{margin-top:20px; font-size:11px; color:#666;}
+    @media print{ body{margin:0;} .box{margin:0;} .head{margin:0;} }
+  </style>
+</head>
+<body>
+  <div class="head">
+    <div>
+      <h1>${empresa}</h1>
+      <div style="font-size:12px;color:#444;margin-top:4px;">Recibo de Venta</div>
+    </div>
+    <div class="meta">
+      <div><b>Recibo:</b> #${idPedido}</div>
+      <div><b>Fecha:</b> ${fecha}</div>
+    </div>
+  </div>
+
+  <div class="box">
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+      <div>
+        <div style="font-size:12px;color:#444;"><b>Cliente:</b> ${pedido.cliente}</div>
+      </div>
+      <div class="status ${pedido.entregado ? 'ok' : 'no'}">${estado}</div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:45%">Producto</th>
+          <th class="right" style="width:25%">Subtotal</th>
+          <th class="right" style="width:15%">IGV</th>
+          <th class="right" style="width:15%">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>${pedido.producto}</td>
+          <td class="right">S/. ${subtotal.toFixed(2)}</td>
+          <td class="right">S/. ${igv.toFixed(2)}</td>
+          <td class="right">S/. ${total.toFixed(2)}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="sum">
+      <table>
+        <tr>
+          <td style="border-bottom:none; padding:6px 0; font-size:12px; color:#444;">Subtotal</td>
+          <td class="right" style="border-bottom:none; padding:6px 0; font-size:12px; font-weight:bold;">S/. ${subtotal.toFixed(2)}</td>
+        </tr>
+        <tr>
+          <td style="border-bottom:none; padding:6px 0; font-size:12px; color:#444;">IGV (18%)</td>
+          <td class="right" style="border-bottom:none; padding:6px 0; font-size:12px; font-weight:bold;">S/. ${igv.toFixed(2)}</td>
+        </tr>
+        <tr class="total">
+          <td style="padding:8px 0; border-bottom:none; font-size:13px;">TOTAL</td>
+          <td class="right" style="padding:8px 0; border-bottom:none; font-size:13px;">S/. ${total.toFixed(2)}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="foot">
+    * Este recibo se imprime desde el navegador. Para guardarlo como PDF: Imprimir → Guardar como PDF.
+  </div>
+
+  <script>
+    setTimeout(() => { window.focus(); window.print(); }, 150);
+  <\/script>
+</body>
+</html>
+`;
+
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
+      }
+
     document.addEventListener('DOMContentLoaded', checkUser);
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker registrado:', reg.scope))
+                .catch(err => console.warn('Service Worker no pudo registrarse:', err));
+        });
+    }
 </script>
 </body>
 </html>
+
