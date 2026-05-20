@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="./excel-export.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -393,10 +394,7 @@
                 "ESTADO": p.entregado ? "Listo" : "Pendiente"
             };
         });
-        const ws = XLSX.utils.json_to_sheet(info);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Ventas");
-        XLSX.writeFile(wb, "Reporte_Distribuidora_Chavez.xlsx");
+        exportToExcelAutoWidth(info, 'Ventas', 'Reporte_Distribuidora_Chavez');
     }
 
 
@@ -505,4 +503,3 @@
 </script>
 </body>
 </html>
-
