@@ -493,8 +493,16 @@
 
     document.addEventListener('DOMContentLoaded', checkUser);
 
-    // Se ha deshabilitado el service worker para evitar cache viejo al desplegar.
-    // Si quieres volver a usarlo, registra nuevamente `./sw.js`.
+    // Desregistrar cualquier Service Worker anterior para evitar carga de app cacheada.
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(registrations => {
+            registrations.forEach(reg => {
+                reg.unregister().then(success => {
+                    if (success) console.log('Service Worker desregistrado:', reg.scope);
+                });
+            });
+        }).catch(err => console.warn('No se pudieron obtener los service workers:', err));
+    }
 </script>
 </body>
 </html>
