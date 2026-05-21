@@ -491,7 +491,35 @@
                         const footerLines = doc.splitTextToSize('Gracias por tu compra • Distribuidora Chávez', pageWidth - margin * 2);
                         doc.text(footerLines, margin, y);
 
-                        doc.save(`Recibo_${empresa.replace(/\s+/g, '_')}_#${idPedido}.pdf`);
+                        // Manejo de descarga: usar save() por defecto, pero iOS/Safari a veces no descarga correctamente.
+                        const fileName = `Recibo_${empresa.replace(/\s+/g, '_')}_#${idPedido}.pdf`;
+                        const isIOS = /iP(hone|od|ad)/i.test(navigator.userAgent);
+
+                        if (isIOS) {
+                            // Para iOS, abrir en nueva ventana usando data URL dentro de un iframe
+                            const pdfData = doc.output('datauristring');
+                            const newWin = window.open('');
+                            if (newWin) {
+                                newWin.document.open();
+                                newWin.document.write("<html><head><title>" + fileName + "</title></head><body style='margin:0'>");
+                                newWin.document.write("<iframe width='100%' height='100%' src='" + pdfData + "'></iframe>");
+                                newWin.document.write("</body></html>");
+                                newWin.document.close();
+                            } else {
+                                // Si no se puede abrir ventana, intentar crear blob y navegar a URL
+                                try {
+                                    const blob = doc.output('blob');
+                                    const url = URL.createObjectURL(blob);
+                                    window.location.href = url;
+                                } catch (e) {
+                                    console.warn('No se pudo abrir PDF en iOS:', e);
+                                    doc.save(fileName);
+                                }
+                            }
+                        } else {
+                            // Navegadores de escritorio y Android: descarga directa
+                            doc.save(fileName);
+                        }
                 } catch (err) {
                         console.error('Error generando PDF con jsPDF:', err);
                         alert('No se pudo generar el recibo. Intenta de nuevo o usa otro navegador.');
