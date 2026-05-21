@@ -491,34 +491,38 @@
                         const footerLines = doc.splitTextToSize('Gracias por tu compra • Distribuidora Chávez', pageWidth - margin * 2);
                         doc.text(footerLines, margin, y);
 
-                        // Manejo de descarga: usar save() por defecto, pero iOS/Safari a veces no descarga correctamente.
                         const fileName = `Recibo_${empresa.replace(/\s+/g, '_')}_#${idPedido}.pdf`;
                         const isIOS = /iP(hone|od|ad)/i.test(navigator.userAgent);
+                        const downloadSupported = 'download' in document.createElement('a');
 
-                        if (isIOS) {
-                            // Para iOS, abrir en nueva ventana usando data URL dentro de un iframe
-                            const pdfData = doc.output('datauristring');
-                            const newWin = window.open('');
-                            if (newWin) {
-                                newWin.document.open();
-                                newWin.document.write("<html><head><title>" + fileName + "</title></head><body style='margin:0'>");
-                                newWin.document.write("<iframe width='100%' height='100%' src='" + pdfData + "'></iframe>");
-                                newWin.document.write("</body></html>");
-                                newWin.document.close();
+                        try {
+                            const blob = doc.output('blob');
+                            const url = URL.createObjectURL(blob);
+                            const anchor = document.createElement('a');
+                            anchor.href = url;
+                            anchor.download = fileName;
+                            anchor.style.display = 'none';
+                            document.body.appendChild(anchor);
+
+                            if (!isIOS && downloadSupported) {
+                                anchor.click();
                             } else {
-                                // Si no se puede abrir ventana, intentar crear blob y navegar a URL
-                                try {
-                                    const blob = doc.output('blob');
-                                    const url = URL.createObjectURL(blob);
+                                const opened = window.open(url, '_blank');
+                                if (!opened) {
                                     window.location.href = url;
-                                } catch (e) {
-                                    console.warn('No se pudo abrir PDF en iOS:', e);
-                                    doc.save(fileName);
                                 }
                             }
-                        } else {
-                            // Navegadores de escritorio y Android: descarga directa
-                            doc.save(fileName);
+
+                            anchor.remove();
+                            setTimeout(() => URL.revokeObjectURL(url), 10000);
+                        } catch (saveError) {
+                            console.warn('Error generando PDF como blob, usando fallback save():', saveError);
+                            try {
+                                doc.save(fileName);
+                            } catch (fallbackError) {
+                                console.error('Fallback save() fallo:', fallbackError);
+                                alert('No se pudo generar el recibo. Intenta de nuevo o prueba otro navegador.');
+                            }
                         }
                 } catch (err) {
                         console.error('Error generando PDF con jsPDF:', err);
