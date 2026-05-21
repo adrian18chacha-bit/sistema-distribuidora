@@ -412,13 +412,12 @@
         const fecha = new Date(pedido.creado_en).toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit' });
         const estado = pedido.entregado ? 'LISTO' : 'PENDIENTE';
         const empresa = 'Distribuidora Chávez';
-        const logo = 'https://cdn-icons-png.flaticon.com/512/3105/3105807.png';
 
         const html = `
-<div style="font-family: Arial, Helvetica, sans-serif; padding: 20px; color: #111; width: 100%; max-width: 600px;">
+<div style="font-family: Arial, Helvetica, sans-serif; padding: 20px; color: #111; width: 100%; max-width: 600px; background: #ffffff;">
   <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0d6efd; padding-bottom: 16px; margin-bottom: 20px;">
     <div style="display: flex; align-items: center; gap: 12px;">
-      <img src="${logo}" style="width: 48px; height: 48px; border-radius: 8px;" />
+      <div style="width: 48px; height: 48px; border-radius: 12px; background: #0d6efd; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: bold;">D</div>
       <div>
         <h1 style="margin: 0; font-size: 20px; font-weight: bold; color: #0d6efd;">${empresa}</h1>
         <div style="font-size: 11px; color: #666; margin-top: 2px;">Recibo de Venta</div>
@@ -478,11 +477,14 @@
 `;
 
         const element = document.createElement('div');
+        element.id = 'receipt-pdf-container';
         element.innerHTML = html;
         element.style.position = 'fixed';
         element.style.left = '-9999px';
         element.style.top = '0';
         element.style.width = '600px';
+        element.style.opacity = '0';
+        element.style.pointerEvents = 'none';
         element.style.zIndex = '-9999';
         document.body.appendChild(element);
 
@@ -490,14 +492,23 @@
             margin: 10,
             filename: `Recibo_${empresa.replace(/\s+/g, '_')}_#${idPedido}.pdf`,
             image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, useCORS: true, logging: false },
+            html2canvas: {
+                scale: 2,
+                useCORS: false,
+                allowTaint: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                scrollY: -window.scrollY
+            },
             jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
         };
 
         html2pdf().set(opt).from(element).save().then(() => {
             document.body.removeChild(element);
-        }).catch(() => {
+        }).catch((error) => {
             document.body.removeChild(element);
+            console.error('Error generando PDF:', error);
+            alert('No se pudo generar el recibo. Intenta de nuevo o usa otro navegador.');
         });
     }
 
