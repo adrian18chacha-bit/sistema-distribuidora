@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="./excel-export.js"></script>
     <script>
         tailwind.config = {
@@ -398,170 +398,105 @@
     }
 
 
-    function generarReciboPDF(idPedido) {
-        const pedido = pedidosDB.find(p => String(p.id) === String(idPedido));
-        if (!Number.isFinite(idPedido)) idPedido = Number(idPedido);
+        function generarReciboPDF(idPedido) {
+                const pedido = pedidosDB.find(p => String(p.id) === String(idPedido));
+                if (!Number.isFinite(idPedido)) idPedido = Number(idPedido);
 
-        if (!pedido) {
-            alert('No se encontró el pedido');
-            return;
+                if (!pedido) {
+                        alert('No se encontró el pedido');
+                        return;
+                }
+
+                const total = Number(pedido.precio_total) || 0;
+                const { subtotal, igv } = totalToSubtotalIGV(total);
+                const fecha = new Date(pedido.creado_en).toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                const estado = pedido.entregado ? 'LISTO' : 'PENDIENTE';
+                const empresa = 'Distribuidora Chávez';
+
+                const jsPDFConstructor = window.jspdf?.jsPDF || window.jsPDF;
+                if (!jsPDFConstructor) {
+                        alert('No se pudo generar el recibo: jsPDF no está disponible.');
+                        return;
+                }
+
+                try {
+                        const doc = new jsPDFConstructor({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                        const pageWidth = doc.internal.pageSize.getWidth();
+                        const margin = 15;
+                        let y = 20;
+
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(18);
+                        doc.setTextColor('#0d6efd');
+                        doc.text(empresa, margin, y);
+
+                        y += 10;
+                        doc.setFontSize(11);
+                        doc.setFont('helvetica', 'normal');
+                        doc.setTextColor('#111111');
+                        doc.text('Recibo de Venta', margin, y);
+                        y += 10;
+                        doc.setFontSize(10);
+                        doc.text(`Recibo: #${idPedido}`, margin, y);
+                        doc.text(`Fecha: ${fecha}`, pageWidth - margin, y, { align: 'right' });
+
+                        y += 10;
+                        doc.setDrawColor(13, 110, 253);
+                        doc.setLineWidth(0.6);
+                        doc.line(margin, y, pageWidth - margin, y);
+
+                        y += 12;
+                        doc.setFontSize(11);
+                        const clienteLines = doc.splitTextToSize(`Cliente: ${pedido.cliente}`, pageWidth - margin * 2);
+                        doc.text(clienteLines, margin, y);
+                        y += clienteLines.length * 6;
+
+                        const productoLines = doc.splitTextToSize(`Producto: ${pedido.producto}`, pageWidth - margin * 2);
+                        doc.text(productoLines, margin, y);
+                        y += productoLines.length * 6;
+
+                        doc.text(`Estado: ${estado}`, margin, y);
+
+                        y += 12;
+                        doc.setDrawColor(200, 200, 200);
+                        doc.setLineWidth(0.4);
+                        doc.line(margin, y, pageWidth - margin, y);
+
+                        y += 10;
+                        doc.setFont('helvetica', 'bold');
+                        doc.text('Detalle de Pago', margin, y);
+                        y += 8;
+                        doc.setFont('helvetica', 'normal');
+
+                        const details = [
+                                ['Subtotal', `S/. ${subtotal.toFixed(2)}`],
+                                ['IGV (18%)', `S/. ${igv.toFixed(2)}`],
+                                ['Total', `S/. ${total.toFixed(2)}`]
+                        ];
+
+                        details.forEach(([label, value]) => {
+                                doc.text(label, margin, y);
+                                doc.text(value, pageWidth - margin, y, { align: 'right' });
+                                y += 8;
+                        });
+
+                        y += 12;
+                        doc.setDrawColor(13, 110, 253);
+                        doc.setLineWidth(0.6);
+                        doc.line(margin, y, pageWidth - margin, y);
+
+                        y += 10;
+                        doc.setFontSize(10);
+                        doc.setTextColor('#666666');
+                        const footerLines = doc.splitTextToSize('Gracias por tu compra • Distribuidora Chávez', pageWidth - margin * 2);
+                        doc.text(footerLines, margin, y);
+
+                        doc.save(`Recibo_${empresa.replace(/\s+/g, '_')}_#${idPedido}.pdf`);
+                } catch (err) {
+                        console.error('Error generando PDF con jsPDF:', err);
+                        alert('No se pudo generar el recibo. Intenta de nuevo o usa otro navegador.');
+                }
         }
-
-        const total = Number(pedido.precio_total) || 0;
-        const { subtotal, igv } = totalToSubtotalIGV(total);
-        const fecha = new Date(pedido.creado_en).toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit' });
-        const estado = pedido.entregado ? 'LISTO' : 'PENDIENTE';
-        const empresa = 'Distribuidora Chávez';
-
-        const html = `
-<div style="font-family: Arial, Helvetica, sans-serif; padding: 20px; color: #111; width: 100%; max-width: 600px; background: #ffffff;">
-  <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0d6efd; padding-bottom: 16px; margin-bottom: 20px;">
-    <div style="display: flex; align-items: center; gap: 12px;">
-      <div style="width: 48px; height: 48px; border-radius: 12px; background: #0d6efd; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px; font-weight: bold;">D</div>
-      <div>
-        <h1 style="margin: 0; font-size: 20px; font-weight: bold; color: #0d6efd;">${empresa}</h1>
-        <div style="font-size: 11px; color: #666; margin-top: 2px;">Recibo de Venta</div>
-      </div>
-    </div>
-    <div style="text-align: right;">
-      <div style="font-size: 13px; font-weight: bold;"><b>Recibo:</b> #${idPedido}</div>
-      <div style="font-size: 13px; color: #666;"><b>Fecha:</b> ${fecha}</div>
-    </div>
-  </div>
-
-  <div style="border: 1px solid #ddd; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-      <div style="font-size: 13px;"><b>Cliente:</b> ${pedido.cliente}</div>
-      <span style="display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; ${pedido.entregado ? 'background: #ecfdf5; border: 1px solid #bbf7d0; color: #047857;' : 'background: #fffbeb; border: 1px solid #fde68a; color: #b45309;'}">${estado}</span>
-    </div>
-
-    <table style="width: 100%; border-collapse: collapse; margin-top: 12px;">
-      <thead style="background: #f7f7f7;">
-        <tr>
-          <th style="padding: 8px; text-align: left; font-size: 12px; border-bottom: 1px solid #eee;">Producto</th>
-          <th style="padding: 8px; text-align: right; font-size: 12px; border-bottom: 1px solid #eee;">Subtotal</th>
-          <th style="padding: 8px; text-align: right; font-size: 12px; border-bottom: 1px solid #eee;">IGV (18%)</th>
-          <th style="padding: 8px; text-align: right; font-size: 12px; border-bottom: 1px solid #eee;">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="padding: 8px; border-bottom: 1px solid #eee;">${pedido.producto}</td>
-          <td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;">S/. ${subtotal.toFixed(2)}</td>
-          <td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee;">S/. ${igv.toFixed(2)}</td>
-          <td style="padding: 8px; text-align: right; border-bottom: 1px solid #eee; font-weight: bold; color: #0d6efd;">S/. ${total.toFixed(2)}</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div style="text-align: right; margin-top: 16px; border-top: 1px solid #eee; padding-top: 12px;">
-      <div style="display: flex; justify-content: flex-end; gap: 40px; font-size: 13px; margin-bottom: 8px;">
-        <span>Subtotal:</span>
-        <span style="font-weight: bold; min-width: 80px; text-align: right;">S/. ${subtotal.toFixed(2)}</span>
-      </div>
-      <div style="display: flex; justify-content: flex-end; gap: 40px; font-size: 13px; margin-bottom: 12px;">
-        <span>IGV (18%):</span>
-        <span style="font-weight: bold; min-width: 80px; text-align: right;">S/. ${igv.toFixed(2)}</span>
-      </div>
-      <div style="display: flex; justify-content: flex-end; gap: 40px; font-size: 15px; font-weight: bold; color: #0d6efd; border-top: 2px solid #0d6efd; padding-top: 12px;">
-        <span>TOTAL:</span>
-        <span style="min-width: 80px; text-align: right;">S/. ${total.toFixed(2)}</span>
-      </div>
-    </div>
-  </div>
-
-  <div style="font-size: 11px; color: #999; text-align: center; margin-top: 20px; border-top: 1px solid #eee; padding-top: 12px;">
-    Gracias por tu compra • Distribuidora Chávez
-  </div>
-</div>
-`;
-
-        const element = document.createElement('div');
-        element.id = 'receipt-pdf-container';
-        element.innerHTML = html;
-        element.style.position = 'absolute';
-        element.style.left = '0';
-        element.style.top = '0';
-        element.style.width = '600px';
-        element.style.opacity = '0';
-        element.style.pointerEvents = 'none';
-        element.style.zIndex = '9999';
-        document.body.appendChild(element);
-
-        const opt = {
-            margin: 10,
-            filename: `Recibo_${empresa.replace(/\s+/g, '_')}_#${idPedido}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-                scale: 2,
-                useCORS: false,
-                allowTaint: true,
-                logging: false,
-                backgroundColor: '#ffffff'
-            },
-            jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-        };
-
-        html2pdf().set(opt).from(element).save().then(() => {
-            document.body.removeChild(element);
-        }).catch((error) => {
-            document.body.removeChild(element);
-            console.warn('html2pdf falló, usando jsPDF como respaldo:', error);
-            generarReciboPDFConTexto(empresa, idPedido, fecha, pedido, subtotal, igv, total);
-        });
-    }
-
-    function generarReciboPDFConTexto(empresa, idPedido, fecha, pedido, subtotal, igv, total) {
-        try {
-            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const margin = 15;
-            let y = 20;
-
-            doc.setFontSize(18);
-            doc.setTextColor('#0d6efd');
-            doc.text(empresa, margin, y);
-
-            y += 10;
-            doc.setFontSize(12);
-            doc.setTextColor('#000000');
-            doc.text(`Recibo: #${idPedido}`, margin, y);
-            doc.text(`Fecha: ${fecha}`, pageWidth - margin, y, { align: 'right' });
-
-            y += 12;
-            doc.setDrawColor('#0d6efd');
-            doc.setLineWidth(0.5);
-            doc.line(margin, y, pageWidth - margin, y);
-
-            y += 10;
-            doc.setFontSize(11);
-            doc.text(`Cliente: ${pedido.cliente}`, margin, y);
-
-            y += 8;
-            doc.text(`Producto: ${pedido.producto}`, margin, y);
-
-            y += 8;
-            doc.text(`Subtotal: S/. ${subtotal.toFixed(2)}`, margin, y);
-            y += 8;
-            doc.text(`IGV (18%): S/. ${igv.toFixed(2)}`, margin, y);
-            y += 8;
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'bold');
-            doc.text(`Total: S/. ${total.toFixed(2)}`, margin, y);
-            doc.setFont(undefined, 'normal');
-
-            y += 15;
-            const footer = doc.splitTextToSize('Gracias por tu compra • Distribuidora Chávez', pageWidth - margin * 2);
-            doc.setFontSize(10);
-            doc.setTextColor('#666666');
-            doc.text(footer, margin, y);
-
-            doc.save(`Recibo_${empresa.replace(/\s+/g, '_')}_#${idPedido}.pdf`);
-        } catch (err) {
-            console.error('Error con jsPDF de respaldo:', err);
-            alert('No se pudo generar el recibo. Intenta de nuevo o usa otro navegador.');
-        }
-    }
 
     document.addEventListener('DOMContentLoaded', checkUser);
 
