@@ -493,13 +493,8 @@
 
     document.addEventListener('DOMContentLoaded', checkUser);
 
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js')
-                .then(reg => console.log('Service Worker registrado:', reg.scope))
-                .catch(err => console.warn('Service Worker no pudo registrarse:', err));
-        });
-    }
+    // Se ha deshabilitado el service worker para evitar cache viejo al desplegar.
+    // Si quieres volver a usarlo, registra nuevamente `./sw.js`.
 </script>
 </body>
 </html>
