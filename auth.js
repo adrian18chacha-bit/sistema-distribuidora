@@ -22,7 +22,7 @@ async function checkUser() {
     if (user) {
         document.getElementById('auth-section').classList.add('hidden');
         document.getElementById('app-section').classList.remove('hidden');
-        cambiarPestana('ventas');
+        cambiarModulo('sd');
         actualizarTema();
         cargarTodo();
     }

@@ -1,8 +1,14 @@
 // Estado global de datos
 let pedidosDB = [];
 let gastosDB = [];
+let inventarioDB = [];
+let proveedoresDB = [];
+let ppDB = [];
 let pedidosActuales = [];
 let gastosActuales = [];
+let inventarioActual = [];
+let proveedoresActual = [];
+let ppActual = [];
 
 async function cargarTodo() {
     const { data: pedidos } = await _supabase.from('pedidos').select('*').order('creado_en', { ascending: false });
@@ -21,7 +27,48 @@ async function cargarTodo() {
     });
     clienteSelect.value = selectedValue;
 
+    await cargarInventario();
+    await cargarPP();
     aplicarFiltros();
+    if (typeof refreshModuloActual === 'function') refreshModuloActual();
+}
+
+async function cargarInventario() {
+    inventarioDB = [];
+    proveedoresDB = [];
+
+    try {
+        const { data: inventario } = await _supabase.from('inventario').select('*').order('creado_en', { ascending: false });
+        inventarioDB = inventario || [];
+    } catch (error) {
+        console.warn('Tabla inventario no disponible:', error);
+        inventarioDB = [];
+    }
+
+    try {
+        const { data: proveedores } = await _supabase.from('proveedores').select('*').order('creado_en', { ascending: false });
+        proveedoresDB = proveedores || [];
+    } catch (error) {
+        console.warn('Tabla proveedores no disponible:', error);
+        proveedoresDB = [];
+    }
+
+    inventarioActual = [...inventarioDB];
+    proveedoresActual = [...proveedoresDB];
+}
+
+async function cargarPP() {
+    ppDB = [];
+
+    try {
+        const { data: ordenes } = await _supabase.from('plan_produccion').select('*').order('creado_en', { ascending: false });
+        ppDB = ordenes || [];
+    } catch (error) {
+        console.warn('Tabla plan_produccion no disponible:', error);
+        ppDB = [];
+    }
+
+    ppActual = [...ppDB];
 }
 
 function aplicarFiltros() {
@@ -59,7 +106,11 @@ function aplicarFiltros() {
 
     pedidosActuales = filtrarPorFecha(pedidosDB);
     gastosActuales = filtrarPorFecha(gastosDB);
-    actualizarInterfaz();
+    if (typeof refreshModuloActual === 'function') {
+        refreshModuloActual();
+    } else {
+        actualizarInterfaz();
+    }
 }
 
 async function guardarPedido() {
@@ -89,6 +140,73 @@ async function guardarGasto() {
         document.getElementById('gasto-monto').value = '';
         cargarTodo();
     }
+}
+
+function guardarInventario() {
+    const nombre = document.getElementById('producto-nombre').value.trim();
+    const stock = parseInt(document.getElementById('producto-stock').value, 10);
+
+    if (nombre && Number.isFinite(stock)) {
+        const nuevo = { id: `inv-${Date.now()}`, nombre, stock };
+        inventarioDB.unshift(nuevo);
+        inventarioActual = [...inventarioDB];
+        document.getElementById('producto-nombre').value = '';
+        document.getElementById('producto-stock').value = '';
+        actualizarInventario();
+    }
+}
+
+function guardarProveedor() {
+    const nombre = document.getElementById('proveedor-nombre').value.trim();
+    if (nombre) {
+        const nuevo = { id: `prov-${Date.now()}`, nombre };
+        proveedoresDB.unshift(nuevo);
+        proveedoresActual = [...proveedoresDB];
+        document.getElementById('proveedor-nombre').value = '';
+        actualizarInventario();
+    }
+}
+
+function guardarOrdenPP() {
+    const producto = document.getElementById('pp-producto').value.trim();
+    const cantidad = parseInt(document.getElementById('pp-cantidad').value, 10);
+    const fechaEntrega = document.getElementById('pp-fecha').value;
+    const estado = document.getElementById('pp-estado').value;
+
+    if (producto && Number.isFinite(cantidad) && fechaEntrega && estado) {
+        const nuevaOrden = {
+            id: `pp-${Date.now()}`,
+            producto,
+            cantidad,
+            fecha_entrega: fechaEntrega,
+            estado
+        };
+        ppDB.unshift(nuevaOrden);
+        ppActual = [...ppDB];
+        document.getElementById('pp-producto').value = '';
+        document.getElementById('pp-cantidad').value = '';
+        document.getElementById('pp-fecha').value = '';
+        document.getElementById('pp-estado').value = 'EN_PROCESO';
+        actualizarPlanProduccion();
+    }
+}
+
+function eliminarOrdenPP(id) {
+    ppDB = ppDB.filter((orden) => orden.id !== id);
+    ppActual = ppActual.filter((orden) => orden.id !== id);
+    actualizarPlanProduccion();
+}
+
+function eliminarInventario(id) {
+    inventarioDB = inventarioDB.filter((item) => item.id !== id);
+    inventarioActual = inventarioActual.filter((item) => item.id !== id);
+    actualizarInventario();
+}
+
+function eliminarProveedor(id) {
+    proveedoresDB = proveedoresDB.filter((item) => item.id !== id);
+    proveedoresActual = proveedoresActual.filter((item) => item.id !== id);
+    actualizarInventario();
 }
 
 async function marcarEntregado(id) {
