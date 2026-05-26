@@ -23,6 +23,7 @@ async function checkUser() {
         document.getElementById('auth-section').classList.add('hidden');
         document.getElementById('app-section').classList.remove('hidden');
         cambiarPestana('ventas');
+        actualizarTema();
         cargarTodo();
     }
 }
