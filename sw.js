@@ -1,5 +1,5 @@
-const CACHE_NAME = 'app-shell-v1';
-const APP_SHELL = ['./', './index.html', './manifest.json', './sw.js'];
+  const CACHE_NAME = 'app-shell-v2';
+const APP_SHELL = ['./', './index.html', './manifest.json', './sw.js', './excel-export.js', './auth.js', './data.js', './chart.js', './ui.js', './app.js', './reports.js'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
