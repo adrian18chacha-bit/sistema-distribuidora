@@ -1,5 +1,3 @@
-let chartObj = null;
-
 function cambiarPestana(tab) {
     const isVentas = tab === 'ventas';
     document.getElementById('form-ventas').classList.toggle('hidden', !isVentas);
@@ -224,3 +222,10 @@ function generarReciboPDF(idPedido) {
         alert('No se pudo generar el recibo. Intenta de nuevo o usa otro navegador.');
     }
 }
+
+// Asegura que las funciones invocadas desde los botones sean accesibles globalmente
+window.cambiarPestana = cambiarPestana;
+window.toggleDarkMode = toggleDarkMode;
+window.actualizarTema = actualizarTema;
+window.enviarWhatsApp = enviarWhatsApp;
+window.generarReciboPDF = generarReciboPDF;
