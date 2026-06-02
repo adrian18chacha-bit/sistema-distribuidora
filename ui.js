@@ -231,14 +231,28 @@ function actualizarPlanProduccion() {
 }
 
 function actualizarTema() {
-    const iconoTema = document.getElementById('theme-icon');
     const isDark = document.documentElement.classList.contains('dark');
-    if (iconoTema) iconoTema.textContent = isDark ? '☀️' : '🌙';
+    const lightBtn = document.getElementById('theme-light');
+    const darkBtn = document.getElementById('theme-dark');
+
+    if (lightBtn && darkBtn) {
+        if (isDark) {
+            darkBtn.classList.add('bg-white', 'text-slate-950');
+            darkBtn.classList.remove('bg-transparent');
+            lightBtn.classList.remove('bg-white', 'text-slate-950');
+            lightBtn.classList.add('bg-transparent');
+        } else {
+            lightBtn.classList.add('bg-white', 'text-slate-950');
+            lightBtn.classList.remove('bg-transparent');
+            darkBtn.classList.remove('bg-white', 'text-slate-950');
+            darkBtn.classList.add('bg-transparent');
+        }
+    }
 }
 
-function toggleDarkMode() {
-    document.documentElement.classList.toggle('dark');
-    const isDark = document.documentElement.classList.contains('dark');
+function setThemeMode(mode) {
+    const isDark = mode === 'dark';
+    document.documentElement.classList.toggle('dark', isDark);
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
     actualizarTema();
     refreshModuloActual();
@@ -385,3 +399,4 @@ window.guardarOrdenPP = guardarOrdenPP;
 window.eliminarInventario = eliminarInventario;
 window.eliminarProveedor = eliminarProveedor;
 window.eliminarOrdenPP = eliminarOrdenPP;
+window.addEventListener('DOMContentLoaded', actualizarTema);
