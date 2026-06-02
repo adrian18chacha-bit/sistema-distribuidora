@@ -155,12 +155,13 @@ function actualizarInventario() {
 
     const totalStock = inventarioActual.reduce((sum, item) => sum + Number(item.stock || 0), 0);
     if (inventarioActual.length === 0) {
-        renderEmptyRow(bodyInventario, 3, 'No hay productos en el inventario.');
+        renderEmptyRow(bodyInventario, 4, 'No hay productos en el inventario.');
     } else {
         inventarioActual.forEach((item) => {
             bodyInventario.innerHTML += `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left">
                 <td class="px-7 py-5 font-bold dark:text-white">${item.nombre}</td>
+                <td class="px-7 py-5 text-center uppercase text-slate-500 dark:text-slate-300">${item.categoria || 'SIN CATEGORÍA'}</td>
                 <td class="px-7 py-5 text-center font-black text-slate-800 dark:text-slate-100">${item.stock}</td>
                 <td class="px-7 py-5 text-center"><button onclick="eliminarInventario('${item.id}')" class="text-rose-500 font-bold hover:scale-125 transition-transform text-lg">✕</button></td>
             </tr>`;
@@ -213,7 +214,10 @@ function actualizarPlanProduccion() {
                 <td class="px-7 py-5 text-center font-black text-slate-800 dark:text-slate-100">${orden.cantidad}</td>
                 <td class="px-7 py-5 text-center text-slate-500 dark:text-slate-400">${orden.fecha_entrega}</td>
                 <td class="px-7 py-5 text-center"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${orden.estado === 'COMPLETADO' ? 'bg-emerald-50 text-emerald-700' : orden.estado === 'EN_PROCESO' ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-700'}">${orden.estado.replace('_', ' ')}</span></td>
-                <td class="px-7 py-5 text-center"><button onclick="eliminarOrdenPP('${orden.id}')" class="text-rose-500 font-bold hover:scale-125 transition-transform text-lg">✕</button></td>
+                <td class="px-7 py-5 text-center">
+                    ${orden.estado !== 'COMPLETADO' ? `<button onclick="finalizarProduccion('${orden.id}')" class="text-emerald-600 font-bold hover:scale-125 transition-transform mr-3 text-sm">Finalizar Producción</button>` : ''}
+                    <button onclick="eliminarOrdenPP('${orden.id}')" class="text-rose-500 font-bold hover:scale-125 transition-transform text-lg">✕</button>
+                </td>
             </tr>`;
     });
 

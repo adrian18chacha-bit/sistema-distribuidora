@@ -11,6 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="./excel-export.js"></script>
     <script>
         tailwind.config = {
@@ -211,6 +212,10 @@
                         <div class="space-y-4">
                             <input type="text" id="producto-nombre" placeholder="Nombre producto" class="w-full p-4 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-2xl border border-slate-100 dark:border-slate-600 text-sm">
                             <input type="number" id="producto-stock" placeholder="Stock" class="w-full p-4 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-2xl border border-slate-100 dark:border-slate-600 text-sm">
+                            <select id="producto-categoria" class="w-full p-4 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-2xl border border-slate-100 dark:border-slate-600 text-sm">
+                                <option value="INSUMO">INSUMO</option>
+                                <option value="PRODUCTO_TERMINADO" selected>PRODUCTO_TERMINADO</option>
+                            </select>
                             <button onclick="guardarInventario()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">Guardar Producto</button>
                         </div>
                     </div>
@@ -230,7 +235,7 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm">
                                 <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-400 font-bold uppercase text-[10px] tracking-widest">
-                                    <tr><th class="px-7 py-5 text-left">Producto</th><th class="px-7 py-5 text-center">Stock</th><th class="px-7 py-5 text-center">Acción</th></tr>
+                                    <tr><th class="px-7 py-5 text-left">Producto</th><th class="px-7 py-5 text-center">Categoría</th><th class="px-7 py-5 text-center">Stock</th><th class="px-7 py-5 text-center">Acción</th></tr>
                                 </thead>
                                 <tbody id="body-inventario" class="divide-y divide-slate-50 dark:divide-slate-700"></tbody>
                             </table>
