@@ -46,6 +46,21 @@ function exportarInventarioExcel() {
     exportToExcelAutoWidth(datosMapeados, 'Inventario', 'Reporte_Inventario.xlsx');
 }
 
+function exportarGastosExcel() {
+    if (!Array.isArray(gastosActuales) || gastosActuales.length === 0) {
+        alert('No hay gastos registrados para exportar.');
+        return;
+    }
+
+    const datosMapeados = gastosActuales.map((gasto) => ({
+        'Descripción del Gasto': gasto.descripcion || '',
+        'Monto (S/.)': Number(gasto.monto || 0),
+        Fecha: gasto.creado_en ? new Date(gasto.creado_en).toLocaleDateString('es-PE') : ''
+    }));
+
+    exportToExcelAutoWidth(datosMapeados, 'Gastos', 'Reporte_Gastos.xlsx');
+}
+
 function generarReciboPDF(idPedido) {
     const pedido = pedidosDB.find((item) => String(item.id) === String(idPedido));
     if (!pedido) {

@@ -194,7 +194,10 @@
                     <div class="bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
                         <div class="p-7 border-b dark:border-slate-700 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white dark:bg-slate-800">
                             <h3 class="font-bold dark:text-white text-lg">Registros de Gastos</h3>
-                            <input type="text" id="buscador-gastos" onkeyup="filtrarGastos()" placeholder="Buscar gasto..." class="w-full pl-5 pr-4 py-3 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-2xl text-sm outline-none border border-slate-100 dark:border-slate-600 focus:ring-2 focus:ring-blue-500">
+                            <div class="flex gap-2 w-full">
+                                <input type="text" id="buscador-gastos" onkeyup="filtrarGastos()" placeholder="Buscar gasto..." class="flex-1 pl-5 pr-4 py-3 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-2xl text-sm outline-none border border-slate-100 dark:border-slate-600 focus:ring-2 focus:ring-blue-500">
+                                <button onclick="exportarGastosExcel()" class="bg-[#10b981] hover:bg-emerald-600 text-white px-6 rounded-2xl font-bold text-xs shadow-md transition-all whitespace-nowrap">EXCEL</button>
+                            </div>
                         </div>
                         <div class="overflow-x-auto">
                             <table class="w-full text-sm">
