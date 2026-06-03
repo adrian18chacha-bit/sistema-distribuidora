@@ -227,30 +227,47 @@
                             <button onclick="guardarInventario()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">Guardar Producto</button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700">
-                            <h3 class="font-bold mb-6 flex items-center gap-2 text-slate-900 dark:text-white text-md tracking-tight"><div class="w-1.5 h-5 bg-indigo-500 rounded-full"></div> Registrar Proveedor</h3>
-                            <div class="space-y-4">
-                                <input type="text" id="proveedor-nombre" placeholder="Nombre proveedor" class="w-full p-4 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-2xl border border-slate-100 dark:border-slate-600 text-sm">
-                                <button onclick="guardarProveedor()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">Guardar Proveedor</button>
-                            </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <div class="bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+                        <div class="p-7 border-b dark:border-slate-700 bg-white dark:bg-slate-800 flex items-center justify-between gap-3">
+                            <h3 class="font-bold dark:text-white text-lg">Inventario</h3>
+                            <button onclick="exportarInventarioExcel()" class="bg-[#10b981] hover:bg-emerald-600 text-white px-6 rounded-2xl font-bold text-xs shadow-md transition-all whitespace-nowrap">EXCEL</button>
                         </div>
-                        <div class="bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
-                            <div class="p-7 border-b dark:border-slate-700 bg-white dark:bg-slate-800">
-                                <h3 class="font-bold dark:text-white text-lg">Proveedores</h3>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-sm">
-                                    <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-400 font-bold uppercase text-[10px] tracking-widest">
-                                        <tr><th class="px-7 py-5 text-left">Proveedor</th><th class="px-7 py-5 text-center">Acción</th></tr>
-                                    </thead>
-                                    <tbody id="body-proveedores" class="divide-y divide-slate-50 dark:divide-slate-700"></tbody>
-                                </table>
-                            </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-400 font-bold uppercase text-[10px] tracking-widest">
+                                    <tr><th class="px-7 py-5 text-left">Producto</th><th class="px-7 py-5 text-center">Categoría</th><th class="px-7 py-5 text-center">Stock</th><th class="px-7 py-5 text-center">Acción</th></tr>
+                                </thead>
+                                <tbody id="body-inventario" class="divide-y divide-slate-50 dark:divide-slate-700"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-1 space-y-8">
+                    <div class="bg-white dark:bg-slate-800 p-7 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700">
+                        <h3 class="font-bold mb-6 flex items-center gap-2 text-slate-900 dark:text-white text-md tracking-tight"><div class="w-1.5 h-5 bg-indigo-500 rounded-full"></div> Registrar Proveedor</h3>
+                        <div class="space-y-4">
+                            <input type="text" id="proveedor-nombre" placeholder="Nombre proveedor" class="w-full p-4 bg-[#f8fafc] dark:bg-slate-700 dark:text-white rounded-2xl border border-slate-100 dark:border-slate-600 text-sm">
+                            <button onclick="guardarProveedor()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl shadow-lg active:scale-95 transition-all">Guardar Proveedor</button>
                         </div>
                     </div>
                 </div>
                 <div class="lg:col-span-2">
+                    <div class="bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+                        <div class="p-7 border-b dark:border-slate-700 bg-white dark:bg-slate-800">
+                            <h3 class="font-bold dark:text-white text-lg">Proveedores</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm">
+                                <thead class="bg-slate-50 dark:bg-slate-700/50 text-slate-400 font-bold uppercase text-[10px] tracking-widest">
+                                    <tr><th class="px-7 py-5 text-left">Proveedor</th><th class="px-7 py-5 text-center">Acción</th></tr>
+                                </thead>
+                                <tbody id="body-proveedores" class="divide-y divide-slate-50 dark:divide-slate-700"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
                     <div class="bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
                         <div class="p-7 border-b dark:border-slate-700 bg-white dark:bg-slate-800 flex items-center justify-between gap-3">
                             <h3 class="font-bold dark:text-white text-lg">Inventario</h3>
