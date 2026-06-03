@@ -30,6 +30,22 @@ function exportarExcelReal() {
     exportToExcelAutoWidth(info, 'Ventas', 'Reporte_Distribuidora_Chavez');
 }
 
+function exportarInventarioExcel() {
+    if (!Array.isArray(inventarioActual) || inventarioActual.length === 0) {
+        alert('No hay inventario disponible para exportar.');
+        return;
+    }
+
+    const datosMapeados = inventarioActual.map((item) => ({
+        Producto: item.nombre || '',
+        Categoría: item.categoria || 'SIN CATEGORÍA',
+        'Stock Disponible': Number(item.stock || 0),
+        Fecha: item.creado_en ? new Date(item.creado_en).toLocaleDateString('es-PE') : ''
+    }));
+
+    exportToExcelAutoWidth(datosMapeados, 'Inventario', 'Reporte_Inventario.xlsx');
+}
+
 function generarReciboPDF(idPedido) {
     const pedido = pedidosDB.find((item) => String(item.id) === String(idPedido));
     if (!pedido) {
