@@ -384,7 +384,7 @@ function generarReciboPDF(idPedido) {
 
 // Asegura que las funciones invocadas desde los botones sean accesibles globalmente
 window.cambiarModulo = cambiarModulo;
-window.toggleDarkMode = toggleDarkMode;
+
 window.actualizarTema = actualizarTema;
 window.enviarWhatsApp = enviarWhatsApp;
 window.generarReciboPDF = generarReciboPDF;

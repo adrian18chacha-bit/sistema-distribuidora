@@ -1,12 +1,18 @@
 async function login() {
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
+    
+    if (!email || !password) {
+        Swal.fire('Atención', 'Por favor, ingresa tu correo y contraseña.', 'warning');
+        return;
+    }
+
     const { error } = await _supabase.auth.signInWithPassword({ email, password });
 
     if (!error) {
         checkUser();
     } else {
-        alert('Error de acceso: Credenciales incorrectas');
+        Swal.fire('Error de acceso', 'Credenciales incorrectas.', 'error');
     }
 }
 

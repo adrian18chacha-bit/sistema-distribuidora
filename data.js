@@ -4,6 +4,7 @@ let gastosDB = [];
 let inventarioDB = [];
 let proveedoresDB = [];
 let ppDB = [];
+let clientesDB = [];
 let pedidosActuales = [];
 let gastosActuales = [];
 let inventarioActual = [];
@@ -11,19 +12,23 @@ let proveedoresActual = [];
 let ppActual = [];
 
 async function cargarTodo() {
-    const { data: pedidos } = await _supabase.from('pedidos').select('*').order('creado_en', { ascending: false });
-    const { data: gastos } = await _supabase.from('gastos').select('*').order('creado_en', { ascending: false });
+    const { data: pedidos } = await _supabase.from('pedidos').select('*, clientes(nombre)').order('creado_en', { ascending: false }).limit(500);
+    const { data: gastos } = await _supabase.from('gastos').select('*').order('creado_en', { ascending: false }).limit(500);
+    const { data: clientes } = await _supabase.from('clientes').select('*').order('nombre');
 
-    pedidosDB = pedidos || [];
+    pedidosDB = (pedidos || []).map((p) => ({
+        ...p,
+        cliente: p.clientes ? p.clientes.nombre : p.cliente
+    }));
     gastosDB = gastos || [];
+    clientesDB = clientes || [];
 
     const clienteSelect = document.getElementById('cliente-select');
     const selectedValue = clienteSelect.value;
-    const clientesUnicos = [...new Set(pedidosDB.map((pedido) => pedido.cliente))].sort();
-
+    
     clienteSelect.innerHTML = '<option value="">Seleccionar cliente</option><option value="NUEVO">+ Cliente Nuevo</option>';
-    clientesUnicos.forEach((cliente) => {
-        clienteSelect.innerHTML += `<option value="${cliente}">${cliente}</option>`;
+    clientesDB.forEach((c) => {
+        clienteSelect.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
     });
     clienteSelect.value = selectedValue;
 
@@ -38,7 +43,7 @@ async function cargarInventario() {
     proveedoresDB = [];
 
     try {
-        const { data: inventario } = await _supabase.from('inventario').select('*').order('creado_en', { ascending: false });
+        const { data: inventario } = await _supabase.from('inventario').select('*').order('creado_en', { ascending: false }).limit(1000);
         inventarioDB = inventario || [];
     } catch (error) {
         console.warn('Tabla inventario no disponible:', error);
@@ -46,7 +51,7 @@ async function cargarInventario() {
     }
 
     try {
-        const { data: proveedores } = await _supabase.from('proveedores').select('*').order('creado_en', { ascending: false });
+        const { data: proveedores } = await _supabase.from('proveedores').select('*').order('creado_en', { ascending: false }).limit(500);
         proveedoresDB = proveedores || [];
     } catch (error) {
         console.warn('Tabla proveedores no disponible:', error);
@@ -61,7 +66,7 @@ async function cargarPP() {
     ppDB = [];
 
     try {
-        const { data: ordenes } = await _supabase.from('plan_produccion').select('*').order('creado_en', { ascending: false });
+        const { data: ordenes } = await _supabase.from('plan_produccion').select('*').order('creado_en', { ascending: false }).limit(500);
         ppDB = ordenes || [];
     } catch (error) {
         console.warn('Tabla plan_produccion no disponible:', error);
@@ -115,31 +120,71 @@ function aplicarFiltros() {
 
 async function guardarPedido() {
     const clienteSelect = document.getElementById('cliente-select');
-    const cliente = clienteSelect.value === 'NUEVO' ? document.getElementById('cliente-nuevo').value : clienteSelect.value;
+    let clienteId = clienteSelect.value;
     const producto = document.getElementById('producto').value;
     const precio = parseFloat(document.getElementById('precio').value);
+    
+    let nombreClienteText = '';
 
-    if (cliente && producto && precio) {
-        await _supabase.from('pedidos').insert([{ cliente, producto, precio_total: precio, entregado: false }]);
-        clienteSelect.value = '';
-        document.getElementById('cliente-nuevo').value = '';
-        document.getElementById('cliente-nuevo').classList.add('hidden');
-        document.getElementById('producto').value = '';
-        document.getElementById('precio').value = '';
-        cargarTodo();
+    if (clienteId === 'NUEVO') {
+        const nuevoNombre = document.getElementById('cliente-nuevo').value.trim();
+        if (!nuevoNombre || !producto || !precio) {
+            Swal.fire('Atención', 'Por favor, completa todos los campos del pedido.', 'warning');
+            return;
+        }
+        
+        const { data: nuevoC, error: errC } = await _supabase.from('clientes').insert([{ nombre: nuevoNombre }]).select();
+        if (errC || !nuevoC || nuevoC.length === 0) {
+            Swal.fire('Error', 'No se pudo crear el cliente nuevo. Revisa si ya existe.', 'error');
+            return;
+        }
+        clienteId = nuevoC[0].id;
+        nombreClienteText = nuevoNombre;
+    } else if (!clienteId || !producto || !precio) {
+        Swal.fire('Atención', 'Por favor, completa todos los campos del pedido.', 'warning');
+        return;
+    } else {
+        nombreClienteText = clienteSelect.options[clienteSelect.selectedIndex].text;
     }
+
+    const { error } = await _supabase.from('pedidos').insert([{ cliente_id: clienteId, cliente: nombreClienteText, producto, precio_total: precio, entregado: false }]);
+    
+    if (error) {
+        Swal.fire('Error', 'No se pudo guardar el pedido.', 'error');
+        return;
+    }
+
+    Swal.fire({ title: '¡Éxito!', text: 'Pedido registrado correctamente.', icon: 'success', timer: 1500, showConfirmButton: false });
+    
+    clienteSelect.value = '';
+    document.getElementById('cliente-nuevo').value = '';
+    document.getElementById('cliente-nuevo').classList.add('hidden');
+    document.getElementById('producto').value = '';
+    document.getElementById('precio').value = '';
+    cargarTodo();
 }
 
 async function guardarGasto() {
     const descripcion = document.getElementById('gasto-desc').value;
     const monto = parseFloat(document.getElementById('gasto-monto').value);
 
-    if (descripcion && monto) {
-        await _supabase.from('gastos').insert([{ descripcion, monto }]);
-        document.getElementById('gasto-desc').value = '';
-        document.getElementById('gasto-monto').value = '';
-        cargarTodo();
+    if (!descripcion || !monto) {
+        Swal.fire('Atención', 'Por favor, ingresa la descripción y el monto del gasto.', 'warning');
+        return;
     }
+
+    const { error } = await _supabase.from('gastos').insert([{ descripcion, monto }]);
+    
+    if (error) {
+        Swal.fire('Error', 'No se pudo guardar el gasto.', 'error');
+        return;
+    }
+
+    Swal.fire({ title: '¡Éxito!', text: 'Gasto registrado correctamente.', icon: 'success', timer: 1500, showConfirmButton: false });
+    
+    document.getElementById('gasto-desc').value = '';
+    document.getElementById('gasto-monto').value = '';
+    cargarTodo();
 }
 
 async function guardarInventario() {
@@ -148,44 +193,55 @@ async function guardarInventario() {
     const categoriaEl = document.getElementById('producto-categoria');
     const categoria = categoriaEl ? categoriaEl.value : 'PRODUCTO_TERMINADO';
 
-    if (nombre && Number.isFinite(stock)) {
-        try {
-            const { data: nuevoInventario, error } = await _supabase.from('inventario').insert([{ nombre, stock, categoria }]).select();
-            if (error) throw error;
-            inventarioDB.unshift(nuevoInventario[0]);
-            inventarioActual = [...inventarioDB];
-        } catch (error) {
-            console.warn('No se pudo guardar inventario en la base de datos. Usando estado local.', error);
-            const nuevo = { id: `inv-${Date.now()}`, nombre, stock, categoria };
-            inventarioDB.unshift(nuevo);
-            inventarioActual = [...inventarioDB];
-        }
-
-        document.getElementById('producto-nombre').value = '';
-        document.getElementById('producto-stock').value = '';
-        if (categoriaEl) categoriaEl.value = 'PRODUCTO_TERMINADO';
-        actualizarInventario();
+    if (!nombre || !Number.isFinite(stock)) {
+        Swal.fire('Atención', 'Por favor, ingresa el nombre y el stock válido.', 'warning');
+        return;
     }
+
+    try {
+        const { data: nuevoInventario, error } = await _supabase.from('inventario').insert([{ nombre, stock, categoria }]).select();
+        if (error) throw error;
+        inventarioDB.unshift(nuevoInventario[0]);
+        inventarioActual = [...inventarioDB];
+        Swal.fire({ title: '¡Éxito!', text: 'Producto agregado al inventario.', icon: 'success', timer: 1500, showConfirmButton: false });
+    } catch (error) {
+        console.warn('No se pudo guardar inventario en la base de datos. Usando estado local.', error);
+        Swal.fire('Advertencia', 'Guardado localmente. Revisa la conexión a la base de datos.', 'warning');
+        const nuevo = { id: `inv-${Date.now()}`, nombre, stock, categoria };
+        inventarioDB.unshift(nuevo);
+        inventarioActual = [...inventarioDB];
+    }
+
+    document.getElementById('producto-nombre').value = '';
+    document.getElementById('producto-stock').value = '';
+    if (categoriaEl) categoriaEl.value = 'PRODUCTO_TERMINADO';
+    actualizarInventario();
 }
 
 async function guardarProveedor() {
     const nombre = document.getElementById('proveedor-nombre').value.trim();
-    if (nombre) {
-        try {
-            const { data: nuevoProveedor, error } = await _supabase.from('proveedores').insert([{ nombre }]).select();
-            if (error) throw error;
-            proveedoresDB.unshift(nuevoProveedor[0]);
-            proveedoresActual = [...proveedoresDB];
-        } catch (error) {
-            console.warn('No se pudo guardar proveedor en la base de datos. Usando estado local.', error);
-            const nuevo = { id: `prov-${Date.now()}`, nombre };
-            proveedoresDB.unshift(nuevo);
-            proveedoresActual = [...proveedoresDB];
-        }
-
-        document.getElementById('proveedor-nombre').value = '';
-        actualizarInventario();
+    
+    if (!nombre) {
+        Swal.fire('Atención', 'Por favor, ingresa el nombre del proveedor.', 'warning');
+        return;
     }
+    
+    try {
+        const { data: nuevoProveedor, error } = await _supabase.from('proveedores').insert([{ nombre }]).select();
+        if (error) throw error;
+        proveedoresDB.unshift(nuevoProveedor[0]);
+        proveedoresActual = [...proveedoresDB];
+        Swal.fire({ title: '¡Éxito!', text: 'Proveedor registrado correctamente.', icon: 'success', timer: 1500, showConfirmButton: false });
+    } catch (error) {
+        console.warn('No se pudo guardar proveedor en la base de datos. Usando estado local.', error);
+        Swal.fire('Advertencia', 'Guardado localmente. Revisa la conexión a la base de datos.', 'warning');
+        const nuevo = { id: `prov-${Date.now()}`, nombre };
+        proveedoresDB.unshift(nuevo);
+        proveedoresActual = [...proveedoresDB];
+    }
+
+    document.getElementById('proveedor-nombre').value = '';
+    actualizarInventario();
 }
 
 async function guardarOrdenPP() {
@@ -194,31 +250,36 @@ async function guardarOrdenPP() {
     const fechaEntrega = document.getElementById('pp-fecha').value;
     const estado = document.getElementById('pp-estado').value;
 
-    if (producto && Number.isFinite(cantidad) && fechaEntrega && estado) {
-        try {
-            const { data: nuevaOrden, error } = await _supabase.from('plan_produccion').insert([{ producto, cantidad, fecha_entrega: fechaEntrega, estado }]).select();
-            if (error) throw error;
-            ppDB.unshift(nuevaOrden[0]);
-            ppActual = [...ppDB];
-        } catch (error) {
-            console.warn('No se pudo guardar orden PP en la base de datos. Usando estado local.', error);
-            const nuevaOrden = {
-                id: `pp-${Date.now()}`,
-                producto,
-                cantidad,
-                fecha_entrega: fechaEntrega,
-                estado
-            };
-            ppDB.unshift(nuevaOrden);
-            ppActual = [...ppDB];
-        }
-
-        document.getElementById('pp-producto').value = '';
-        document.getElementById('pp-cantidad').value = '';
-        document.getElementById('pp-fecha').value = '';
-        document.getElementById('pp-estado').value = 'EN_PROCESO';
-        actualizarPlanProduccion();
+    if (!producto || !Number.isFinite(cantidad) || !fechaEntrega || !estado) {
+        Swal.fire('Atención', 'Por favor, completa todos los datos de la orden de producción.', 'warning');
+        return;
     }
+
+    try {
+        const { data: nuevaOrden, error } = await _supabase.from('plan_produccion').insert([{ producto, cantidad, fecha_entrega: fechaEntrega, estado }]).select();
+        if (error) throw error;
+        ppDB.unshift(nuevaOrden[0]);
+        ppActual = [...ppDB];
+        Swal.fire({ title: '¡Éxito!', text: 'Orden de producción creada.', icon: 'success', timer: 1500, showConfirmButton: false });
+    } catch (error) {
+        console.warn('No se pudo guardar orden PP en la base de datos. Usando estado local.', error);
+        Swal.fire('Advertencia', 'Guardado localmente. Revisa la conexión a la base de datos.', 'warning');
+        const nuevaOrden = {
+            id: `pp-${Date.now()}`,
+            producto,
+            cantidad,
+            fecha_entrega: fechaEntrega,
+            estado
+        };
+        ppDB.unshift(nuevaOrden);
+        ppActual = [...ppDB];
+    }
+
+    document.getElementById('pp-producto').value = '';
+    document.getElementById('pp-cantidad').value = '';
+    document.getElementById('pp-fecha').value = '';
+    document.getElementById('pp-estado').value = 'EN_PROCESO';
+    actualizarPlanProduccion();
 }
 
 async function eliminarOrdenPP(id) {
@@ -266,16 +327,48 @@ async function marcarEntregado(id) {
 }
 
 async function eliminarPedido(id) {
-    if (confirm('¿Eliminar este pedido?')) {
-        await _supabase.from('pedidos').delete().eq('id', id);
-        cargarTodo();
+    const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Se eliminará este pedido.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+        const { error } = await _supabase.from('pedidos').delete().eq('id', id);
+        if (!error) {
+            Swal.fire('Eliminado', 'El pedido ha sido eliminado.', 'success');
+            cargarTodo();
+        } else {
+            Swal.fire('Error', 'No se pudo eliminar el pedido.', 'error');
+        }
     }
 }
 
 async function eliminarGasto(id) {
-    if (confirm('¿Eliminar este gasto?')) {
-        await _supabase.from('gastos').delete().eq('id', id);
-        cargarTodo();
+    const result = await Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Se eliminará este gasto.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+        const { error } = await _supabase.from('gastos').delete().eq('id', id);
+        if (!error) {
+            Swal.fire('Eliminado', 'El gasto ha sido eliminado.', 'success');
+            cargarTodo();
+        } else {
+            Swal.fire('Error', 'No se pudo eliminar el gasto.', 'error');
+        }
     }
 }
 
