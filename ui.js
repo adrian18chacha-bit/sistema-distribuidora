@@ -464,7 +464,7 @@ function generarReciboPDF(idPedido) {
     const { subtotal, igv } = totalToSubtotalIGV(total);
     const fecha = new Date(pedido.creado_en).toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit' });
     const estado = pedido.entregado ? 'LISTO' : 'PENDIENTE';
-    const empresa = 'Distribuidora Chávez';
+    const empresa = window.appConfig?.nombre_empresa || 'Mi Empresa';
     const jsPDFConstructor = window.jspdf?.jsPDF || window.jsPDF;
 
     if (!jsPDFConstructor) {
@@ -540,7 +540,7 @@ function generarReciboPDF(idPedido) {
         y += 10;
         doc.setFontSize(10);
         doc.setTextColor('#666666');
-        const footerLines = doc.splitTextToSize('Gracias por tu compra • Distribuidora Chávez', pageWidth - margin * 2);
+        const footerLines = doc.splitTextToSize(`Gracias por tu compra • ${empresa}`, pageWidth - margin * 2);
         doc.text(footerLines, margin, y);
 
         const fileName = `Recibo_${empresa.replace(/\s+/g, '_')}_#${idPedido}.pdf`;
