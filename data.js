@@ -724,3 +724,42 @@ function actualizarHome() {
     if (elGastos) elGastos.textContent = 'S/. ' + gastosMes.toFixed(2);
 }
 window.actualizarHome = actualizarHome;
+
+window.clonarVenta = async function(id) {
+    const { data: pedido, error } = await window.supabaseClient.from('pedidos').select('*').eq('id', id).single();
+    if (error || !pedido) {
+        Swal.fire('Error', 'No se pudo cargar el pedido para clonar.', 'error');
+        return;
+    }
+
+    // Autocompletar Cliente
+    const clienteSelect = document.getElementById('cliente-select');
+    let opcionCliente = Array.from(clienteSelect.options).find(o => o.text === pedido.cliente);
+    if (opcionCliente) {
+        clienteSelect.value = opcionCliente.value;
+        toggleNuevoCliente();
+    } else {
+        clienteSelect.value = 'NUEVO';
+        toggleNuevoCliente();
+        document.getElementById('cliente-nuevo').value = pedido.cliente;
+    }
+
+    // Autocompletar Producto
+    const productoSelect = document.getElementById('producto-select');
+    let opcionProducto = Array.from(productoSelect.options).find(o => o.text === pedido.producto);
+    if (opcionProducto) {
+        productoSelect.value = opcionProducto.value;
+        toggleNuevoProducto();
+    } else {
+        productoSelect.value = 'NUEVO';
+        toggleNuevoProducto();
+        document.getElementById('producto-nuevo').value = pedido.producto;
+    }
+
+    // Autocompletar Precio
+    document.getElementById('precio').value = pedido.precio_total;
+    document.getElementById('cantidad').value = 1;
+    
+    Swal.fire({ title: 'Listo para clonar', text: 'Los datos han sido cargados en el formulario.', icon: 'info', timer: 2000, showConfirmButton: false });
+};
+
