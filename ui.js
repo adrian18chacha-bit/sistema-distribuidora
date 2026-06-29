@@ -449,7 +449,7 @@ function toggleTheme() {
 }
 
 function enviarWhatsApp(cliente, producto, total) {
-    const mensaje = `¡Hola ${cliente}! 👋 Confirmamos tu pedido de ${producto} por S/. ${total.toFixed(2)}. ¡Gracias! 🚛💧`;
+    const mensaje = `¡Hola ${cliente}! Confirmamos tu pedido de ${producto} por S/. ${total.toFixed(2)}. ¡Gracias!`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`, '_blank');
 }
 
