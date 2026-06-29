@@ -7,64 +7,217 @@ function renderEmptyRow(body, cols, message) {
         </tr>`;
 }
 
-function cambiarModulo(modulo) {
+async function cambiarModulo(modulo) {
     currentModulo = modulo;
-    ['sd', 'fi', 'mm', 'pp'].forEach((m) => {
-        const btn = document.getElementById(`module-${m}`);
-        const section = document.getElementById(`section-${m}`);
-        if (btn) btn.className = m === modulo
-            ? 'px-5 py-2 rounded-lg text-xs font-bold transition-all bg-white text-blue-700 shadow-sm'
-            : 'px-5 py-2 rounded-lg text-xs font-bold transition-all text-white opacity-70';
-        if (section) section.classList.toggle('hidden', m !== modulo);
-    });
+    
+    const container = document.getElementById('module-container');
+    
+    // Animación de salida
+    container.style.opacity = '0';
+    
+    try {
+        // Cargar placa dinámicamente
+        const response = await fetch(`./views/${modulo}.html`);
+        if (!response.ok) throw new Error('Módulo no encontrado');
+        const html = await response.text();
+        
+        setTimeout(() => {
+            container.innerHTML = html;
+            // Animación de entrada
+            container.style.opacity = '1';
+            
+            // Post-carga: configurar UI específica
+            const moduloHeader = document.getElementById('modulo-header');
+            if (moduloHeader) {
+                moduloHeader.style.display = (modulo === 'home' || modulo === 'settings') ? 'none' : 'block';
+            }
 
-    const titulo = document.getElementById('modulo-titulo');
-    const subtitulo = document.getElementById('modulo-subtitulo');
-    if (titulo) titulo.textContent = modulo === 'sd' ? 'Módulo SD' : modulo === 'fi' ? 'Módulo FI' : modulo === 'mm' ? 'Módulo MM' : 'Módulo PP';
-    if (subtitulo) subtitulo.textContent = modulo === 'sd'
-        ? 'Gestiona pedidos, información de clientes y control de entregas en tiempo real.'
-        : modulo === 'fi'
-            ? 'Registra gastos, analiza utilidades y controla el flujo financiero de la empresa.'
-            : modulo === 'mm'
-                ? 'Administra inventario, proveedores y stock con visibilidad completa del almacén.'
-                : 'Planifica la producción con órdenes y estados para asegurar fabricación y entrega.';
+            // Actualizar botones de navegación
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.target === modulo) {
+                    btn.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-900', 'dark:text-white');
+                    btn.classList.remove('text-slate-500', 'dark:text-slate-400', 'hover:text-slate-900', 'dark:hover:text-white', 'hover:bg-slate-50', 'dark:hover:bg-slate-800/50');
+                } else {
+                    btn.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-900', 'dark:text-white');
+                    btn.classList.add('text-slate-500', 'dark:text-slate-400', 'hover:text-slate-900', 'dark:hover:text-white', 'hover:bg-slate-50', 'dark:hover:bg-slate-800/50');
+                }
+            });
 
-    const labels = {
-        sd: ['Ventas', 'Gastos', 'Utilidad Neta'],
-        fi: ['Facturación', 'Gastos', 'Resultados'],
-        mm: ['Stock', 'Proveedores', 'Productos'],
-        pp: ['Órdenes', 'Productos', 'Estado']
-    };
-    document.getElementById('card-1-label').textContent = labels[modulo][0];
-    document.getElementById('card-2-label').textContent = labels[modulo][1];
-    document.getElementById('card-3-label').textContent = labels[modulo][2];
+            const titulo = document.getElementById('modulo-titulo');
+            const subtitulo = document.getElementById('modulo-subtitulo');
+            if (titulo) titulo.textContent = modulo === 'sd' ? 'Historial (Ventas)' : modulo === 'fi' ? 'Finanzas' : modulo === 'mm' ? 'Inventario' : modulo === 'pp' ? 'Producción' : 'Configuración';
+            if (subtitulo) subtitulo.textContent = modulo === 'sd'
+                ? 'Gestiona pedidos, información de clientes y control de entregas en tiempo real.'
+                : modulo === 'fi'
+                    ? 'Registra gastos, analiza utilidades y controla el flujo financiero de la empresa.'
+                    : modulo === 'mm'
+                        ? 'Administra inventario, proveedores y stock con visibilidad completa del almacén.'
+                        : modulo === 'pp' ? 'Planifica la producción con órdenes y estados para asegurar fabricación y entrega.' : 'Ajustes globales y datos de la empresa (Marca Blanca).';
 
-    if (modulo === 'sd') {
-        actualizarInterfaz();
-    } else if (modulo === 'fi') {
-        actualizarGastos();
-    } else if (modulo === 'mm') {
-        actualizarInventario();
-    } else {
-        actualizarPlanProduccion();
+            const labels = {
+                sd: ['Ventas', 'Gastos', 'Utilidad Neta'],
+                fi: ['Facturación', 'Gastos', 'Resultados'],
+                mm: ['Stock', 'Proveedores', 'Productos'],
+                pp: ['Órdenes', 'Productos', 'Estado'],
+                settings: ['Ventas', 'Gastos', 'Utilidad Neta']
+            };
+            
+            if (labels[modulo]) {
+                const l1 = document.getElementById('card-1-label');
+                const l2 = document.getElementById('card-2-label');
+                const l3 = document.getElementById('card-3-label');
+                if(l1) l1.textContent = labels[modulo][0];
+                if(l2) l2.textContent = labels[modulo][1];
+                if(l3) l3.textContent = labels[modulo][2];
+            }
+
+            if (typeof refreshModuloActual === 'function') {
+                refreshModuloActual();
+            }
+            
+            aplicarPermisosUI(); // Asegurar permisos en nueva vista
+        }, 300); // Dar tiempo a fade-out
+    } catch (e) {
+        console.error('Error al cargar módulo:', e);
+        container.innerHTML = `<div class="p-8 text-center text-red-500">Error al cargar el módulo ${modulo}</div>`;
+        container.style.opacity = '1';
     }
 }
 
 function refreshModuloActual() {
+    poblarSelects();
     if (currentModulo === 'sd') {
         actualizarInterfaz();
     } else if (currentModulo === 'fi') {
         actualizarGastos();
     } else if (currentModulo === 'mm') {
         actualizarInventario();
-    } else {
+    } else if (currentModulo === 'pp') {
         actualizarPlanProduccion();
+    } else if (currentModulo === 'home') {
+        actualizarHome();
+    }
+}
+
+function actualizarHome() {
+    let totalVentas = 0;
+    let entregadosHoy = 0;
+    let stockCritico = 0;
+    let gastosMes = 0;
+
+    const hoy = new Date().toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
+    
+    pedidosActuales.forEach(p => {
+        totalVentas += Number(p.precio_total || 0);
+        const fecha = new Date(p.creado_en).toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
+        if (p.entregado && fecha === hoy) entregadosHoy++;
+    });
+
+    inventarioActual.forEach(i => {
+        if (Number(i.stock || 0) <= 5) stockCritico++;
+    });
+
+    gastosActuales.forEach(g => {
+        gastosMes += Number(g.monto || 0);
+    });
+
+    const mVentas = document.getElementById('home-metric-ventas');
+    const mPedidos = document.getElementById('home-metric-pedidos');
+    const mStock = document.getElementById('home-metric-stock');
+    const mGastos = document.getElementById('home-metric-gastos');
+
+    if (mVentas) mVentas.textContent = `S/. ${totalVentas.toFixed(2)}`;
+    if (mPedidos) mPedidos.textContent = entregadosHoy;
+    if (mStock) mStock.textContent = stockCritico;
+    if (mGastos) mGastos.textContent = `S/. ${gastosMes.toFixed(2)}`;
+}
+
+function poblarSelects() {
+    const clienteSelect = document.getElementById('cliente-select');
+    if (clienteSelect && typeof clientesDB !== 'undefined') {
+        const selectedCliente = clienteSelect.value;
+        clienteSelect.innerHTML = '<option value="">Seleccionar cliente</option><option value="NUEVO">+ Cliente Nuevo</option>';
+        clientesDB.forEach(c => {
+            clienteSelect.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+        });
+        clienteSelect.value = selectedCliente;
+    }
+
+    let prodOptions = '<option value="">Seleccionar producto (Inventario)</option><option value="NUEVO">+ Producto Libre</option>';
+    if (typeof inventarioDB !== 'undefined') {
+        inventarioDB.forEach(item => {
+            prodOptions += `<option value="${item.id}">${item.nombre} (Stock: ${item.stock})</option>`;
+        });
+    }
+
+    const productoSelect = document.getElementById('producto-select');
+    if (productoSelect) {
+        const selectedProd = productoSelect.value;
+        productoSelect.innerHTML = prodOptions;
+        productoSelect.value = selectedProd;
+    }
+
+    const ppProductoSelect = document.getElementById('pp-producto');
+    if (ppProductoSelect) {
+        const selectedPPProd = ppProductoSelect.value;
+        ppProductoSelect.innerHTML = prodOptions;
+        ppProductoSelect.value = selectedPPProd;
+    }
+}
+
+function aplicarPermisosUI() {
+    if (window.userRol === 'vendedor') {
+        const btnFI = document.getElementById('btn-nav-fi') || document.getElementById('module-fi');
+        const btnMM = document.getElementById('btn-nav-mm') || document.getElementById('module-mm');
+        const btnPP = document.getElementById('btn-nav-pp') || document.getElementById('module-pp');
+        const btnSettings = document.getElementById('btn-nav-settings');
+        
+        if (btnFI) btnFI.style.display = 'none';
+        if (btnMM) btnMM.style.display = 'none';
+        if (btnPP) btnPP.style.display = 'none';
+        if (btnSettings) btnSettings.style.display = 'none';
+        
+        const card3 = document.getElementById('card-3-container');
+        const card4 = document.getElementById('card-4-container');
+        if (card3) card3.style.display = 'none';
+        if (card4) card4.style.display = 'none';
+    } else {
+        // Si es Admin, mostrar el botón de settings
+        const btnSettings = document.getElementById('btn-nav-settings');
+        if (btnSettings) btnSettings.classList.remove('hidden');
+    }
+}
+
+function toggleNuevoCliente() {
+    const cSelect = document.getElementById('cliente-select');
+    const cNuevo = document.getElementById('cliente-nuevo');
+    if (cSelect && cNuevo) {
+        if (cSelect.value === 'NUEVO') {
+            cNuevo.classList.remove('hidden');
+            cNuevo.focus();
+        } else {
+            cNuevo.classList.add('hidden');
+        }
+    }
+}
+
+function toggleNuevoProducto() {
+    const pSelect = document.getElementById('producto-select');
+    const pNuevo = document.getElementById('producto-nuevo');
+    if (pSelect && pNuevo) {
+        if (pSelect.value === 'NUEVO') {
+            pNuevo.classList.remove('hidden');
+            pNuevo.focus();
+        } else {
+            pNuevo.classList.add('hidden');
+        }
     }
 }
 
 function actualizarInterfaz() {
-    const header = document.getElementById('header-tabla');
     const body = document.getElementById('body-tabla');
+    if (!body) return;
+    const header = document.getElementById('header-tabla');
     body.innerHTML = '';
     let totalVentas = 0;
     let totalGastos = 0;
@@ -84,43 +237,51 @@ function actualizarInterfaz() {
         totalGastos += Number(gasto.monto || 0);
     });
 
-    document.getElementById('resumen-ventas').textContent = `S/. ${totalVentas.toFixed(2)}`;
-    document.getElementById('resumen-gastos').textContent = `S/. ${totalGastos.toFixed(2)}`;
-    document.getElementById('resumen-utilidad').textContent = `S/. ${(totalVentas - totalGastos).toFixed(2)}`;
 
-    header.innerHTML = '<th class="px-7 py-5 text-left">Cliente</th><th class="px-7 py-5 text-center">Total</th><th class="px-7 py-5 text-center">Estado</th><th class="px-7 py-5 text-center">Acciones</th>';
+
+    if (header) {
+        header.innerHTML = '';
+    }
     const pedidosFiltrados = pedidosActuales.filter((pedido) => (`${pedido.cliente} ${pedido.producto}`.toLowerCase().includes(query)));
 
     pedidosFiltrados.forEach((pedido) => {
         const fechaTexto = new Date(pedido.creado_en).toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
         body.innerHTML += `
-            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left">
-                <td class="px-7 py-5 font-bold dark:text-white">${pedido.cliente}<br><span class="text-[10px] text-slate-400 font-normal uppercase">${pedido.producto} • ${fechaTexto}</span></td>
-                <td class="px-7 py-5 text-center font-black text-blue-600 dark:text-blue-400">S/. ${Number(pedido.precio_total || 0).toFixed(2)}</td>
-                <td class="px-7 py-5 text-center"><span class="px-2.5 py-1 rounded-lg text-[10px] font-black ${pedido.entregado ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'}">${pedido.entregado ? 'LISTO' : 'PENDIENTE'}</span></td>
-                <td class="px-7 py-5 flex justify-center items-center gap-3">
-                    <button onclick="enviarWhatsApp('${pedido.cliente}','${pedido.producto}',${pedido.precio_total})" class="text-emerald-500 hover:scale-125 transition-transform" title="WhatsApp">
-                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793 0-.853.448-1.273.607-1.446.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.101-.177.211-.077.383.101.173.448.738.961 1.193.661.587 1.216.768 1.39.853.173.087.275.072.376-.044.101-.116.434-.506.549-.68.116-.173.231-.144.39-.087s1.011.477 1.184.564c.173.087.289.13.332.202.045.072.045.419-.1.824z"/></svg>
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col md:grid md:grid-cols-12 md:items-center gap-4 hover:shadow-md transition-shadow">
+                <div class="md:col-span-4">
+                    <p class="font-bold text-slate-900 dark:text-white truncate">${pedido.cliente}</p>
+                    <p class="text-[10px] text-slate-500 uppercase mt-0.5 truncate">${pedido.producto} • ${fechaTexto}</p>
+                </div>
+                <div class="md:col-span-3 md:text-center font-black text-blue-600 dark:text-blue-400">
+                    S/. ${Number(pedido.precio_total || 0).toFixed(2)}
+                </div>
+                <div class="md:col-span-2 md:text-center">
+                    <span class="px-3 py-1 rounded-full text-[10px] font-bold ${pedido.entregado ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'}">${pedido.entregado ? 'LISTO' : 'PENDIENTE'}</span>
+                </div>
+                <div class="md:col-span-3 flex items-center md:justify-end gap-2">
+                    <button onclick="enviarWhatsApp('${pedido.cliente}','${pedido.producto}',${pedido.precio_total})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors" title="WhatsApp">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793 0-.853.448-1.273.607-1.446.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.101-.177.211-.077.383.101.173.448.738.961 1.193.661.587 1.216.768 1.39.853.173.087.275.072.376-.044.101-.116.434-.506.549-.68.116-.173.231-.144.39-.087s1.011.477 1.184.564c.173.087.289.13.332.202.045.072.045.419-.1.824z"/></svg>
                     </button>
-                    <button onclick="generarReciboPDF(${pedido.id})" class="text-slate-800 dark:text-slate-100 hover:scale-125 transition-transform text-lg" title="Recibo">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v4h4" /><path d="M7 13h10" /><path d="M7 17h7" /><path d="M7 7h10" /><path d="M5 21h14a2 2 0 0 0 2-2V8l-6-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/></svg>
+                    <button onclick="generarReciboPDF(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors" title="Recibo">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3v4h4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 13h10" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17h7" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 21h14a2 2 0 0 0 2-2V8l-6-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/></svg>
                     </button>
-                    ${!pedido.entregado ? `<button onclick="marcarEntregado(${pedido.id})" class="text-blue-500 font-black hover:scale-125 transition-transform text-lg" title="Listo">✓</button>` : ''}
-                    <button onclick="eliminarPedido(${pedido.id})" class="text-rose-500 hover:scale-125 transition-transform text-lg" title="Eliminar">✕</button>
-                </td>
-            </tr>`;
+                    ${!pedido.entregado ? `<button onclick="marcarEntregado(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 font-bold transition-colors" title="Listo"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></button>` : ''}
+                    ${window.userRol === 'admin' ? `<button onclick="eliminarPedido(${pedido.id})" class="w-8 h-8 rounded-full border border-rose-200 dark:border-rose-800 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>` : ''}
+                </div>
+            </div>`;
     });
 
     if (pedidosFiltrados.length === 0) {
-        renderEmptyRow(body, 4, 'No hay pedidos registrados.');
+        body.innerHTML = `<div class="text-center text-slate-500 p-10 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">No hay pedidos registrados.</div>`;
     }
 
     renderChart(pendientes, listos);
 }
 
 function actualizarGastos() {
-    const query = document.getElementById('buscador-gastos')?.value.toLowerCase() || '';
     const body = document.getElementById('body-gastos');
+    if (!body) return;
+    const query = document.getElementById('buscador-gastos')?.value.toLowerCase() || '';
     body.innerHTML = '';
 
     let totalVentas = pedidosActuales.reduce((sum, pedido) => sum + Number(pedido.precio_total || 0), 0);
@@ -131,58 +292,76 @@ function actualizarGastos() {
             totalGastos += Number(gasto.monto || 0);
             const fechaTexto = new Date(gasto.creado_en).toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
             body.innerHTML += `
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left">
-                    <td class="px-7 py-5 font-bold dark:text-white">${gasto.descripcion}<br><span class="text-[10px] text-slate-400 font-normal uppercase">${fechaTexto}</span></td>
-                    <td class="px-7 py-5 text-center font-black text-rose-500">S/. ${Number(gasto.monto).toFixed(2)}</td>
-                    <td class="px-7 py-5 text-center"><button onclick="eliminarGasto(${gasto.id})" class="text-rose-500 font-bold hover:scale-125 transition-transform text-lg">✕</button></td>
-                </tr>`;
+                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col md:grid md:grid-cols-12 md:items-center gap-4 hover:shadow-md transition-shadow">
+                    <div class="md:col-span-6">
+                        <p class="font-bold text-slate-900 dark:text-white truncate">${gasto.descripcion}</p>
+                        <p class="text-[10px] text-slate-500 uppercase mt-0.5">${fechaTexto}</p>
+                    </div>
+                    <div class="md:col-span-3 md:text-center font-black text-rose-500">
+                        S/. ${Number(gasto.monto).toFixed(2)}
+                    </div>
+                    <div class="md:col-span-3 flex justify-start md:justify-center">
+                        <button onclick="eliminarGasto(${gasto.id})" class="w-8 h-8 rounded-full border border-rose-200 dark:border-rose-800 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                    </div>
+                </div>`;
         });
 
     if (gastosFiltrados.length === 0) {
-        renderEmptyRow(body, 3, 'No hay gastos registrados.');
+        body.innerHTML = `<div class="text-center text-slate-500 p-10 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">No hay gastos registrados.</div>`;
     }
 
-    document.getElementById('resumen-ventas').textContent = `S/. ${totalVentas.toFixed(2)}`;
-    document.getElementById('resumen-gastos').textContent = `S/. ${totalGastos.toFixed(2)}`;
-    document.getElementById('resumen-utilidad').textContent = `S/. ${(totalVentas - totalGastos).toFixed(2)}`;
+    if (window.renderVentasMesChart) {
+        window.renderVentasMesChart(pedidosActuales);
+    }
+
 }
 
 function actualizarInventario() {
     const bodyInventario = document.getElementById('body-inventario');
     const bodyProveedores = document.getElementById('body-proveedores');
+    if (!bodyInventario || !bodyProveedores) return;
     bodyInventario.innerHTML = '';
     bodyProveedores.innerHTML = '';
 
     const totalStock = inventarioActual.reduce((sum, item) => sum + Number(item.stock || 0), 0);
     if (inventarioActual.length === 0) {
-        renderEmptyRow(bodyInventario, 4, 'No hay productos en el inventario.');
+        bodyInventario.innerHTML = `<div class="text-center text-slate-500 p-10 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">No hay productos en el inventario.</div>`;
     } else {
         inventarioActual.forEach((item) => {
             bodyInventario.innerHTML += `
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left">
-                <td class="px-7 py-5 font-bold dark:text-white">${item.nombre}</td>
-                <td class="px-7 py-5 text-center uppercase text-slate-500 dark:text-slate-300">${item.categoria || 'SIN CATEGORÍA'}</td>
-                <td class="px-7 py-5 text-center font-black text-slate-800 dark:text-slate-100">${item.stock}</td>
-                <td class="px-7 py-5 text-center"><button onclick="eliminarInventario('${item.id}')" class="text-rose-500 font-bold hover:scale-125 transition-transform text-lg">✕</button></td>
-            </tr>`;
+                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col md:grid md:grid-cols-12 md:items-center gap-4 hover:shadow-md transition-shadow">
+                    <div class="md:col-span-5 font-bold text-slate-900 dark:text-white truncate">
+                        ${item.nombre}
+                    </div>
+                    <div class="md:col-span-3 md:text-center text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
+                        ${item.categoria || 'SIN CATEGORÍA'}
+                    </div>
+                    <div class="md:col-span-2 md:text-center font-black text-slate-800 dark:text-slate-100">
+                        ${item.stock}
+                    </div>
+                    <div class="md:col-span-2 flex justify-start md:justify-center">
+                        <button onclick="eliminarInventario('${item.id}')" class="w-8 h-8 rounded-full border border-rose-200 dark:border-rose-800 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                    </div>
+                </div>`;
         });
     }
 
     if (proveedoresActual.length === 0) {
-        renderEmptyRow(bodyProveedores, 2, 'No hay proveedores registrados.');
+        bodyProveedores.innerHTML = `<div class="text-center text-slate-500 p-10 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">No hay proveedores registrados.</div>`;
     } else {
         proveedoresActual.forEach((proveedor) => {
             bodyProveedores.innerHTML += `
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left">
-                <td class="px-7 py-5 font-bold dark:text-white">${proveedor.nombre}</td>
-                <td class="px-7 py-5 text-center"><button onclick="eliminarProveedor('${proveedor.id}')" class="text-rose-500 font-bold hover:scale-125 transition-transform text-lg">✕</button></td>
-            </tr>`;
+                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col md:grid md:grid-cols-12 md:items-center gap-4 hover:shadow-md transition-shadow">
+                    <div class="md:col-span-9 font-bold text-slate-900 dark:text-white truncate">
+                        ${proveedor.nombre}
+                    </div>
+                    <div class="md:col-span-3 flex justify-start md:justify-center">
+                        <button onclick="eliminarProveedor('${proveedor.id}')" class="w-8 h-8 rounded-full border border-rose-200 dark:border-rose-800 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                    </div>
+                </div>`;
         });
     }
 
-    document.getElementById('resumen-ventas').textContent = `${inventarioActual.length}`;
-    document.getElementById('resumen-gastos').textContent = `${proveedoresActual.length}`;
-    document.getElementById('resumen-utilidad').textContent = `${totalStock}`;
 }
 
 function filtrarGastos() {
@@ -194,58 +373,61 @@ function filtrarPP() {
 }
 
 function actualizarPlanProduccion() {
-    const query = document.getElementById('buscador-pp')?.value.toLowerCase() || '';
     const body = document.getElementById('body-pp');
+    if (!body) return;
+    const query = document.getElementById('buscador-pp')?.value.toLowerCase() || '';
     body.innerHTML = '';
 
     let totalOrdenes = 0;
     let totalCantidad = 0;
 
-    ppActual.filter((orden) => {
+    const ordenesFiltradas = ppActual.filter((orden) => {
         const text = `${orden.producto} ${orden.estado}`.toLowerCase();
         return text.includes(query) || String(orden.cantidad).includes(query) || orden.id.toLowerCase().includes(query);
-    }).forEach((orden) => {
-        totalOrdenes += 1;
-        totalCantidad += Number(orden.cantidad || 0);
-        body.innerHTML += `
-            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all text-left">
-                <td class="px-7 py-5 font-bold dark:text-white">${orden.id}</td>
-                <td class="px-7 py-5 text-center text-slate-800 dark:text-slate-100">${orden.producto}</td>
-                <td class="px-7 py-5 text-center font-black text-slate-800 dark:text-slate-100">${orden.cantidad}</td>
-                <td class="px-7 py-5 text-center text-slate-500 dark:text-slate-400">${orden.fecha_entrega}</td>
-                <td class="px-7 py-5 text-center"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${orden.estado === 'COMPLETADO' ? 'bg-emerald-50 text-emerald-700' : orden.estado === 'EN_PROCESO' ? 'bg-amber-50 text-amber-700' : 'bg-slate-100 text-slate-700'}">${orden.estado.replace('_', ' ')}</span></td>
-                <td class="px-7 py-5 text-center">
-                    ${orden.estado !== 'COMPLETADO' ? `<button onclick="finalizarProduccion('${orden.id}')" class="text-emerald-600 font-bold hover:scale-125 transition-transform mr-3 text-sm">Finalizar Producción</button>` : ''}
-                    <button onclick="eliminarOrdenPP('${orden.id}')" class="text-rose-500 font-bold hover:scale-125 transition-transform text-lg">✕</button>
-                </td>
-            </tr>`;
     });
 
-    if (totalOrdenes === 0) {
-        renderEmptyRow(body, 6, 'No hay órdenes planificadas.');
-    }
+    ordenesFiltradas.forEach((orden) => {
+        totalOrdenes += 1;
+        totalCantidad += Number(orden.cantidad || 0);
+        const colorEstado = orden.estado === 'COMPLETADO' ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30' : orden.estado === 'EN_PROCESO' ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'text-slate-600 bg-slate-100 dark:bg-slate-800';
+        body.innerHTML += `
+            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col md:grid md:grid-cols-12 md:items-center gap-4 hover:shadow-md transition-shadow">
+                <div class="md:col-span-3 font-bold text-slate-900 dark:text-white truncate">
+                    ${orden.id}
+                </div>
+                <div class="md:col-span-3">
+                    <p class="font-bold text-slate-900 dark:text-white truncate">${orden.producto}</p>
+                    <p class="text-[10px] text-slate-500 uppercase mt-0.5">Cant: <span class="font-black text-slate-900 dark:text-white">${orden.cantidad}</span></p>
+                </div>
+                <div class="md:col-span-2 md:text-center text-[10px] text-slate-500 font-bold">
+                    ${orden.fecha_entrega ? new Date(orden.fecha_entrega).toLocaleDateString() : 'N/A'}
+                </div>
+                <div class="md:col-span-2 md:text-center">
+                    <span class="px-3 py-1 rounded-full text-[10px] font-black ${colorEstado}">${orden.estado}</span>
+                </div>
+                <div class="md:col-span-2 flex justify-start md:justify-center gap-2">
+                    <button onclick="avanzarEstadoPP('${orden.id}')" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors" title="Avanzar Estado"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg></button>
+                    <button onclick="eliminarOrdenPP('${orden.id}')" class="w-8 h-8 rounded-full border border-rose-200 dark:border-rose-800 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                </div>
+            </div>`;
+    });
 
-    document.getElementById('resumen-ventas').textContent = `${totalOrdenes}`;
-    document.getElementById('resumen-gastos').textContent = `${ppActual.length}`;
-    document.getElementById('resumen-utilidad').textContent = `${totalCantidad}`;
+    if (ordenesFiltradas.length === 0) {
+        body.innerHTML = `<div class="text-center text-slate-500 p-10 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">No hay órdenes registradas.</div>`;
+    }
 }
 
 function actualizarTema() {
     const isDark = document.documentElement.classList.contains('dark');
-    const lightBtn = document.getElementById('theme-light');
-    const darkBtn = document.getElementById('theme-dark');
+    const toggleBtn = document.getElementById('btn-theme-toggle');
 
-    if (lightBtn && darkBtn) {
+    if (toggleBtn) {
         if (isDark) {
-            darkBtn.classList.add('bg-white', 'text-slate-950');
-            darkBtn.classList.remove('bg-transparent');
-            lightBtn.classList.remove('bg-white', 'text-slate-950');
-            lightBtn.classList.add('bg-transparent');
+            // Icono de Luna (Oscuro)
+            toggleBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>`;
         } else {
-            lightBtn.classList.add('bg-white', 'text-slate-950');
-            lightBtn.classList.remove('bg-transparent');
-            darkBtn.classList.remove('bg-white', 'text-slate-950');
-            darkBtn.classList.add('bg-transparent');
+            // Icono de Sol (Claro)
+            toggleBtn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>`;
         }
     }
 }
@@ -255,7 +437,12 @@ function setThemeMode(mode) {
     document.documentElement.classList.toggle('dark', isDark);
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
     actualizarTema();
-    refreshModuloActual();
+    if (typeof refreshModuloActual === 'function') refreshModuloActual();
+}
+
+function toggleTheme() {
+    const isDark = document.documentElement.classList.contains('dark');
+    setThemeMode(isDark ? 'light' : 'dark');
 }
 
 function enviarWhatsApp(cliente, producto, total) {
@@ -384,8 +571,10 @@ function generarReciboPDF(idPedido) {
 
 // Asegura que las funciones invocadas desde los botones sean accesibles globalmente
 window.cambiarModulo = cambiarModulo;
+window.aplicarPermisosUI = aplicarPermisosUI;
 
 window.actualizarTema = actualizarTema;
+window.toggleTheme = toggleTheme;
 window.enviarWhatsApp = enviarWhatsApp;
 window.generarReciboPDF = generarReciboPDF;
 window.filtrarGastos = filtrarGastos;

@@ -1,0 +1,89 @@
+<!-- MODULE: HOME (Dashboard Global) -->
+
+<!-- Panel de Bienvenida Único -->
+<div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-8 md:p-10 mb-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between relative overflow-hidden group">
+    <div class="absolute -right-20 -top-20 w-80 h-80 bg-gradient-to-br from-blue-500/10 to-purple-500/10 dark:from-blue-500/20 dark:to-purple-500/20 rounded-full blur-3xl transition-transform duration-700 group-hover:scale-110"></div>
+    <div class="relative z-10 flex-1">
+        <div class="flex items-center gap-3 mb-4">
+            <span class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase tracking-widest rounded-full border border-slate-200 dark:border-slate-700">PANEL PRINCIPAL</span>
+        </div>
+        <h2 class="text-3xl md:text-4xl font-black text-slate-900 dark:text-white mb-2" id="home-empresa-nombre">Tu Empresa</h2>
+        <p class="text-slate-500 dark:text-slate-400">Resumen general de operaciones y estado del sistema.</p>
+    </div>
+    <div class="mt-6 md:mt-0 relative z-10 flex flex-col items-end">
+        <div class="text-right mb-4 hidden md:block">
+            <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">ESTADO DEL SISTEMA</p>
+            <div class="flex items-center justify-end gap-2 mt-1">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <p class="text-emerald-500 font-bold text-sm">Operativo</p>
+            </div>
+        </div>
+        <button onclick="cambiarModulo('sd')" class="bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-100 text-white dark:text-slate-900 font-bold py-3.5 px-7 rounded-2xl shadow-md flex items-center gap-2 transition-all active:scale-95">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Registrar Venta
+        </button>
+    </div>
+</div>
+
+<!-- Alertas -->
+<div id="alertas-home" class="mb-8 space-y-3">
+    <!-- Se inyectarán alertas aquí (ej: stock bajo) -->
+</div>
+
+<!-- Métricas Globales -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+    <!-- Ventas -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="flex items-center gap-3 mb-4 relative z-10">
+            <div class="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-500 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+            </div>
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Ventas del Día</p>
+        </div>
+        <h4 class="text-3xl font-black text-slate-900 dark:text-white relative z-10" id="home-metric-ventas">S/. 0.00</h4>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 relative z-10">Ingresos totales hoy</p>
+    </div>
+
+    <!-- Entregas -->
+    <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="flex items-center gap-3 mb-4 relative z-10">
+            <div class="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-900/30 text-emerald-500 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Entregados Hoy</p>
+        </div>
+        <h4 class="text-3xl font-black text-slate-900 dark:text-white relative z-10" id="home-metric-pedidos">0</h4>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 relative z-10">Pedidos completados</p>
+    </div>
+
+    <!-- Stock -->
+    <div id="card-3-container" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-amber-500/5 dark:bg-amber-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="flex items-center gap-3 mb-4 relative z-10">
+            <div class="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-900/30 text-amber-500 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            </div>
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Stock Crítico</p>
+        </div>
+        <h4 class="text-3xl font-black text-slate-900 dark:text-white relative z-10" id="home-metric-stock">0</h4>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 relative z-10">Productos por agotarse</p>
+    </div>
+
+    <!-- Gastos -->
+    <div id="card-4-container" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-rose-500/5 dark:bg-rose-500/10 rounded-full blur-xl group-hover:scale-150 transition-transform duration-500"></div>
+        <div class="flex items-center gap-3 mb-4 relative z-10">
+            <div class="w-10 h-10 rounded-full bg-rose-50 dark:bg-rose-900/30 text-rose-500 flex items-center justify-center">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
+            </div>
+            <p class="text-xs font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">Gastos del Mes</p>
+        </div>
+        <h4 class="text-3xl font-black text-slate-900 dark:text-white relative z-10" id="home-metric-gastos">S/. 0.00</h4>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 relative z-10">Salidas registradas</p>
+    </div>
+</div>

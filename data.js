@@ -11,6 +11,14 @@ let inventarioActual = [];
 let proveedoresActual = [];
 let ppActual = [];
 
+// Configuración global (Marca Blanca)
+window.configuracionGlobal = {
+    nombre_empresa: 'Mi Empresa',
+    ruc: '',
+    direccion: '',
+    telefono: ''
+};
+
 async function cargarTodo() {
     const { data: pedidos } = await _supabase.from('pedidos').select('*, clientes(nombre)').order('creado_en', { ascending: false }).limit(500);
     const { data: gastos } = await _supabase.from('gastos').select('*').order('creado_en', { ascending: false }).limit(500);
@@ -24,16 +32,18 @@ async function cargarTodo() {
     clientesDB = clientes || [];
 
     const clienteSelect = document.getElementById('cliente-select');
-    const selectedValue = clienteSelect.value;
-    
-    clienteSelect.innerHTML = '<option value="">Seleccionar cliente</option><option value="NUEVO">+ Cliente Nuevo</option>';
-    clientesDB.forEach((c) => {
-        clienteSelect.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
-    });
-    clienteSelect.value = selectedValue;
+    if (clienteSelect) {
+        const selectedValue = clienteSelect.value;
+        clienteSelect.innerHTML = '<option value="">Seleccionar cliente</option><option value="NUEVO">+ Cliente Nuevo</option>';
+        clientesDB.forEach((c) => {
+            clienteSelect.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+        });
+        clienteSelect.value = selectedValue;
+    }
 
     await cargarInventario();
     await cargarPP();
+    await cargarConfiguracion();
     aplicarFiltros();
     if (typeof refreshModuloActual === 'function') refreshModuloActual();
 }
@@ -70,14 +80,37 @@ async function cargarPP() {
         ppDB = ordenes || [];
     } catch (error) {
         console.warn('Tabla plan_produccion no disponible:', error);
-        ppDB = [];
     }
+
+    const productoSelect = document.getElementById('producto-select');
+    const ppProductoSelect = document.getElementById('pp-producto');
+    
+    if (productoSelect || ppProductoSelect) {
+        const selectedProd = productoSelect ? productoSelect.value : '';
+        const ppSelectedProd = ppProductoSelect ? ppProductoSelect.value : '';
+        
+        let options = '<option value="">Seleccionar producto (Inventario)</option>';
+        inventarioDB.forEach(item => {
+            options += `<option value="${item.id}">${item.nombre} (Stock: ${item.stock})</option>`;
+        });
+        
+        if (productoSelect) {
+            productoSelect.innerHTML = options;
+            productoSelect.value = selectedProd;
+        }
+        if (ppProductoSelect) {
+            ppProductoSelect.innerHTML = options;
+            ppProductoSelect.value = ppSelectedProd;
+        }
+    }
+
 
     ppActual = [...ppDB];
 }
 
 function aplicarFiltros() {
-    const filtro = document.getElementById('filtro-fecha').value;
+    const filtroSelect = document.getElementById('filtro-fecha');
+    const filtro = filtroSelect ? filtroSelect.value : 'todos';
     const hoy = new Date();
 
     const filtrarPorFecha = (items) => {
@@ -121,33 +154,57 @@ function aplicarFiltros() {
 async function guardarPedido() {
     const clienteSelect = document.getElementById('cliente-select');
     let clienteId = clienteSelect.value;
-    const producto = document.getElementById('producto').value;
+    const productoSelect = document.getElementById('producto-select');
+    let inventarioId = productoSelect.value;
+    let productoText = '';
+    
+    if (inventarioId === 'NUEVO') {
+        productoText = document.getElementById('producto-nuevo').value.trim();
+        inventarioId = null;
+        if (!productoText) {
+            Swal.fire('Atención', 'Por favor, ingresa el nombre del producto libre.', 'warning');
+            return;
+        }
+    } else {
+        productoText = inventarioId ? productoSelect.options[productoSelect.selectedIndex].text.split(' (Stock')[0] : '';
+    }
+
+    const cantidad = parseInt(document.getElementById('cantidad').value) || 1;
     const precio = parseFloat(document.getElementById('precio').value);
     
     let nombreClienteText = '';
 
     if (clienteId === 'NUEVO') {
         const nuevoNombre = document.getElementById('cliente-nuevo').value.trim();
-        if (!nuevoNombre || !producto || !precio) {
+        if (!nuevoNombre || !inventarioId || !precio) {
             Swal.fire('Atención', 'Por favor, completa todos los campos del pedido.', 'warning');
             return;
         }
         
         const { data: nuevoC, error: errC } = await _supabase.from('clientes').insert([{ nombre: nuevoNombre }]).select();
         if (errC || !nuevoC || nuevoC.length === 0) {
-            Swal.fire('Error', 'No se pudo crear el cliente nuevo. Revisa si ya existe.', 'error');
+            console.error("Error al crear cliente:", errC);
+            Swal.fire('Error', 'No se pudo crear el cliente: ' + (errC ? errC.message : 'Error desconocido'), 'error');
             return;
         }
         clienteId = nuevoC[0].id;
         nombreClienteText = nuevoNombre;
-    } else if (!clienteId || !producto || !precio) {
+    } else if (!clienteId || (!inventarioId && productoText === '') || !precio) {
         Swal.fire('Atención', 'Por favor, completa todos los campos del pedido.', 'warning');
         return;
     } else {
         nombreClienteText = clienteSelect.options[clienteSelect.selectedIndex].text;
     }
 
-    const { error } = await _supabase.from('pedidos').insert([{ cliente_id: clienteId, cliente: nombreClienteText, producto, precio_total: precio, entregado: false }]);
+    const { error } = await _supabase.from('pedidos').insert([{ 
+        cliente_id: clienteId, 
+        cliente: nombreClienteText, 
+        producto: productoText, 
+        inventario_id: inventarioId,
+        cantidad: cantidad,
+        precio_total: precio, 
+        entregado: false 
+    }]);
     
     if (error) {
         Swal.fire('Error', 'No se pudo guardar el pedido.', 'error');
@@ -157,9 +214,20 @@ async function guardarPedido() {
     Swal.fire({ title: '¡Éxito!', text: 'Pedido registrado correctamente.', icon: 'success', timer: 1500, showConfirmButton: false });
     
     clienteSelect.value = '';
-    document.getElementById('cliente-nuevo').value = '';
-    document.getElementById('cliente-nuevo').classList.add('hidden');
-    document.getElementById('producto').value = '';
+    const clienteNuevoInput = document.getElementById('cliente-nuevo');
+    if (clienteNuevoInput) {
+        clienteNuevoInput.value = '';
+        clienteNuevoInput.classList.add('hidden');
+    }
+    
+    productoSelect.value = '';
+    const productoNuevoInput = document.getElementById('producto-nuevo');
+    if (productoNuevoInput) {
+        productoNuevoInput.value = '';
+        productoNuevoInput.classList.add('hidden');
+    }
+
+    document.getElementById('cantidad').value = '1';
     document.getElementById('precio').value = '';
     cargarTodo();
 }
@@ -245,18 +313,20 @@ async function guardarProveedor() {
 }
 
 async function guardarOrdenPP() {
-    const producto = document.getElementById('pp-producto').value.trim();
+    const selectProd = document.getElementById('pp-producto');
+    const inventario_id = selectProd.value;
+    const productoText = selectProd.options[selectProd.selectedIndex]?.text.split(' (')[0] || '';
     const cantidad = parseInt(document.getElementById('pp-cantidad').value, 10);
     const fechaEntrega = document.getElementById('pp-fecha').value;
     const estado = document.getElementById('pp-estado').value;
 
-    if (!producto || !Number.isFinite(cantidad) || !fechaEntrega || !estado) {
+    if (!inventario_id || !Number.isFinite(cantidad) || !fechaEntrega || !estado) {
         Swal.fire('Atención', 'Por favor, completa todos los datos de la orden de producción.', 'warning');
         return;
     }
 
     try {
-        const { data: nuevaOrden, error } = await _supabase.from('plan_produccion').insert([{ producto, cantidad, fecha_entrega: fechaEntrega, estado }]).select();
+        const { data: nuevaOrden, error } = await _supabase.from('plan_produccion').insert([{ producto: productoText, cantidad, fecha_entrega: fechaEntrega, estado, inventario_id }]).select();
         if (error) throw error;
         ppDB.unshift(nuevaOrden[0]);
         ppActual = [...ppDB];
@@ -402,7 +472,9 @@ async function finalizarProduccion(id) {
                 ${insumos.map((item) => `<option value="${item.id}">${item.nombre} (${item.stock})</option>`).join('')}
             </select>
             <input type="number" min="1" placeholder="Cantidad" class="swal2-input sw-insumo-cantidad" style="padding: 14px; border-radius: 12px;" />
-            <button type="button" class="swal2-confirm sw-remove-row text-rose-500 font-bold" style="background:transparent;border:none;cursor:pointer;font-size:16px;">✕</button>
+            <button type="button" class="swal2-confirm sw-remove-row text-rose-500 font-bold" style="background:transparent;border:none;cursor:pointer;font-size:16px;" title="Eliminar">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
         </div>`;
 
     const { value: consumos } = await Swal.fire({
@@ -497,32 +569,9 @@ async function finalizarProduccion(id) {
         }
     }
 
-    let productoItem = inventarioDB.find((it) => (it.nombre || '').toLowerCase() === (orden.producto || '').toLowerCase() && ((it.categoria || '').toUpperCase() === 'PRODUCTO_TERMINADO'));
-    if (productoItem) {
-        const nuevoStock = Number(productoItem.stock || 0) + Number(orden.cantidad || 0);
-        try {
-            const { data, error } = await _supabase.from('inventario').update({ stock: nuevoStock }).eq('id', productoItem.id).select();
-            if (error) throw error;
-            if (data && data[0]) {
-                const idx = inventarioDB.findIndex((it) => String(it.id) === String(productoItem.id));
-                if (idx >= 0) inventarioDB[idx] = data[0];
-            }
-        } catch (err) {
-            productoItem.stock = nuevoStock;
-            console.warn('No se pudo incrementar producto terminado en la DB, aplicando en estado local', err);
-        }
-    } else {
-        try {
-            const { data, error } = await _supabase.from('inventario').insert([{ nombre: orden.producto, stock: Number(orden.cantidad || 0), categoria: 'PRODUCTO_TERMINADO' }]).select();
-            if (error) throw error;
-            if (data && data[0]) {
-                inventarioDB.unshift(data[0]);
-            }
-        } catch (err) {
-            inventarioDB.unshift({ id: `inv-${Date.now()}`, nombre: orden.producto, stock: Number(orden.cantidad || 0), categoria: 'PRODUCTO_TERMINADO' });
-            console.warn('No se pudo crear producto terminado en la DB, creado en estado local', err);
-        }
-    }
+    // La actualización del stock del producto terminado ahora se maneja automáticamente
+    // mediante un Trigger en la base de datos (supabase-faseC-produccion.sql)
+    // cuando el estado de plan_produccion cambia a 'COMPLETADO'.
 
     try {
         const { error } = await _supabase.from('plan_produccion').update({ estado: 'COMPLETADO' }).eq('id', id);
@@ -541,3 +590,137 @@ async function finalizarProduccion(id) {
 }
 
 window.finalizarProduccion = finalizarProduccion;
+
+// --- Configuración (Marca Blanca) ---
+async function cargarConfiguracion() {
+    try {
+        const { data: config, error } = await _supabase.from('configuracion').select('*').eq('id', 1).maybeSingle();
+        if (config) {
+            window.configuracionGlobal = config;
+            
+            // Actualizar inputs en Settings
+            const nameEl = document.getElementById('config-nombre');
+            if (nameEl) {
+                document.getElementById('config-nombre').value = config.nombre_empresa || '';
+                document.getElementById('config-ruc').value = config.ruc || '';
+                document.getElementById('config-direccion').value = config.direccion || '';
+                document.getElementById('config-telefono').value = config.telefono || '';
+            }
+            
+            // Actualizar UI Header
+            const headerName = document.getElementById('empresa-nombre-header');
+            const headerLogo = document.getElementById('empresa-logo-inicial');
+            if (headerName) headerName.textContent = config.nombre_empresa || 'Mi Empresa';
+            if (headerLogo && config.nombre_empresa) {
+                headerLogo.textContent = config.nombre_empresa.charAt(0).toUpperCase();
+            }
+        }
+    } catch (error) {
+        console.warn('No se pudo cargar configuración:', error);
+    }
+}
+
+async function guardarConfiguracion() {
+    const nombre = document.getElementById('config-nombre').value;
+    const ruc = document.getElementById('config-ruc').value;
+    const direccion = document.getElementById('config-direccion').value;
+    const telefono = document.getElementById('config-telefono').value;
+
+    if (!nombre) {
+        alert('El nombre de la empresa es obligatorio');
+        return;
+    }
+
+    const payload = {
+        id: 1,
+        nombre_empresa: nombre,
+        ruc,
+        direccion,
+        telefono
+    };
+
+    try {
+        const { error } = await _supabase.from('configuracion').upsert(payload);
+        if (error) throw error;
+        
+        await cargarConfiguracion();
+        if (typeof Swal !== 'undefined') {
+            Swal.fire('Guardado', 'Los datos de la empresa se actualizaron correctamente.', 'success');
+        } else {
+            alert('Configuración guardada.');
+        }
+    } catch (error) {
+        console.error('Error guardando config:', error);
+        alert('Error guardando configuración. Verifica tus permisos (Admin).');
+    }
+}
+window.guardarConfiguracion = guardarConfiguracion;
+
+// --- Dashboard Home ---
+function actualizarHome() {
+    const hoy = new Date();
+    const isHoy = (dateStr) => {
+        const d = new Date(dateStr);
+        return d.getDate() === hoy.getDate() && d.getMonth() === hoy.getMonth() && d.getFullYear() === hoy.getFullYear();
+    };
+    const isEsteMes = (dateStr) => {
+        const d = new Date(dateStr);
+        return d.getMonth() === hoy.getMonth() && d.getFullYear() === hoy.getFullYear();
+    };
+
+    // 1. Ventas y Pedidos del día
+    let ventasHoy = 0;
+    let pedidosEntregadosHoy = 0;
+    
+    pedidosActuales.forEach(pedido => {
+        if (isHoy(pedido.creado_en)) {
+            ventasHoy += Number(pedido.precio_total || 0);
+            if (pedido.entregado) pedidosEntregadosHoy++;
+        }
+    });
+
+    // 2. Gastos del mes
+    let gastosMes = 0;
+    gastosActuales.forEach(gasto => {
+        if (isEsteMes(gasto.creado_en)) {
+            gastosMes += Number(gasto.monto || 0);
+        }
+    });
+
+    // 3. Stock e Inventario
+    let stockBajoCount = 0;
+    const alertasContainer = document.getElementById('alertas-home');
+    if (alertasContainer) alertasContainer.innerHTML = '';
+
+    inventarioActual.forEach(item => {
+        const stock = Number(item.stock || 0);
+        if (stock <= 10) {
+            stockBajoCount++;
+            if (alertasContainer) {
+                alertasContainer.innerHTML += `
+                    <div class="flex items-center gap-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 p-4 rounded-2xl shadow-sm">
+                        <div class="bg-rose-100 dark:bg-rose-900/40 p-2 rounded-xl">
+                            <svg class="w-6 h-6 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm">Alerta de Stock Bajo: ${item.nombre}</p>
+                            <p class="text-xs mt-0.5">Solo quedan ${stock} unidades disponibles.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    });
+
+    // 4. Actualizar DOM
+    const elVentas = document.getElementById('home-metric-ventas');
+    const elPedidos = document.getElementById('home-metric-pedidos');
+    const elStock = document.getElementById('home-metric-stock');
+    const elGastos = document.getElementById('home-metric-gastos');
+
+    if (elVentas) elVentas.textContent = 'S/. ' + ventasHoy.toFixed(2);
+    if (elPedidos) elPedidos.textContent = pedidosEntregadosHoy;
+    if (elStock) elStock.textContent = stockBajoCount;
+    if (elGastos) elGastos.textContent = 'S/. ' + gastosMes.toFixed(2);
+}
+window.actualizarHome = actualizarHome;
