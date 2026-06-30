@@ -252,24 +252,24 @@ function actualizarInterfaz() {
                     <p class="font-bold text-slate-900 dark:text-white truncate">${pedido.cliente}</p>
                     <p class="text-[10px] text-slate-500 uppercase mt-0.5 truncate">${pedido.producto} • ${fechaTexto}</p>
                 </div>
-                <div class="md:col-span-3 md:text-center font-black text-blue-600 dark:text-blue-400">
+                <div class="md:col-span-3 md:text-center font-black text-slate-900 dark:text-slate-500">
                     S/. ${Number(pedido.precio_total || 0).toFixed(2)}
                 </div>
                 <div class="md:col-span-2 md:text-center">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-bold ${pedido.entregado ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'}">${pedido.entregado ? 'LISTO' : 'PENDIENTE'}</span>
+                    <span class="px-3 py-1 rounded-full text-[10px] font-bold ${pedido.entregado ? 'bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700'}">${pedido.entregado ? 'LISTO' : 'PENDIENTE'}</span>
                 </div>
                 <div class="md:col-span-3 flex items-center md:justify-end gap-2">
-                    <button onclick="enviarWhatsApp('${pedido.cliente}','${pedido.producto}',${pedido.precio_total})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors" title="WhatsApp">
+                    <button onclick="enviarWhatsApp('${pedido.cliente}','${pedido.producto}',${pedido.precio_total})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors" title="WhatsApp">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793 0-.853.448-1.273.607-1.446.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.101-.177.211-.077.383.101.173.448.738.961 1.193.661.587 1.216.768 1.39.853.173.087.275.072.376-.044.101-.116.434-.506.549-.68.116-.173.231-.144.39-.087s1.011.477 1.184.564c.173.087.289.13.332.202.045.072.045.419-.1.824z"/></svg>
                     </button>
-                    <button onclick="clonarVenta(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors" title="Clonar Pedido">
+                    <button onclick="clonarVenta(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors" title="Clonar Pedido">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
                     </button>
                     <button onclick="generarReciboPDF(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors" title="Recibo">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3v4h4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 13h10" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17h7" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 21h14a2 2 0 0 0 2-2V8l-6-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/></svg>
                     </button>
-                    ${!pedido.entregado ? `<button onclick="marcarEntregado(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 font-bold transition-colors" title="Listo"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></button>` : ''}
-                    ${window.userRol === 'admin' ? `<button onclick="eliminarPedido(${pedido.id})" class="w-8 h-8 rounded-full border border-rose-200 dark:border-rose-800 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>` : ''}
+                    ${!pedido.entregado ? `<button onclick="marcarEntregado(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 font-bold transition-colors" title="Listo"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></button>` : ''}
+                    ${window.userRol === 'admin' ? `<button onclick="eliminarPedido(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-500 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>` : ''}
                 </div>
             </div>`;
     });
@@ -300,11 +300,11 @@ function actualizarGastos() {
                         <p class="font-bold text-slate-900 dark:text-white truncate">${gasto.descripcion}</p>
                         <p class="text-[10px] text-slate-500 uppercase mt-0.5">${fechaTexto}</p>
                     </div>
-                    <div class="md:col-span-3 md:text-center font-black text-rose-500">
+                    <div class="md:col-span-3 md:text-center font-black text-slate-900 dark:text-white">
                         S/. ${Number(gasto.monto).toFixed(2)}
                     </div>
                     <div class="md:col-span-3 flex justify-start md:justify-center">
-                        <button onclick="eliminarGasto(${gasto.id})" class="w-8 h-8 rounded-full border border-rose-200 dark:border-rose-800 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                        <button onclick="eliminarGasto(${gasto.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-500 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                     </div>
                 </div>`;
         });
@@ -343,7 +343,7 @@ function actualizarInventario() {
                         ${item.stock}
                     </div>
                     <div class="md:col-span-2 flex justify-start md:justify-center">
-                        <button onclick="eliminarInventario('${item.id}')" class="w-8 h-8 rounded-full border border-rose-200 dark:border-rose-800 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                        <button onclick="eliminarInventario('${item.id}')" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-500 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                     </div>
                 </div>`;
         });
@@ -359,7 +359,7 @@ function actualizarInventario() {
                         ${proveedor.nombre}
                     </div>
                     <div class="md:col-span-3 flex justify-start md:justify-center">
-                        <button onclick="eliminarProveedor('${proveedor.id}')" class="w-8 h-8 rounded-full border border-rose-200 dark:border-rose-800 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                        <button onclick="eliminarProveedor('${proveedor.id}')" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-500 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                     </div>
                 </div>`;
         });
@@ -392,7 +392,7 @@ function actualizarPlanProduccion() {
     ordenesFiltradas.forEach((orden) => {
         totalOrdenes += 1;
         totalCantidad += Number(orden.cantidad || 0);
-        const colorEstado = orden.estado === 'COMPLETADO' ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30' : orden.estado === 'EN_PROCESO' ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'text-slate-600 bg-slate-100 dark:bg-slate-800';
+        const colorEstado = orden.estado === 'COMPLETADO' ? 'text-white bg-slate-900 dark:bg-slate-100 dark:text-slate-900' : orden.estado === 'EN_PROCESO' ? 'text-slate-700 bg-slate-100 dark:bg-slate-800' : 'text-slate-600 bg-slate-100 dark:bg-slate-800';
         body.innerHTML += `
             <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col md:grid md:grid-cols-12 md:items-center gap-4 hover:shadow-md transition-shadow">
                 <div class="md:col-span-3 font-bold text-slate-900 dark:text-white truncate">
@@ -409,8 +409,8 @@ function actualizarPlanProduccion() {
                     <span class="px-3 py-1 rounded-full text-[10px] font-black ${colorEstado}">${orden.estado}</span>
                 </div>
                 <div class="md:col-span-2 flex justify-start md:justify-center gap-2">
-                    <button onclick="avanzarEstadoPP('${orden.id}')" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors" title="Avanzar Estado"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg></button>
-                    <button onclick="eliminarOrdenPP('${orden.id}')" class="w-8 h-8 rounded-full border border-rose-200 dark:border-rose-800 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                    <button onclick="avanzarEstadoPP('${orden.id}')" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors" title="Avanzar Estado"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg></button>
+                    <button onclick="eliminarOrdenPP('${orden.id}')" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-500 dark:hover:text-slate-100 dark:hover:bg-slate-800 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
                 </div>
             </div>`;
     });
