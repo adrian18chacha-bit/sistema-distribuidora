@@ -249,10 +249,10 @@ function actualizarInterfaz() {
         body.innerHTML += `
             <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col md:grid md:grid-cols-12 md:items-center gap-4 hover:shadow-md transition-shadow">
                 <div class="md:col-span-4">
-                    <p class="font-bold text-slate-900 dark:text-white truncate">${pedido.cliente}</p>
+                    <p class="text-sm text-slate-900 dark:text-white truncate">${pedido.cliente}</p>
                     <p class="text-[10px] text-slate-500 uppercase mt-0.5 truncate">${pedido.producto} • ${fechaTexto}</p>
                 </div>
-                <div class="md:col-span-3 md:text-center font-black text-slate-900 dark:text-slate-500">
+                <div class="md:col-span-3 md:text-center text-sm text-slate-900 dark:text-slate-500">
                     S/. ${Number(pedido.precio_total || 0).toFixed(2)}
                 </div>
                 <div class="md:col-span-2 md:text-center">
@@ -297,10 +297,10 @@ function actualizarGastos() {
             body.innerHTML += `
                 <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col md:grid md:grid-cols-12 md:items-center gap-4 hover:shadow-md transition-shadow">
                     <div class="md:col-span-6">
-                        <p class="font-bold text-slate-900 dark:text-white truncate">${gasto.descripcion}</p>
+                        <p class="text-sm text-slate-900 dark:text-white truncate">${gasto.descripcion}</p>
                         <p class="text-[10px] text-slate-500 uppercase mt-0.5">${fechaTexto}</p>
                     </div>
-                    <div class="md:col-span-3 md:text-center font-black text-slate-900 dark:text-white">
+                    <div class="md:col-span-3 md:text-center text-sm text-slate-900 dark:text-white">
                         S/. ${Number(gasto.monto).toFixed(2)}
                     </div>
                     <div class="md:col-span-3 flex justify-start md:justify-center">
@@ -333,13 +333,13 @@ function actualizarInventario() {
         inventarioActual.forEach((item) => {
             bodyInventario.innerHTML += `
                 <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col md:grid md:grid-cols-12 md:items-center gap-4 hover:shadow-md transition-shadow">
-                    <div class="md:col-span-5 font-bold text-slate-900 dark:text-white truncate">
+                    <div class="md:col-span-5 text-sm text-slate-900 dark:text-white truncate">
                         ${item.nombre}
                     </div>
                     <div class="md:col-span-3 md:text-center text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
                         ${item.categoria || 'SIN CATEGORÍA'}
                     </div>
-                    <div class="md:col-span-2 md:text-center font-black text-slate-800 dark:text-slate-100">
+                    <div class="md:col-span-2 md:text-center text-sm text-slate-800 dark:text-slate-100">
                         ${item.stock}
                     </div>
                     <div class="md:col-span-2 flex justify-start md:justify-center">
@@ -355,7 +355,7 @@ function actualizarInventario() {
         proveedoresActual.forEach((proveedor) => {
             bodyProveedores.innerHTML += `
                 <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col md:grid md:grid-cols-12 md:items-center gap-4 hover:shadow-md transition-shadow">
-                    <div class="md:col-span-9 font-bold text-slate-900 dark:text-white truncate">
+                    <div class="md:col-span-9 text-sm text-slate-900 dark:text-white truncate">
                         ${proveedor.nombre}
                     </div>
                     <div class="md:col-span-3 flex justify-start md:justify-center">
@@ -395,12 +395,12 @@ function actualizarPlanProduccion() {
         const colorEstado = orden.estado === 'COMPLETADO' ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30' : orden.estado === 'EN_PROCESO' ? 'text-blue-600 bg-blue-50 dark:bg-blue-900/30' : 'text-slate-600 bg-slate-100 dark:bg-slate-800';
         body.innerHTML += `
             <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col md:grid md:grid-cols-12 md:items-center gap-4 hover:shadow-md transition-shadow">
-                <div class="md:col-span-3 font-bold text-slate-900 dark:text-white truncate">
+                <div class="md:col-span-3 text-sm text-slate-900 dark:text-white truncate">
                     ${orden.id}
                 </div>
                 <div class="md:col-span-3">
-                    <p class="font-bold text-slate-900 dark:text-white truncate">${orden.producto}</p>
-                    <p class="text-[10px] text-slate-500 uppercase mt-0.5">Cant: <span class="font-black text-slate-900 dark:text-white">${orden.cantidad}</span></p>
+                    <p class="text-sm text-slate-900 dark:text-white truncate">${orden.producto}</p>
+                    <p class="text-[10px] text-slate-500 uppercase mt-0.5">Cant: <span class="text-sm text-slate-900 dark:text-white">${orden.cantidad}</span></p>
                 </div>
                 <div class="md:col-span-2 md:text-center text-[10px] text-slate-500 font-bold">
                     ${orden.fecha_entrega ? new Date(orden.fecha_entrega).toLocaleDateString() : 'N/A'}
