@@ -2,17 +2,17 @@
     <!-- Registrar Producto -->
     <div class="lg:col-span-1 space-y-6">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-[2rem] shadow-sm">
-            <h3 class="font-bold mb-6 flex items-center gap-3 text-slate-900 dark:text-white text-lg">
-                <div class="w-1.5 h-6 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-full"></div> Registrar Producto
+            <h3 class="font-black mb-6 flex items-center gap-3 text-slate-900 dark:text-white text-lg">
+                <div class="w-1.5 h-6 bg-indigo-500 text-white rounded-full"></div> Registrar Producto
             </h3>
             <div class="space-y-4">
-                <input type="text" id="producto-nombre" placeholder="Nombre producto" class="w-full p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 focus:border-slate-900 dark:focus:border-slate-400 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-400 text-sm transition-all">
-                <input type="number" id="producto-stock" placeholder="Stock" class="w-full p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 focus:border-slate-900 dark:focus:border-slate-400 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-400 text-sm transition-all">
-                <select id="producto-categoria" class="w-full p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 focus:border-slate-900 dark:focus:border-slate-400 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-400 text-sm transition-all">
+                <input type="text" id="producto-nombre" placeholder="Nombre producto" class="w-full p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm transition-all">
+                <input type="number" id="producto-stock" placeholder="Stock" class="w-full p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm transition-all">
+                <select id="producto-categoria" class="w-full p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm transition-all">
                     <option value="INSUMO">INSUMO</option>
                     <option value="PRODUCTO_TERMINADO" selected>PRODUCTO_TERMINADO</option>
                 </select>
-                <button onclick="guardarInventario()" class="w-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 text-white font-bold py-3.5 rounded-xl shadow-md active:scale-95 transition-all mt-2">Guardar Producto</button>
+                <button onclick="guardarInventario()" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-white font-bold py-3.5 rounded-xl shadow-md active:scale-95 transition-all mt-2">Guardar Producto</button>
             </div>
         </div>
     </div>
@@ -21,8 +21,8 @@
     <div class="lg:col-span-2">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] shadow-sm flex flex-col h-full min-h-[400px]">
             <div class="p-6 md:p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
-                <h3 class="font-bold text-slate-900 dark:text-white text-xl">Inventario</h3>
-                <button onclick="exportarInventarioExcel()" class="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 text-white px-5 rounded-full font-bold text-xs shadow-sm transition-all whitespace-nowrap active:scale-95 flex items-center gap-1">EXCEL</button>
+                <h3 class="font-black text-slate-900 dark:text-white text-xl">Inventario</h3>
+                <button onclick="exportarInventarioExcel()" class="bg-indigo-500 hover:bg-indigo-600 text-white text-white px-5 rounded-full font-bold text-xs shadow-sm transition-all whitespace-nowrap active:scale-95 flex items-center gap-1">EXCEL</button>
             </div>
             
             <div class="hidden md:grid grid-cols-12 gap-4 px-8 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
@@ -41,12 +41,12 @@
     <!-- Registrar Proveedor -->
     <div class="lg:col-span-1 space-y-6">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-[2rem] shadow-sm">
-            <h3 class="font-bold mb-6 flex items-center gap-3 text-slate-900 dark:text-white text-lg">
-                <div class="w-1.5 h-6 bg-slate-900 dark:bg-white rounded-full"></div> Registrar Proveedor
+            <h3 class="font-black mb-6 flex items-center gap-3 text-slate-900 dark:text-white text-lg">
+                <div class="w-1.5 h-6 bg-indigo-500 rounded-full"></div> Registrar Proveedor
             </h3>
             <div class="space-y-4">
-                <input type="text" id="proveedor-nombre" placeholder="Nombre proveedor" class="w-full p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 focus:border-slate-900 dark:focus:border-slate-400 focus:ring-1 focus:ring-slate-900 dark:focus:ring-slate-400 text-sm transition-all">
-                <button onclick="guardarProveedor()" class="w-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-200 text-white dark:text-slate-900 text-white font-bold py-3.5 rounded-xl shadow-md active:scale-95 transition-all mt-2">Guardar Proveedor</button>
+                <input type="text" id="proveedor-nombre" placeholder="Nombre proveedor" class="w-full p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm transition-all">
+                <button onclick="guardarProveedor()" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-white font-bold py-3.5 rounded-xl shadow-md active:scale-95 transition-all mt-2">Guardar Proveedor</button>
             </div>
         </div>
     </div>
@@ -55,7 +55,7 @@
     <div class="lg:col-span-2">
         <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] shadow-sm flex flex-col h-full min-h-[300px]">
             <div class="p-6 md:p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
-                <h3 class="font-bold text-slate-900 dark:text-white text-xl">Proveedores</h3>
+                <h3 class="font-black text-slate-900 dark:text-white text-xl">Proveedores</h3>
             </div>
             
             <div class="hidden md:grid grid-cols-12 gap-4 px-8 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
