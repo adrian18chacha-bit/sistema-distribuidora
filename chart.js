@@ -76,12 +76,21 @@ function renderVentasMesChart(pedidos) {
                     borderRadius: 4
                 }]
             },
-                    grid: { color: isDark ? '#334155' : '#e2e8f0' },
-                    ticks: { color: isDark ? '#cbd5e1' : '#64748b' }
+            options: {
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
                 },
-                x: {
-                    grid: { display: false },
-                    ticks: { color: isDark ? '#cbd5e1' : '#64748b' }
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: isDark ? '#334155' : '#e2e8f0' },
+                        ticks: { color: isDark ? '#cbd5e1' : '#64748b' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: isDark ? '#cbd5e1' : '#64748b' }
+                    }
                 }
             }
         });
