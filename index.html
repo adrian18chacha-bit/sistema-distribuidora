@@ -45,7 +45,7 @@
         <div class="space-y-4">
             <input type="email" id="login-email" placeholder="Correo electrónico" class="w-full px-5 py-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-400 transition-all text-sm">
             <input type="password" id="login-password" placeholder="Contraseña" class="w-full px-5 py-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-400 transition-all text-sm">
-            <button onclick="login()" class="w-full bg-slate-900 dark:bg-white hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900 font-bold py-4 mt-2 rounded-xl shadow-md active:scale-[0.98] transition-all">Iniciar Sesión</button>
+            <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 mt-2 rounded-xl shadow-md active:scale-[0.98] transition-all">Iniciar Sesión</button>
         </div>
     </div>
 </div>
@@ -55,7 +55,7 @@
     <aside id="sidebar" class="w-64 bg-white dark:bg-slate-950 text-slate-900 dark:text-white flex-shrink-0 flex flex-col transition-all duration-300 border-r border-slate-200 dark:border-slate-800 hidden md:flex z-50 absolute md:relative h-full">
         <!-- Logo and Brand -->
         <div class="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3">
-             <div class="w-10 h-10 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl flex items-center justify-center font-black text-xl flex-shrink-0 text-white shadow-sm" id="empresa-logo-inicial">D</div>
+             <div class="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-black text-xl flex-shrink-0 text-white shadow-sm" id="empresa-logo-inicial">D</div>
              <div class="overflow-hidden">
                   <h1 class="font-black text-slate-900 dark:text-white truncate text-sm" id="empresa-nombre-header">Empresa</h1>
                   <p class="text-[10px] text-slate-500 dark:text-slate-400 truncate uppercase tracking-widest" id="empresa-ruc-header">ECOSISTEMA INTEGRAL</p>
@@ -68,7 +68,7 @@
         
         <!-- Call to Action -->
         <div class="p-5">
-             <button onclick="cambiarModulo('sd')" class="w-full bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white font-bold py-3 px-4 rounded-2xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-95">
+             <button onclick="cambiarModulo('sd')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-2xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-95">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                   Nueva Venta
              </button>
@@ -77,31 +77,31 @@
         <!-- Navigation Menu -->
         <nav class="flex-1 overflow-y-auto px-4 py-2 space-y-1 custom-scrollbar">
              <!-- Inicio -->
-             <button onclick="cambiarModulo('home'); closeMobileMenu();" data-target="home" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all font-medium">
+             <button onclick="cambiarModulo('home'); closeMobileMenu();" data-target="home" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all font-bold">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                   Inicio
              </button>
              
              <!-- Ventas (SD) -->
-             <button onclick="cambiarModulo('sd'); closeMobileMenu();" data-target="sd" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all font-medium">
+             <button onclick="cambiarModulo('sd'); closeMobileMenu();" data-target="sd" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all font-bold">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                   Historial
              </button>
 
              <!-- Inventario (MM) -->
-             <button onclick="cambiarModulo('mm'); closeMobileMenu();" id="btn-nav-mm" data-target="mm" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all font-medium">
+             <button onclick="cambiarModulo('mm'); closeMobileMenu();" id="btn-nav-mm" data-target="mm" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all font-bold">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                   Inventario
              </button>
 
              <!-- Producción (PP) -->
-             <button onclick="cambiarModulo('pp'); closeMobileMenu();" id="btn-nav-pp" data-target="pp" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all font-medium">
+             <button onclick="cambiarModulo('pp'); closeMobileMenu();" id="btn-nav-pp" data-target="pp" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all font-bold">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                   Producción
              </button>
 
              <!-- Finanzas (FI) -->
-             <button onclick="cambiarModulo('fi'); closeMobileMenu();" id="btn-nav-fi" data-target="fi" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all font-medium">
+             <button onclick="cambiarModulo('fi'); closeMobileMenu();" id="btn-nav-fi" data-target="fi" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all font-bold">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                   Finanzas
              </button>
@@ -109,7 +109,7 @@
              <div class="h-px bg-slate-100 dark:bg-slate-800/50 my-4 mx-4"></div>
 
              <!-- Configuración -->
-             <button onclick="cambiarModulo('settings'); closeMobileMenu();" id="btn-nav-settings" data-target="settings" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all font-medium hidden">
+             <button onclick="cambiarModulo('settings'); closeMobileMenu();" id="btn-nav-settings" data-target="settings" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all font-bold hidden">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                   Ajustes
              </button>
@@ -202,11 +202,11 @@
             });
         }
     </script>
-    <script src="./app.js?v=7"></script>
-    <script src="./auth.js?v=7"></script>
-    <script src="./data.js?v=7"></script>
-    <script src="./chart.js?v=7"></script>
-    <script src="./ui.js?v=7"></script>
-    <script src="./reports.js?v=7"></script>
+    <script src="./app.js?v=8"></script>
+    <script src="./auth.js?v=8"></script>
+    <script src="./data.js?v=8"></script>
+    <script src="./chart.js?v=8"></script>
+    <script src="./ui.js?v=8"></script>
+    <script src="./reports.js?v=8"></script>
 </body>
 </html>
