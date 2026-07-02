@@ -65,7 +65,7 @@ async function cambiarModulo(modulo) {
 
             const titulo = document.getElementById('modulo-titulo');
             const subtitulo = document.getElementById('modulo-subtitulo');
-            if (titulo) titulo.textContent = modulo === 'sd' ? 'Historial (Ventas)' : modulo === 'fi' ? 'Finanzas' : modulo === 'mm' ? 'Inventario' : modulo === 'pp' ? 'ProducciÃƒÂ³n' : 'ConfiguraciÃƒÂ³n';
+            if (titulo) titulo.textContent = modulo === 'sd' ? 'Historial (Ventas)' : modulo === 'fi' ? 'Finanzas' : modulo === 'mm' ? 'Inventario' : modulo === 'pp' ? 'Producción' : modulo === 'crm' ? 'Directorio de Clientes' : 'Configuración';
             if (subtitulo) subtitulo.textContent = modulo === 'sd'
                 ? 'Gestiona pedidos, informaciÃƒÂ³n de clientes y control de entregas en tiempo real.'
                 : modulo === 'fi'
@@ -804,6 +804,7 @@ window.eliminarInventario = eliminarInventario;
 window.eliminarProveedor = eliminarProveedor;
 window.eliminarOrdenPP = eliminarOrdenPP;
 window.addEventListener('DOMContentLoaded', actualizarTema);
+
 
 
 
