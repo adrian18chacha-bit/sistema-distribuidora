@@ -72,7 +72,7 @@ function renderVentasMesChart(pedidos) {
                 datasets: [{
                     label: 'Ventas (S/.)',
                     data: hasData ? datosFiltrados : mesesFiltrados.map(() => 0),
-                    backgroundColor: '#3b82f6',
+                    backgroundColor: '#e11d48',
                     borderRadius: 4
                 }]
             },
