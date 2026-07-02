@@ -32,7 +32,7 @@ async function cambiarModulo(modulo) {
                 moduloHeader.style.display = (modulo === 'home' || modulo === 'settings') ? 'none' : 'block';
             }
 
-            // Actualizar botones de navegación
+            // Actualizar botones de navegación sidebar
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 if (btn.dataset.target === modulo) {
                     btn.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-900', 'dark:text-white');
@@ -40,6 +40,17 @@ async function cambiarModulo(modulo) {
                 } else {
                     btn.classList.remove('bg-slate-100', 'dark:bg-slate-800', 'text-slate-900', 'dark:text-white');
                     btn.classList.add('text-slate-500', 'dark:text-slate-400', 'hover:text-slate-900', 'dark:hover:text-white', 'hover:bg-slate-50', 'dark:hover:bg-slate-800/50');
+                }
+            });
+
+            // Actualizar botones de navegación móvil (bottom bar)
+            document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
+                if (btn.dataset.target === modulo) {
+                    btn.classList.add('text-blue-600', 'dark:text-blue-400');
+                    btn.classList.remove('text-slate-400');
+                } else {
+                    btn.classList.remove('text-blue-600', 'dark:text-blue-400');
+                    btn.classList.add('text-slate-400');
                 }
             });
 
