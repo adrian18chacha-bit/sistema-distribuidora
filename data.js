@@ -185,7 +185,7 @@ async function guardarPedido() {
         const tipoDoc = document.getElementById('tipo-documento') ? document.getElementById('tipo-documento').value : 'DNI';
         const numDoc = document.getElementById('numero-documento') ? document.getElementById('numero-documento').value.trim() : '';
         
-        if (!nuevoNombre || !inventarioId || !precio) {
+        if (!nuevoNombre || (!inventarioId && productoText === '') || !precio) {
             Swal.fire('Atención', 'Por favor, completa todos los campos del pedido.', 'warning');
             return;
         }
