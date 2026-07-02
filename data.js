@@ -872,5 +872,25 @@ async function eliminarCliente() {
 
 window.guardarClienteCompleto = guardarClienteCompleto;
 window.eliminarCliente = eliminarCliente;
+window.eliminarClienteDirecto = async function(id) {
+    const pedidos = pedidosActuales.filter(p => String(p.cliente_id) === String(id));
+    if (pedidos.length > 0) {
+        if(typeof Swal !== 'undefined') Swal.fire('No se puede eliminar', 'Este cliente ya tiene pedidos registrados. No puede ser eliminado para no corromper el historial.', 'warning');
+        else alert('No se puede eliminar, el cliente tiene ventas.');
+        return;
+    }
+    const confirmar = typeof Swal !== 'undefined' ? await Swal.fire({ title: '¿Eliminar cliente?', text: 'Esta acción no se puede deshacer.', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar' }) : { isConfirmed: confirm('¿Eliminar cliente?') };
+    if (!confirmar.isConfirmed) return;
+    try {
+        const { error } = await _supabase.from('clientes').delete().eq('id', id);
+        if (error) throw error;
+        clientesDB = clientesDB.filter(c => String(c.id) !== String(id));
+        if(window.actualizarCRM) window.actualizarCRM();
+        if(typeof Swal !== 'undefined') Swal.fire('Eliminado', 'El cliente ha sido borrado.', 'success');
+    } catch (error) {
+        if(typeof Swal !== 'undefined') Swal.fire('Error', 'No se pudo eliminar: ' + error.message, 'error');
+    }
+};
+
 
 

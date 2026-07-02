@@ -65,7 +65,7 @@ async function cambiarModulo(modulo) {
 
             const titulo = document.getElementById('modulo-titulo');
             const subtitulo = document.getElementById('modulo-subtitulo');
-            if (titulo) titulo.textContent = modulo === 'sd' ? 'Historial (Ventas)' : modulo === 'fi' ? 'Finanzas' : modulo === 'mm' ? 'Inventario' : modulo === 'pp' ? 'Producción' : modulo === 'crm' ? 'Directorio de Clientes' : 'Configuración';
+            if (titulo) titulo.textContent = modulo === 'sd' ? 'Ventas' : modulo === 'fi' ? 'Finanzas' : modulo === 'mm' ? 'Inventario' : modulo === 'pp' ? 'Producción' : modulo === 'crm' ? 'Directorio de Clientes' : 'Configuración';
             if (subtitulo) subtitulo.textContent = modulo === 'sd'
                 ? 'Gestiona pedidos, informaciÃƒÂ³n de clientes y control de entregas en tiempo real.'
                 : modulo === 'fi'
@@ -656,7 +656,7 @@ function actualizarCRM() {
     clientesFiltrados.forEach(cliente => {
         const primeraLetra = (cliente.nombre || 'C').charAt(0).toUpperCase();
         body.innerHTML += `
-        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow cursor-pointer flex items-start gap-4" onclick="abrirHistorialCliente('${cliente.id}')">
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow cursor-pointer flex items-start gap-4 relative group" onclick="abrirHistorialCliente('${cliente.id}')">`n            <button onclick="event.stopPropagation(); eliminarClienteDirecto('${cliente.id}')" class="absolute top-3 right-3 text-slate-300 dark:text-slate-600 hover:text-red-500 transition-colors p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full" title="Eliminar Cliente">`n                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`n            </button>
             <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xl shrink-0">${primeraLetra}</div>
             <div class="flex-1 min-w-0">
                 <h4 class="font-bold text-slate-800 dark:text-white truncate">${cliente.nombre}</h4>
@@ -806,6 +806,8 @@ window.eliminarInventario = eliminarInventario;
 window.eliminarProveedor = eliminarProveedor;
 window.eliminarOrdenPP = eliminarOrdenPP;
 window.addEventListener('DOMContentLoaded', actualizarTema);
+
+
 
 
 
