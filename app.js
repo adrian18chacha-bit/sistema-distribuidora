@@ -1,4 +1,4 @@
-const _supabase = supabase.createClient('https://ozdpcjhwbdsuqncgxfpz.supabase.co', 'sb_publishable_aBgdzg-JTQ61i1IkjUYysQ_4lYYJGPQ');
+﻿const _supabase = supabase.createClient('https://ozdpcjhwbdsuqncgxfpz.supabase.co', 'sb_publishable_aBgdzg-JTQ61i1IkjUYysQ_4lYYJGPQ');
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -8,12 +8,10 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-let deferredPrompt;
+let deferredPrompt = null;
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-    const installBtns = document.querySelectorAll('.btn-install-app');
-    installBtns.forEach(btn => btn.style.display = 'flex');
 });
 
 window.instalarApp = async () => {
@@ -22,9 +20,19 @@ window.instalarApp = async () => {
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
             console.log('User accepted the install prompt');
-            const installBtns = document.querySelectorAll('.btn-install-app');
-            installBtns.forEach(btn => btn.style.display = 'none');
         }
         deferredPrompt = null;
+    } else {
+        // Fallback for iOS / unsupported browsers
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Instalar App',
+                html: 'Para instalar la aplicación en tu dispositivo móvil:<br><br><b>En iOS (iPhone/iPad):</b> Toca el botón <b>"Compartir"</b> (el cuadrado con la flecha hacia arriba) en la barra inferior de Safari y luego selecciona <b>"Agregar a inicio"</b>.<br><br><b>En Android:</b> Toca los tres puntos arriba a la derecha y selecciona <b>"Instalar aplicación"</b>.',
+                icon: 'info',
+                confirmButtonText: 'Entendido'
+            });
+        } else {
+            alert('Para instalar la app en iOS, toca "Compartir" y luego "Agregar a inicio".');
+        }
     }
 };
