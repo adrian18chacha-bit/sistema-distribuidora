@@ -12,8 +12,17 @@ async function cambiarModulo(modulo) {
     
     const container = document.getElementById('module-container');
     
-    // Animación de salida
+    // Skeleton temporal
     container.style.opacity = '0';
+    setTimeout(() => {
+        container.innerHTML = `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+                <div class="h-64 skeleton rounded-3xl"></div>
+                <div class="h-64 skeleton rounded-3xl"></div>
+                <div class="h-96 skeleton rounded-3xl md:col-span-2"></div>
+            </div>`;
+        container.style.opacity = '1';
+    }, 150);
     
     try {
         // Cargar placa dinámicamente
@@ -177,16 +186,30 @@ function poblarSelects() {
 }
 
 function aplicarPermisosUI() {
-    if (window.userRol === 'vendedor') {
+    if (window.userRol === 'vendedor' || window.userRol === 'repartidor') {
         const btnFI = document.getElementById('btn-nav-fi') || document.getElementById('module-fi');
         const btnMM = document.getElementById('btn-nav-mm') || document.getElementById('module-mm');
         const btnPP = document.getElementById('btn-nav-pp') || document.getElementById('module-pp');
         const btnSettings = document.getElementById('btn-nav-settings');
+        const btnNavMobileSettings = document.querySelector('button[onclick="cambiarModulo(\'settings\')"]');
+        const btnNavMobileInventario = document.querySelector('button[onclick="cambiarModulo(\'mm\')"]');
+        const btnNavMobileProduccion = document.querySelector('button[onclick="cambiarModulo(\'pp\')"]');
+        const btnNavMobileFinanzas = document.querySelector('button[onclick="cambiarModulo(\'fi\')"]');
         
         if (btnFI) btnFI.style.display = 'none';
         if (btnMM) btnMM.style.display = 'none';
         if (btnPP) btnPP.style.display = 'none';
         if (btnSettings) btnSettings.style.display = 'none';
+        
+        if (btnNavMobileSettings) btnNavMobileSettings.style.display = 'none';
+        if (btnNavMobileInventario) btnNavMobileInventario.style.display = 'none';
+        if (btnNavMobileProduccion) btnNavMobileProduccion.style.display = 'none';
+        if (btnNavMobileFinanzas) btnNavMobileFinanzas.style.display = 'none';
+        
+        if (window.userRol === 'repartidor') {
+            const formRegistrar = document.getElementById('form-registrar-pedido');
+            if (formRegistrar) formRegistrar.style.display = 'none';
+        }
         
         const card3 = document.getElementById('card-3-container');
         const card4 = document.getElementById('card-4-container');
@@ -280,7 +303,7 @@ function actualizarInterfaz() {
                     <span class="px-3 py-1 rounded-full text-[10px]  ${pedido.entregado ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'}">${pedido.entregado ? 'LISTO' : 'PENDIENTE'}</span>
                 </div>
                 <div class="md:col-span-3 flex items-center md:justify-end gap-2">
-                    <button onclick="enviarWhatsApp('${pedido.cliente}','${pedido.producto}',${pedido.precio_total})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors" title="WhatsApp">
+                    <button onclick="enviarWhatsApp('${pedido.cliente}','${pedido.producto}',${pedido.precio_total}, ${pedido.entregado})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors" title="WhatsApp">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766 0-3.18-2.587-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793 0-.853.448-1.273.607-1.446.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.101-.177.211-.077.383.101.173.448.738.961 1.193.661.587 1.216.768 1.39.853.173.087.275.072.376-.044.101-.116.434-.506.549-.68.116-.173.231-.144.39-.087s1.011.477 1.184.564c.173.087.289.13.332.202.045.072.045.419-.1.824z"/></svg>
                     </button>
                     <button onclick="clonarVenta(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors" title="Clonar Pedido">
@@ -290,7 +313,7 @@ function actualizarInterfaz() {
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3v4h4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 13h10" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17h7" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 21h14a2 2 0 0 0 2-2V8l-6-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/></svg>
                     </button>
                     ${!pedido.entregado ? `<button onclick="marcarEntregado(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30  transition-colors" title="Listo"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></button>` : ''}
-                    <button onclick="eliminarPedido(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                    ${window.userRol !== 'repartidor' ? `<button onclick="eliminarPedido(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>` : ''}
                 </div>
             </div>`;
     });
@@ -469,8 +492,10 @@ function toggleTheme() {
     setThemeMode(isDark ? 'light' : 'dark');
 }
 
-function enviarWhatsApp(cliente, producto, total) {
-    const mensaje = `¡Hola ${cliente}! Confirmamos tu pedido de ${producto} por S/. ${total.toFixed(2)}. ¡Gracias!`;
+function enviarWhatsApp(cliente, producto, total, estadoPedido = 'PENDIENTE') {
+    const estado = estadoPedido ? 'LISTO para entrega/recojo' : 'PENDIENTE de preparación';
+    const empresa = window.configuracionGlobal?.nombre_empresa || 'Nuestra Empresa';
+    const mensaje = `¡Hola ${cliente}! Somos ${empresa}. Te confirmamos que tu pedido de ${producto} por el monto de S/. ${total.toFixed(2)} se encuentra ${estado}. ¡Gracias por tu preferencia!`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`, '_blank');
 }
 

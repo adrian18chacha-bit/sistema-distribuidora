@@ -34,9 +34,28 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+        .skeleton { animation: skeleton-loading 1s linear infinite alternate; }
+        @keyframes skeleton-loading {
+            0% { background-color: #e2e8f0; }
+            100% { background-color: #f1f5f9; }
+        }
+        .dark .skeleton { animation: skeleton-loading-dark 1s linear infinite alternate; }
+        @keyframes skeleton-loading-dark {
+            0% { background-color: #1e293b; }
+            100% { background-color: #334155; }
+        }
+        #splash-screen { transition: opacity 0.5s ease-out; }
     </style>
 <script>window.onerror = function(msg, url, line, col, error) { alert("JS Error: " + msg + "\nLine: " + line); }; window.addEventListener("unhandledrejection", function(event) { alert("Unhandled Promise: " + event.reason); });</script></head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 min-h-screen text-left">
+
+<!-- Splash Screen -->
+<div id="splash-screen" class="fixed inset-0 bg-white dark:bg-slate-900 z-[9999] flex flex-col items-center justify-center">
+    <div class="bg-blue-600 w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg animate-bounce">
+        <span id="splash-letter" class="text-white text-4xl font-bold">...</span>
+    </div>
+    <p class="mt-4 text-slate-500 dark:text-slate-400 font-medium animate-pulse">Cargando sistema...</p>
+</div>
 
 <div id="auth-section" class="flex items-center justify-center min-h-screen p-4">
     <div class="bg-white dark:bg-slate-800 p-10 rounded-[2rem] shadow-xl w-full max-w-md border border-slate-200/50 dark:border-slate-700 text-center">
@@ -70,7 +89,11 @@
         </div>
         
         <!-- Call to Action -->
-        <div class="p-5">
+        <div class="p-5 space-y-3">
+             <button onclick="instalarApp()" class="btn-install-app w-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 py-3 px-4 rounded-2xl shadow-md hidden items-center justify-center gap-2 transition-all active:scale-95">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                  Instalar App
+             </button>
              <button onclick="cambiarModulo('sd')" class="w-full bg-blue-600 hover:bg-blue-700 text-white  py-3 px-4 rounded-2xl shadow-md flex items-center justify-center gap-2 transition-all active:scale-95">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                   Nueva Venta
@@ -233,11 +256,11 @@
             });
         }
     </script>
-    <script src="./app.js?v=21"></script>
-    <script src="./auth.js?v=21"></script>
-    <script src="./data.js?v=21"></script>
-    <script src="./chart.js?v=21"></script>
-    <script src="./ui.js?v=21"></script>
-    <script src="./reports.js?v=21"></script>
+    <script src="./app.js?v=22"></script>
+    <script src="./auth.js?v=22"></script>
+    <script src="./data.js?v=22"></script>
+    <script src="./chart.js?v=22"></script>
+    <script src="./ui.js?v=22"></script>
+    <script src="./reports.js?v=22"></script>
 </body>
 </html>

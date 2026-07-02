@@ -1,4 +1,4 @@
-const CACHE_NAME = 'app-distribuidora-v40';
+const CACHE_NAME = 'app-distribuidora-v41';
 const APP_SHELL = ['./', './index.html', './manifest.json', './sw.js', './excel-export.js', './auth.js', './data.js?v=3', './chart.js?v=3', './ui.js?v=3', './app.js?v=3', './reports.js?v=3', './views/home.html', './views/sd.html', './views/mm.html', './views/fi.html', './views/pp.html', './views/settings.html'];
 
 self.addEventListener('install', (event) => {
