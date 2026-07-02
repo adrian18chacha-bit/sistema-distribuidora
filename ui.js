@@ -641,6 +641,160 @@ function generarReciboPDF(idPedido) {
     }
 }
 
+// --- Módulo CRM (Clientes Avanzado) ---
+
+function actualizarCRM() {
+    const body = document.getElementById('body-crm');
+    if (!body) return;
+    const query = document.getElementById('buscador-crm')?.value.toLowerCase() || '';
+    
+    // Filtrar clientes
+    const clientesFiltrados = clientesDB.filter(c => {
+        const n = (c.nombre || '').toLowerCase();
+        const d = (c.numero_documento || '').toLowerCase();
+        return n.includes(query) || d.includes(query);
+    });
+
+    body.innerHTML = '';
+
+    if (clientesFiltrados.length === 0) {
+        body.innerHTML = `<div class="col-span-full text-center text-slate-500 p-10 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">No se encontraron clientes.</div>`;
+        return;
+    }
+
+    clientesFiltrados.forEach(cliente => {
+        const primeraLetra = (cliente.nombre || 'C').charAt(0).toUpperCase();
+        body.innerHTML += `
+        <div class="bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 hover:shadow-md transition-shadow cursor-pointer flex items-start gap-4" onclick="abrirHistorialCliente('${cliente.id}')">
+            <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xl shrink-0">${primeraLetra}</div>
+            <div class="flex-1 min-w-0">
+                <h4 class="font-bold text-slate-800 dark:text-white truncate">${cliente.nombre}</h4>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">${cliente.tipo_documento || 'DNI'}: ${cliente.numero_documento || '---'}</p>
+                <div class="mt-2 flex flex-col gap-1">
+                    ${cliente.telefono ? `<p class="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-1 truncate"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg> ${cliente.telefono}</p>` : ''}
+                </div>
+            </div>
+        </div>`;
+    });
+}
+
+function abrirModalNuevoCliente() {
+    document.getElementById('crm-cliente-id').value = '';
+    document.getElementById('crm-nombre').value = '';
+    document.getElementById('crm-tipo-doc').value = 'DNI';
+    document.getElementById('crm-num-doc').value = '';
+    document.getElementById('crm-telefono').value = '';
+    document.getElementById('crm-direccion').value = '';
+    document.getElementById('crm-notas').value = '';
+    
+    document.getElementById('btn-eliminar-cliente').classList.add('hidden');
+    document.getElementById('modal-cliente-titulo').innerHTML = `<svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg> Registrar Cliente`;
+    
+    document.getElementById('modal-nuevo-cliente').classList.remove('hidden');
+}
+
+function abrirModalEditarCliente(clienteId) {
+    const cliente = clientesDB.find(c => String(c.id) === String(clienteId));
+    if(!cliente) return;
+    
+    document.getElementById('crm-cliente-id').value = cliente.id;
+    document.getElementById('crm-nombre').value = cliente.nombre || '';
+    document.getElementById('crm-tipo-doc').value = cliente.tipo_documento || 'DNI';
+    document.getElementById('crm-num-doc').value = cliente.numero_documento || '';
+    document.getElementById('crm-telefono').value = cliente.telefono || '';
+    document.getElementById('crm-direccion').value = cliente.direccion || '';
+    document.getElementById('crm-notas').value = cliente.notas || '';
+    
+    document.getElementById('btn-eliminar-cliente').classList.remove('hidden');
+    document.getElementById('modal-cliente-titulo').innerHTML = `<svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg> Editar Cliente`;
+    
+    document.getElementById('modal-nuevo-cliente').classList.remove('hidden');
+    cerrarHistorialCliente();
+}
+
+function cerrarModalCliente() {
+    document.getElementById('modal-nuevo-cliente').classList.add('hidden');
+}
+
+function cerrarHistorialCliente() {
+    document.getElementById('modal-historial-cliente').classList.add('hidden');
+}
+
+function abrirHistorialCliente(clienteId) {
+    const cliente = clientesDB.find(c => String(c.id) === String(clienteId));
+    if(!cliente) return;
+
+    // Set header info
+    document.getElementById('historial-avatar').textContent = (cliente.nombre || 'C').charAt(0).toUpperCase();
+    document.getElementById('historial-nombre').textContent = cliente.nombre;
+    document.getElementById('historial-doc').textContent = `${cliente.tipo_documento || 'DNI'}: ${cliente.numero_documento || '---'}`;
+    
+    document.getElementById('historial-telefono').textContent = `Tel: ${cliente.telefono || '---'}`;
+    document.getElementById('historial-direccion').textContent = `Dir: ${cliente.direccion || '---'}`;
+    
+    const notasBox = document.getElementById('historial-notas-box');
+    if (cliente.notas) {
+        document.getElementById('historial-notas').textContent = cliente.notas;
+        notasBox.classList.remove('hidden');
+    } else {
+        notasBox.classList.add('hidden');
+    }
+
+    // Calcular stats de compras
+    const pedidosDelCliente = pedidosActuales.filter(p => String(p.cliente_id) === String(cliente.id));
+    
+    let totalGastado = 0;
+    pedidosDelCliente.forEach(p => { totalGastado += Number(p.precio_total || 0); });
+    
+    document.getElementById('historial-total-pedidos').textContent = pedidosDelCliente.length;
+    document.getElementById('historial-total-gastado').textContent = window.configuracionGlobal?.moneda + ' ' + totalGastado.toFixed(2);
+
+    // Renderizar lista de pedidos
+    const lista = document.getElementById('historial-pedidos-lista');
+    lista.innerHTML = '';
+    
+    if (pedidosDelCliente.length === 0) {
+        lista.innerHTML = `<div class="text-center text-slate-500 py-6 text-sm">Este cliente aún no tiene compras registradas.</div>`;
+    } else {
+        pedidosDelCliente.sort((a, b) => new Date(b.creado_en) - new Date(a.creado_en)).forEach(p => {
+            const fecha = new Date(p.creado_en).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' });
+            lista.innerHTML += `
+            <div class="bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 p-4 rounded-xl flex items-center justify-between">
+                <div>
+                    <p class="font-semibold text-slate-800 dark:text-white text-sm">${p.producto}</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">${fecha} &bull; Cantidad: ${p.cantidad || 1}</p>
+                </div>
+                <div class="text-right">
+                    <p class="font-bold text-blue-600 dark:text-blue-400">${window.configuracionGlobal?.moneda} ${Number(p.precio_total).toFixed(2)}</p>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full ${p.entregado ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'}">${p.entregado ? 'Entregado' : 'Pendiente'}</span>
+                </div>
+            </div>`;
+        });
+    }
+
+    // Cambiar acción del botón editar en el modal
+    const headerTitle = document.getElementById('historial-nombre');
+    const editBtn = document.createElement('button');
+    editBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`;
+    editBtn.className = "ml-3 text-blue-500 hover:text-blue-700 bg-blue-50 dark:bg-blue-900/30 p-1.5 rounded-lg transition-colors";
+    editBtn.onclick = () => abrirModalEditarCliente(cliente.id);
+    
+    // Clean old edit buttons
+    const oldBtn = headerTitle.parentElement.querySelector('button');
+    if(oldBtn) oldBtn.remove();
+    headerTitle.parentElement.appendChild(editBtn);
+    headerTitle.parentElement.classList.add('flex', 'items-center');
+
+    document.getElementById('modal-historial-cliente').classList.remove('hidden');
+}
+
+window.actualizarCRM = actualizarCRM;
+window.abrirModalNuevoCliente = abrirModalNuevoCliente;
+window.cerrarModalCliente = cerrarModalCliente;
+window.abrirModalEditarCliente = abrirModalEditarCliente;
+window.abrirHistorialCliente = abrirHistorialCliente;
+window.cerrarHistorialCliente = cerrarHistorialCliente;
+
 // Asegura que las funciones invocadas desde los botones sean accesibles globalmente
 window.cambiarModulo = cambiarModulo;
 window.aplicarPermisosUI = aplicarPermisosUI;
@@ -661,3 +815,4 @@ window.eliminarInventario = eliminarInventario;
 window.eliminarProveedor = eliminarProveedor;
 window.eliminarOrdenPP = eliminarOrdenPP;
 window.addEventListener('DOMContentLoaded', actualizarTema);
+

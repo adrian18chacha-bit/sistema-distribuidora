@@ -778,3 +778,99 @@ window.clonarVenta = async function(id) {
     Swal.fire({ title: 'Listo para clonar', text: 'Los datos han sido cargados en el formulario.', icon: 'info', timer: 2000, showConfirmButton: false });
 };
 
+
+// --- CRM Funciones Avanzadas ---
+async function guardarClienteCompleto() {
+    const id = document.getElementById('crm-cliente-id').value;
+    const nombre = document.getElementById('crm-nombre').value.trim();
+    const tipo_doc = document.getElementById('crm-tipo-doc').value;
+    const num_doc = document.getElementById('crm-num-doc').value.trim();
+    const telefono = document.getElementById('crm-telefono').value.trim();
+    const direccion = document.getElementById('crm-direccion').value.trim();
+    const notas = document.getElementById('crm-notas').value.trim();
+
+    if (!nombre) {
+        if(typeof Swal !== 'undefined') Swal.fire('Error', 'El nombre o razón social es obligatorio.', 'error');
+        else alert('El nombre es obligatorio.');
+        return;
+    }
+
+    const payload = {
+        nombre,
+        tipo_documento: tipo_doc,
+        numero_documento: num_doc,
+        telefono,
+        direccion,
+        notas
+    };
+
+    try {
+        let res;
+        if (id) {
+            // Actualizar
+            res = await _supabase.from('clientes').update(payload).eq('id', id).select();
+        } else {
+            // Crear
+            res = await _supabase.from('clientes').insert([payload]).select();
+        }
+
+        if (res.error) throw res.error;
+
+        // Actualizar clientesDB
+        if (id) {
+            const index = clientesDB.findIndex(c => String(c.id) === String(id));
+            if (index !== -1) clientesDB[index] = { ...clientesDB[index], ...payload };
+        } else if (res.data && res.data.length > 0) {
+            clientesDB.unshift(res.data[0]);
+        }
+
+        cerrarModalCliente();
+        if(window.actualizarCRM) window.actualizarCRM();
+
+        if(typeof Swal !== 'undefined') Swal.fire('Éxito', 'Cliente guardado correctamente.', 'success');
+    } catch (error) {
+        console.error('Error guardando cliente:', error);
+        if(typeof Swal !== 'undefined') Swal.fire('Error', 'No se pudo guardar: ' + error.message, 'error');
+        else alert('Error: ' + error.message);
+    }
+}
+
+async function eliminarCliente() {
+    const id = document.getElementById('crm-cliente-id').value;
+    if (!id) return;
+
+    // Verificar si el cliente tiene ventas asociadas
+    const pedidos = pedidosActuales.filter(p => String(p.cliente_id) === String(id));
+    if (pedidos.length > 0) {
+        if(typeof Swal !== 'undefined') {
+            Swal.fire('No se puede eliminar', 'Este cliente ya tiene pedidos registrados. No puede ser eliminado para no corromper el historial.', 'warning');
+        } else {
+            alert('No se puede eliminar, el cliente tiene ventas.');
+        }
+        return;
+    }
+
+    const confirmar = typeof Swal !== 'undefined' 
+        ? await Swal.fire({ title: '¿Eliminar cliente?', text: "Esta acción no se puede deshacer.", icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, eliminar', cancelButtonText: 'Cancelar' })
+        : { isConfirmed: confirm('¿Eliminar cliente?') };
+        
+    if (!confirmar.isConfirmed) return;
+
+    try {
+        const { error } = await _supabase.from('clientes').delete().eq('id', id);
+        if (error) throw error;
+        
+        clientesDB = clientesDB.filter(c => String(c.id) !== String(id));
+        cerrarModalCliente();
+        if(window.actualizarCRM) window.actualizarCRM();
+        
+        if(typeof Swal !== 'undefined') Swal.fire('Eliminado', 'El cliente ha sido borrado.', 'success');
+    } catch (error) {
+        console.error(error);
+        if(typeof Swal !== 'undefined') Swal.fire('Error', 'No se pudo eliminar: ' + error.message, 'error');
+    }
+}
+
+window.guardarClienteCompleto = guardarClienteCompleto;
+window.eliminarCliente = eliminarCliente;
+
