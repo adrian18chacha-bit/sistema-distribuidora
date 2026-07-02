@@ -116,6 +116,8 @@ function refreshModuloActual() {
         actualizarPlanProduccion();
     } else if (currentModulo === 'home') {
         actualizarHome();
+    } else if (currentModulo === 'crm') {
+        if(typeof actualizarCRM === 'function') actualizarCRM();
     }
 }
 
@@ -804,6 +806,7 @@ window.eliminarInventario = eliminarInventario;
 window.eliminarProveedor = eliminarProveedor;
 window.eliminarOrdenPP = eliminarOrdenPP;
 window.addEventListener('DOMContentLoaded', actualizarTema);
+
 
 
 
