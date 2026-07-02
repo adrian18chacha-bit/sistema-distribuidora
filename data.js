@@ -472,7 +472,7 @@ async function finalizarProduccion(id) {
                 ${insumos.map((item) => `<option value="${item.id}">${item.nombre} (${item.stock})</option>`).join('')}
             </select>
             <input type="number" min="1" placeholder="Cantidad" class="swal2-input sw-insumo-cantidad" style="padding: 14px; border-radius: 12px;" />
-            <button type="button" class="swal2-confirm sw-remove-row text-rose-500 font-bold" style="background:transparent;border:none;cursor:pointer;font-size:16px;" title="Eliminar">
+            <button type="button" class="swal2-confirm sw-remove-row text-rose-500 " style="background:transparent;border:none;cursor:pointer;font-size:16px;" title="Eliminar">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
             </button>
         </div>`;
@@ -703,7 +703,7 @@ function actualizarHome() {
                             <svg class="w-6 h-6 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                         </div>
                         <div>
-                            <p class="font-bold text-sm">Alerta de Stock Bajo: ${item.nombre}</p>
+                            <p class=" text-sm">Alerta de Stock Bajo: ${item.nombre}</p>
                             <p class="text-xs mt-0.5">Solo quedan ${stock} unidades disponibles.</p>
                         </div>
                     </div>

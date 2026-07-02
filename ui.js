@@ -256,7 +256,7 @@ function actualizarInterfaz() {
                     S/. ${Number(pedido.precio_total || 0).toFixed(2)}
                 </div>
                 <div class="md:col-span-2 md:text-center">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-bold ${pedido.entregado ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'}">${pedido.entregado ? 'LISTO' : 'PENDIENTE'}</span>
+                    <span class="px-3 py-1 rounded-full text-[10px]  ${pedido.entregado ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'}">${pedido.entregado ? 'LISTO' : 'PENDIENTE'}</span>
                 </div>
                 <div class="md:col-span-3 flex items-center md:justify-end gap-2">
                     <button onclick="enviarWhatsApp('${pedido.cliente}','${pedido.producto}',${pedido.precio_total})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors" title="WhatsApp">
@@ -268,7 +268,7 @@ function actualizarInterfaz() {
                     <button onclick="generarReciboPDF(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors" title="Recibo">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3v4h4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 13h10" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17h7" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 21h14a2 2 0 0 0 2-2V8l-6-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/></svg>
                     </button>
-                    ${!pedido.entregado ? `<button onclick="marcarEntregado(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 font-bold transition-colors" title="Listo"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></button>` : ''}
+                    ${!pedido.entregado ? `<button onclick="marcarEntregado(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30  transition-colors" title="Listo"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></button>` : ''}
                     ${window.userRol === 'admin' ? `<button onclick="eliminarPedido(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>` : ''}
                 </div>
             </div>`;
@@ -336,7 +336,7 @@ function actualizarInventario() {
                     <div class="md:col-span-5 text-sm text-slate-900 dark:text-white truncate">
                         ${item.nombre}
                     </div>
-                    <div class="md:col-span-3 md:text-center text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400">
+                    <div class="md:col-span-3 md:text-center text-[10px] uppercase  text-slate-500 dark:text-slate-400">
                         ${item.categoria || 'SIN CATEGORÍA'}
                     </div>
                     <div class="md:col-span-2 md:text-center text-sm text-slate-800 dark:text-slate-100">
@@ -402,11 +402,11 @@ function actualizarPlanProduccion() {
                     <p class="text-sm text-slate-900 dark:text-white truncate">${orden.producto}</p>
                     <p class="text-[10px] text-slate-500 uppercase mt-0.5">Cant: <span class="text-sm text-slate-900 dark:text-white">${orden.cantidad}</span></p>
                 </div>
-                <div class="md:col-span-2 md:text-center text-[10px] text-slate-500 font-bold">
+                <div class="md:col-span-2 md:text-center text-[10px] text-slate-500 ">
                     ${orden.fecha_entrega ? new Date(orden.fecha_entrega).toLocaleDateString() : 'N/A'}
                 </div>
                 <div class="md:col-span-2 md:text-center">
-                    <span class="px-3 py-1 rounded-full text-[10px] font-black ${colorEstado}">${orden.estado}</span>
+                    <span class="px-3 py-1 rounded-full text-[10px]  ${colorEstado}">${orden.estado}</span>
                 </div>
                 <div class="md:col-span-2 flex justify-start md:justify-center gap-2">
                     <button onclick="avanzarEstadoPP('${orden.id}')" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors" title="Avanzar Estado"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg></button>
