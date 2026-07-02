@@ -25,23 +25,23 @@ async function cambiarModulo(modulo) {
     }, 150);
     
     try {
-        // Cargar placa dinÃ¡micamente
+        // Cargar placa dinÃƒÂ¡micamente
         const response = await fetch(`./views/${modulo}.html`);
-        if (!response.ok) throw new Error('MÃ³dulo no encontrado');
+        if (!response.ok) throw new Error('MÃƒÂ³dulo no encontrado');
         const html = await response.text();
         
         setTimeout(() => {
             container.innerHTML = html;
-            // AnimaciÃ³n de entrada
+            // AnimaciÃƒÂ³n de entrada
             container.style.opacity = '1';
             
-            // Post-carga: configurar UI especÃ­fica
+            // Post-carga: configurar UI especÃƒÂ­fica
             const moduloHeader = document.getElementById('modulo-header');
             if (moduloHeader) {
                 moduloHeader.style.display = (modulo === 'home' || modulo === 'settings') ? 'none' : 'block';
             }
 
-            // Actualizar botones de navegaciÃ³n sidebar
+            // Actualizar botones de navegaciÃƒÂ³n sidebar
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 if (btn.dataset.target === modulo) {
                     btn.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-900', 'dark:text-white');
@@ -52,7 +52,7 @@ async function cambiarModulo(modulo) {
                 }
             });
 
-            // Actualizar botones de navegaciÃ³n mÃ³vil (bottom bar)
+            // Actualizar botones de navegaciÃƒÂ³n mÃƒÂ³vil (bottom bar)
             document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
                 if (btn.dataset.target === modulo) {
                     btn.classList.add('text-blue-600', 'dark:text-blue-400');
@@ -65,20 +65,20 @@ async function cambiarModulo(modulo) {
 
             const titulo = document.getElementById('modulo-titulo');
             const subtitulo = document.getElementById('modulo-subtitulo');
-            if (titulo) titulo.textContent = modulo === 'sd' ? 'Historial (Ventas)' : modulo === 'fi' ? 'Finanzas' : modulo === 'mm' ? 'Inventario' : modulo === 'pp' ? 'ProducciÃ³n' : 'ConfiguraciÃ³n';
+            if (titulo) titulo.textContent = modulo === 'sd' ? 'Historial (Ventas)' : modulo === 'fi' ? 'Finanzas' : modulo === 'mm' ? 'Inventario' : modulo === 'pp' ? 'ProducciÃƒÂ³n' : 'ConfiguraciÃƒÂ³n';
             if (subtitulo) subtitulo.textContent = modulo === 'sd'
-                ? 'Gestiona pedidos, informaciÃ³n de clientes y control de entregas en tiempo real.'
+                ? 'Gestiona pedidos, informaciÃƒÂ³n de clientes y control de entregas en tiempo real.'
                 : modulo === 'fi'
                     ? 'Registra gastos, analiza utilidades y controla el flujo financiero de la empresa.'
                     : modulo === 'mm'
-                        ? 'Administra inventario, proveedores y stock con visibilidad completa del almacÃ©n.'
-                        : modulo === 'pp' ? 'Planifica la producciÃ³n con Ã³rdenes y estados para asegurar fabricaciÃ³n y entrega.' : 'Ajustes globales y datos de la empresa (Marca Blanca).';
+                        ? 'Administra inventario, proveedores y stock con visibilidad completa del almacÃƒÂ©n.'
+                        : modulo === 'pp' ? 'Planifica la producciÃƒÂ³n con ÃƒÂ³rdenes y estados para asegurar fabricaciÃƒÂ³n y entrega.' : 'Ajustes globales y datos de la empresa (Marca Blanca).';
 
             const labels = {
                 sd: ['Ventas', 'Gastos', 'Utilidad Neta'],
-                fi: ['FacturaciÃ³n', 'Gastos', 'Resultados'],
+                fi: ['FacturaciÃƒÂ³n', 'Gastos', 'Resultados'],
                 mm: ['Stock', 'Proveedores', 'Productos'],
-                pp: ['Ã“rdenes', 'Productos', 'Estado'],
+                pp: ['Ãƒâ€œrdenes', 'Productos', 'Estado'],
                 settings: ['Ventas', 'Gastos', 'Utilidad Neta']
             };
             
@@ -98,8 +98,8 @@ async function cambiarModulo(modulo) {
             aplicarPermisosUI(); // Asegurar permisos en nueva vista
         }, 300); // Dar tiempo a fade-out
     } catch (e) {
-        console.error('Error al cargar mÃ³dulo:', e);
-        container.innerHTML = `<div class="p-8 text-center text-red-500">Error al cargar el mÃ³dulo ${modulo}</div>`;
+        console.error('Error al cargar mÃƒÂ³dulo:', e);
+        container.innerHTML = `<div class="p-8 text-center text-red-500">Error al cargar el mÃƒÂ³dulo ${modulo}</div>`;
         container.style.opacity = '1';
     }
 }
@@ -216,7 +216,7 @@ function aplicarPermisosUI() {
         if (card3) card3.style.display = 'none';
         if (card4) card4.style.display = 'none';
     } else {
-        // Si es Admin, mostrar el botÃ³n de settings
+        // Si es Admin, mostrar el botÃƒÂ³n de settings
         const btnSettings = document.getElementById('btn-nav-settings');
         if (btnSettings) btnSettings.classList.remove('hidden');
     }
@@ -294,7 +294,7 @@ function actualizarInterfaz() {
             <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 flex flex-col md:grid md:grid-cols-12 md:items-center gap-4 hover:shadow-md transition-shadow">
                 <div class="md:col-span-4">
                     <p class="text-sm text-slate-900 dark:text-white truncate">${pedido.cliente}</p>
-                    <p class="text-[10px] text-slate-500 uppercase mt-0.5 truncate">${pedido.producto} â€¢ ${fechaTexto}</p>
+                    <p class="text-[10px] text-slate-500 uppercase mt-0.5 truncate">${pedido.producto} &bull; ${fechaTexto}</p>
                 </div>
                 <div class="md:col-span-3 md:text-center text-sm text-slate-900 dark:text-slate-500">
                     S/. ${Number(pedido.precio_total || 0).toFixed(2)}
@@ -381,7 +381,7 @@ function actualizarInventario() {
                         ${item.nombre}
                     </div>
                     <div class="md:col-span-3 md:text-center text-[10px] uppercase  text-slate-500 dark:text-slate-400">
-                        ${item.categoria || 'SIN CATEGORÃA'}
+                        ${item.categoria || 'SIN CATEGORÃƒÂA'}
                     </div>
                     <div class="md:col-span-2 md:text-center text-sm text-slate-800 dark:text-slate-100">
                         ${item.stock}
@@ -460,7 +460,7 @@ function actualizarPlanProduccion() {
     });
 
     if (ordenesFiltradas.length === 0) {
-        body.innerHTML = `<div class="text-center text-slate-500 p-10 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">No hay Ã³rdenes registradas.</div>`;
+        body.innerHTML = `<div class="text-center text-slate-500 p-10 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">No hay ÃƒÂ³rdenes registradas.</div>`;
     }
 }
 
@@ -498,16 +498,16 @@ function toggleTheme() {
 }
 
 function enviarWhatsApp(cliente, producto, total, estadoPedido = 'PENDIENTE') {
-    const estado = estadoPedido ? 'LISTO para entrega/recojo' : 'PENDIENTE de preparaciÃ³n';
+    const estado = estadoPedido ? 'LISTO para entrega/recojo' : 'PENDIENTE de preparaciÃƒÂ³n';
     const empresa = window.configuracionGlobal?.nombre_empresa || 'Nuestra Empresa';
-    const mensaje = `Â¡Hola ${cliente}! Somos ${empresa}. Te confirmamos que tu pedido de ${producto} por el monto de S/. ${total.toFixed(2)} se encuentra ${estado}. Â¡Gracias por tu preferencia!`;
+    const mensaje = `Ã‚Â¡Hola ${cliente}! Somos ${empresa}. Te confirmamos que tu pedido de ${producto} por el monto de S/. ${total.toFixed(2)} se encuentra ${estado}. Ã‚Â¡Gracias por tu preferencia!`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`, '_blank');
 }
 
 function generarReciboPDF(idPedido) {
     const pedido = pedidosDB.find((item) => String(item.id) === String(idPedido));
     if (!pedido) {
-        alert('No se encontrÃ³ el pedido');
+        alert('No se encontrÃƒÂ³ el pedido');
         return;
     }
 
@@ -522,8 +522,8 @@ function generarReciboPDF(idPedido) {
     const numeroComprobante = pedido.numero_comprobante || `#${idPedido}`;
     
     let tituloDocumento = 'NOTA DE VENTA';
-    if (tipoComprobante === 'Factura') tituloDocumento = 'FACTURA ELECTRÃ“NICA';
-    if (tipoComprobante === 'Boleta') tituloDocumento = 'BOLETA DE VENTA ELECTRÃ“NICA';
+    if (tipoComprobante === 'Factura') tituloDocumento = 'FACTURA ELECTRÃƒâ€œNICA';
+    if (tipoComprobante === 'Boleta') tituloDocumento = 'BOLETA DE VENTA ELECTRÃƒâ€œNICA';
     
     const clienteObj = pedido.clientes || {};
     const clienteDocTexto = clienteObj.tipo_documento && clienteObj.numero_documento 
@@ -532,7 +532,7 @@ function generarReciboPDF(idPedido) {
     const jsPDFConstructor = window.jspdf?.jsPDF || window.jsPDF;
 
     if (!jsPDFConstructor) {
-        alert('No se pudo generar el recibo: jsPDF no estÃ¡ disponible.');
+        alert('No se pudo generar el recibo: jsPDF no estÃƒÂ¡ disponible.');
         return;
     }
 
@@ -604,17 +604,6 @@ function generarReciboPDF(idPedido) {
         y += 12;
         doc.setDrawColor(13, 110, 253);
         doc.setLineWidth(0.6);
-        doc.line(margin, y, pageWidth - margin, y);
-
-        y += 10;
-        doc.setFontSize(10);
-        doc.setTextColor('#666666');
-        const footerLines = doc.splitTextToSize(`RepresentaciÃ³n impresa de la ${tituloDocumento}. \nGracias por tu compra â€¢ ${empresa}`, pageWidth - margin * 2);
-        doc.text(footerLines, margin, y);
-
-        const fileName = `${tipoComprobante}_${empresa.replace(/\s+/g, '_')}_${numeroComprobante.replace('#', '')}.pdf`;
-        const isIOS = /iP(hone|od|ad)/i.test(navigator.userAgent);
-        const downloadSupported = 'download' in document.createElement('a');
 
         const blob = doc.output('blob');
         const url = URL.createObjectURL(blob);
@@ -641,7 +630,7 @@ function generarReciboPDF(idPedido) {
     }
 }
 
-// --- Módulo CRM (Clientes Avanzado) ---
+// --- MÃ³dulo CRM (Clientes Avanzado) ---
 
 function actualizarCRM() {
     const body = document.getElementById('body-crm');
@@ -754,7 +743,7 @@ function abrirHistorialCliente(clienteId) {
     lista.innerHTML = '';
     
     if (pedidosDelCliente.length === 0) {
-        lista.innerHTML = `<div class="text-center text-slate-500 py-6 text-sm">Este cliente aún no tiene compras registradas.</div>`;
+        lista.innerHTML = `<div class="text-center text-slate-500 py-6 text-sm">Este cliente aÃºn no tiene compras registradas.</div>`;
     } else {
         pedidosDelCliente.sort((a, b) => new Date(b.creado_en) - new Date(a.creado_en)).forEach(p => {
             const fecha = new Date(p.creado_en).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' });
@@ -772,7 +761,7 @@ function abrirHistorialCliente(clienteId) {
         });
     }
 
-    // Cambiar acción del botón editar en el modal
+    // Cambiar acciÃ³n del botÃ³n editar en el modal
     const headerTitle = document.getElementById('historial-nombre');
     const editBtn = document.createElement('button');
     editBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`;
@@ -815,5 +804,8 @@ window.eliminarInventario = eliminarInventario;
 window.eliminarProveedor = eliminarProveedor;
 window.eliminarOrdenPP = eliminarOrdenPP;
 window.addEventListener('DOMContentLoaded', actualizarTema);
+
+
+
 
 
