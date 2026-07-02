@@ -20,7 +20,7 @@ window.configuracionGlobal = {
 };
 
 async function cargarTodo() {
-    const { data: pedidos } = await _supabase.from('pedidos').select('*, clientes(nombre)').order('creado_en', { ascending: false }).limit(500);
+    const { data: pedidos } = await _supabase.from('pedidos').select('*, clientes(*)').order('creado_en', { ascending: false }).limit(500);
     const { data: gastos } = await _supabase.from('gastos').select('*').order('creado_en', { ascending: false }).limit(500);
     const { data: clientes } = await _supabase.from('clientes').select('*').order('nombre');
 
@@ -173,18 +173,31 @@ async function guardarPedido() {
     const precio = parseFloat(document.getElementById('precio').value);
     
     let nombreClienteText = '';
+    const tipoComprobante = document.getElementById('tipo-comprobante') ? document.getElementById('tipo-comprobante').value : 'Nota de Venta';
+    
+    // Generar un número de comprobante básico por ahora (luego se puede vincular a un correlativo real)
+    const randomNum = Math.floor(1000 + Math.random() * 9000);
+    const prefijo = tipoComprobante === 'Factura' ? 'F001' : tipoComprobante === 'Boleta' ? 'B001' : 'T001';
+    const numeroComprobante = `${prefijo}-${randomNum}`;
 
     if (clienteId === 'NUEVO') {
         const nuevoNombre = document.getElementById('cliente-nuevo').value.trim();
+        const tipoDoc = document.getElementById('tipo-documento') ? document.getElementById('tipo-documento').value : 'DNI';
+        const numDoc = document.getElementById('numero-documento') ? document.getElementById('numero-documento').value.trim() : '';
+        
         if (!nuevoNombre || !inventarioId || !precio) {
             Swal.fire('Atención', 'Por favor, completa todos los campos del pedido.', 'warning');
             return;
         }
         
-        const { data: nuevoC, error: errC } = await _supabase.from('clientes').insert([{ nombre: nuevoNombre }]).select();
+        const { data: nuevoC, error: errC } = await _supabase.from('clientes').insert([{ 
+            nombre: nuevoNombre,
+            tipo_documento: tipoDoc,
+            numero_documento: numDoc
+        }]).select();
         if (errC || !nuevoC || nuevoC.length === 0) {
             console.error("Error al crear cliente:", errC);
-            Swal.fire('Error', 'No se pudo crear el cliente: ' + (errC ? errC.message : 'Error desconocido'), 'error');
+            Swal.fire('Error', 'No se pudo crear el cliente. Verifica si has agregado las columnas en Supabase: ' + (errC ? errC.message : 'Error desconocido'), 'error');
             return;
         }
         clienteId = nuevoC[0].id;
@@ -203,7 +216,9 @@ async function guardarPedido() {
         inventario_id: inventarioId,
         cantidad: cantidad,
         precio_total: precio, 
-        entregado: false 
+        entregado: false,
+        tipo_comprobante: tipoComprobante,
+        numero_comprobante: numeroComprobante
     }]);
     
     if (error) {
@@ -215,10 +230,10 @@ async function guardarPedido() {
     
     clienteSelect.value = '';
     const clienteNuevoInput = document.getElementById('cliente-nuevo');
-    if (clienteNuevoInput) {
-        clienteNuevoInput.value = '';
-        clienteNuevoInput.classList.add('hidden');
-    }
+    const clienteNuevoContainer = document.getElementById('cliente-nuevo-container');
+    if (clienteNuevoInput) clienteNuevoInput.value = '';
+    if (document.getElementById('numero-documento')) document.getElementById('numero-documento').value = '';
+    if (clienteNuevoContainer) clienteNuevoContainer.classList.add('hidden');
     
     productoSelect.value = '';
     const productoNuevoInput = document.getElementById('producto-nuevo');

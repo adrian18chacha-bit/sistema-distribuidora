@@ -201,11 +201,10 @@ function aplicarPermisosUI() {
 
 function toggleNuevoCliente() {
     const cSelect = document.getElementById('cliente-select');
-    const cNuevo = document.getElementById('cliente-nuevo');
+    const cNuevo = document.getElementById('cliente-nuevo-container');
     if (cSelect && cNuevo) {
         if (cSelect.value === 'NUEVO') {
             cNuevo.classList.remove('hidden');
-            cNuevo.focus();
         } else {
             cNuevo.classList.add('hidden');
         }
@@ -487,6 +486,19 @@ function generarReciboPDF(idPedido) {
     const fecha = new Date(pedido.creado_en).toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit' });
     const estado = pedido.entregado ? 'LISTO' : 'PENDIENTE';
     const empresa = window.configuracionGlobal?.nombre_empresa || 'Mi Empresa';
+    const rucEmpresa = window.configuracionGlobal?.ruc || '10000000000';
+    
+    const tipoComprobante = pedido.tipo_comprobante || 'Nota de Venta';
+    const numeroComprobante = pedido.numero_comprobante || `#${idPedido}`;
+    
+    let tituloDocumento = 'NOTA DE VENTA';
+    if (tipoComprobante === 'Factura') tituloDocumento = 'FACTURA ELECTRÓNICA';
+    if (tipoComprobante === 'Boleta') tituloDocumento = 'BOLETA DE VENTA ELECTRÓNICA';
+    
+    const clienteObj = pedido.clientes || {};
+    const clienteDocTexto = clienteObj.tipo_documento && clienteObj.numero_documento 
+        ? ` - ${clienteObj.tipo_documento}: ${clienteObj.numero_documento}` 
+        : '';
     const jsPDFConstructor = window.jspdf?.jsPDF || window.jsPDF;
 
     if (!jsPDFConstructor) {
@@ -504,24 +516,29 @@ function generarReciboPDF(idPedido) {
         doc.setFontSize(18);
         doc.setTextColor('#0d6efd');
         doc.text(empresa, margin, y);
-
-        y += 10;
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'normal');
-        doc.setTextColor('#111111');
-        doc.text('Recibo de Venta', margin, y);
-        y += 10;
+        
         doc.setFontSize(10);
-        doc.text(`Recibo: #${idPedido}`, margin, y);
+        doc.setTextColor('#666666');
+        doc.text(`RUC: ${rucEmpresa}`, margin, y + 6);
+
+        y += 14;
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor('#111111');
+        doc.text(tituloDocumento, margin, y);
+        y += 8;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Comprobante: ${numeroComprobante}`, margin, y);
         doc.text(`Fecha: ${fecha}`, pageWidth - margin, y, { align: 'right' });
 
-        y += 10;
+        y += 8;
         doc.setDrawColor(13, 110, 253);
         doc.setLineWidth(0.6);
         doc.line(margin, y, pageWidth - margin, y);
 
-        y += 12;
-        const clienteLines = doc.splitTextToSize(`Cliente: ${pedido.cliente}`, pageWidth - margin * 2);
+        y += 10;
+        const clienteLines = doc.splitTextToSize(`Cliente: ${pedido.cliente}${clienteDocTexto}`, pageWidth - margin * 2);
         doc.text(clienteLines, margin, y);
         y += clienteLines.length * 6;
 
@@ -562,10 +579,10 @@ function generarReciboPDF(idPedido) {
         y += 10;
         doc.setFontSize(10);
         doc.setTextColor('#666666');
-        const footerLines = doc.splitTextToSize(`Gracias por tu compra • ${empresa}`, pageWidth - margin * 2);
+        const footerLines = doc.splitTextToSize(`Representación impresa de la ${tituloDocumento}. \nGracias por tu compra • ${empresa}`, pageWidth - margin * 2);
         doc.text(footerLines, margin, y);
 
-        const fileName = `Recibo_${empresa.replace(/\s+/g, '_')}_#${idPedido}.pdf`;
+        const fileName = `${tipoComprobante}_${empresa.replace(/\s+/g, '_')}_${numeroComprobante.replace('#', '')}.pdf`;
         const isIOS = /iP(hone|od|ad)/i.test(navigator.userAgent);
         const downloadSupported = 'download' in document.createElement('a');
 

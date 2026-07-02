@@ -11,7 +11,16 @@
                     <option value="">Seleccionar cliente</option>
                     <option value="NUEVO">+ Cliente Nuevo</option>
                 </select>
-                <input type="text" id="cliente-nuevo" placeholder="Nombre completo" class="hidden w-full p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm transition-all">
+                <div id="cliente-nuevo-container" class="hidden space-y-3 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+                    <input type="text" id="cliente-nuevo" placeholder="Nombre completo o Razón Social" class="w-full p-3 bg-white dark:bg-slate-900 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm transition-all">
+                    <div class="flex gap-2">
+                        <select id="tipo-documento" class="w-1/3 p-3 bg-white dark:bg-slate-900 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 text-sm">
+                            <option value="DNI">DNI</option>
+                            <option value="RUC">RUC</option>
+                        </select>
+                        <input type="text" id="numero-documento" placeholder="Nro de Documento" class="w-2/3 p-3 bg-white dark:bg-slate-900 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 text-sm">
+                    </div>
+                </div>
                 
                 <select id="producto-select" onchange="toggleNuevoProducto()" class="w-full p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm transition-all">
                     <option value="">Seleccionar producto (Inventario)</option>
@@ -23,6 +32,12 @@
                     <input type="number" id="cantidad" placeholder="Cantidad" value="1" min="1" class="w-1/3 p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm transition-all">
                     <input type="number" id="precio" placeholder="Precio Total S/." class="w-2/3 p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm transition-all">
                 </div>
+                
+                <select id="tipo-comprobante" class="w-full p-3 bg-slate-50 dark:bg-slate-800 dark:text-white rounded-xl outline-none border border-slate-200 dark:border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm transition-all">
+                    <option value="Nota de Venta">Nota de Venta (Interno)</option>
+                    <option value="Boleta">Boleta Electrónica</option>
+                    <option value="Factura">Factura Electrónica</option>
+                </select>
                 
                 <button onclick="guardarPedido()" class="w-full bg-blue-600 hover:bg-blue-700 text-white text-white  py-3.5 rounded-xl shadow-md active:scale-95 transition-all mt-2">
                     Guardar Pedido
