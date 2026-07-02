@@ -242,7 +242,18 @@ function actualizarInterfaz() {
     if (header) {
         header.innerHTML = '';
     }
-    const pedidosFiltrados = pedidosActuales.filter((pedido) => (`${pedido.cliente} ${pedido.producto}`.toLowerCase().includes(query)));
+    const fechaDesde = document.getElementById('filtro-fecha-desde')?.value || '';
+    const fechaHasta = document.getElementById('filtro-fecha-hasta')?.value || '';
+    const pedidosFiltrados = pedidosActuales.filter((pedido) => {
+        const textoMatch = `${pedido.cliente} ${pedido.producto}`.toLowerCase().includes(query);
+        if (!textoMatch) return false;
+        if (fechaDesde || fechaHasta) {
+            const fechaPedido = new Date(pedido.creado_en).toISOString().split('T')[0];
+            if (fechaDesde && fechaPedido < fechaDesde) return false;
+            if (fechaHasta && fechaPedido > fechaHasta) return false;
+        }
+        return true;
+    });
 
     pedidosFiltrados.forEach((pedido) => {
         const fechaTexto = new Date(pedido.creado_en).toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
@@ -269,7 +280,7 @@ function actualizarInterfaz() {
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3v4h4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 13h10" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17h7" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 21h14a2 2 0 0 0 2-2V8l-6-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/></svg>
                     </button>
                     ${!pedido.entregado ? `<button onclick="marcarEntregado(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30  transition-colors" title="Listo"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></button>` : ''}
-                    ${window.userRol === 'admin' ? `<button onclick="eliminarPedido(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>` : ''}
+                    <button onclick="eliminarPedido(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                 </div>
             </div>`;
     });
@@ -304,7 +315,7 @@ function actualizarGastos() {
                         S/. ${Number(gasto.monto).toFixed(2)}
                     </div>
                     <div class="md:col-span-3 flex justify-start md:justify-center">
-                        <button onclick="eliminarGasto(${gasto.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                        <button onclick="eliminarGasto(${gasto.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                     </div>
                 </div>`;
         });
@@ -343,7 +354,7 @@ function actualizarInventario() {
                         ${item.stock}
                     </div>
                     <div class="md:col-span-2 flex justify-start md:justify-center">
-                        <button onclick="eliminarInventario('${item.id}')" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                        <button onclick="eliminarInventario('${item.id}')" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                     </div>
                 </div>`;
         });
@@ -359,7 +370,7 @@ function actualizarInventario() {
                         ${proveedor.nombre}
                     </div>
                     <div class="md:col-span-3 flex justify-start md:justify-center">
-                        <button onclick="eliminarProveedor('${proveedor.id}')" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                        <button onclick="eliminarProveedor('${proveedor.id}')" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                     </div>
                 </div>`;
         });
@@ -410,7 +421,7 @@ function actualizarPlanProduccion() {
                 </div>
                 <div class="md:col-span-2 flex justify-start md:justify-center gap-2">
                     <button onclick="avanzarEstadoPP('${orden.id}')" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors" title="Avanzar Estado"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg></button>
-                    <button onclick="eliminarOrdenPP('${orden.id}')" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+                    <button onclick="eliminarOrdenPP('${orden.id}')" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                 </div>
             </div>`;
     });
@@ -464,7 +475,7 @@ function generarReciboPDF(idPedido) {
     const { subtotal, igv } = totalToSubtotalIGV(total);
     const fecha = new Date(pedido.creado_en).toLocaleDateString('es-PE', { year: 'numeric', month: '2-digit', day: '2-digit' });
     const estado = pedido.entregado ? 'LISTO' : 'PENDIENTE';
-    const empresa = window.appConfig?.nombre_empresa || 'Mi Empresa';
+    const empresa = window.configuracionGlobal?.nombre_empresa || 'Mi Empresa';
     const jsPDFConstructor = window.jspdf?.jsPDF || window.jsPDF;
 
     if (!jsPDFConstructor) {
