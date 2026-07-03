@@ -1,4 +1,4 @@
-﻿let currentModulo = 'sd';
+let currentModulo = 'sd';
 
 function renderEmptyRow(body, cols, message) {
     body.innerHTML = `
@@ -606,6 +606,17 @@ function generarReciboPDF(idPedido) {
         y += 12;
         doc.setDrawColor(13, 110, 253);
         doc.setLineWidth(0.6);
+        doc.line(margin, y, pageWidth - margin, y);
+
+        y += 10;
+        doc.setFontSize(10);
+        doc.setTextColor('#666666');
+        const footerLines = doc.splitTextToSize(`Representación impresa de la ${tituloDocumento}. \nGracias por tu compra - ${empresa}`, pageWidth - margin * 2);
+        doc.text(footerLines, margin, y);
+
+        const fileName = `${tipoComprobante}_${empresa.replace(/\s+/g, '_')}_${numeroComprobante.replace('#', '')}.pdf`;
+        const isIOS = /iP(hone|od|ad)/i.test(navigator.userAgent);
+        const downloadSupported = 'download' in document.createElement('a');
 
         const blob = doc.output('blob');
         const url = URL.createObjectURL(blob);
