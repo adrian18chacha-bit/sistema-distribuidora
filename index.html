@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#0d6efd">
     <link rel="manifest" href="./manifest.json">
-    <title>Distribuidora ChÃ¡vez | Sistema Integral</title>
+    <title>Distribuidora Chávez | Sistema Integral</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -65,9 +65,9 @@
         <h1 class="text-2xl  text-slate-900 dark:text-white mb-2 tracking-tight">Bienvenido</h1>
         <p class="text-slate-500 dark:text-slate-400 text-sm mb-8">Ingresa a tu cuenta para continuar</p>
         <div class="space-y-4">
-            <input type="email" id="login-email" placeholder="Correo electrÃ³nico" class="w-full px-5 py-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-400 transition-all text-sm">
-            <input type="password" id="login-password" placeholder="ContraseÃ±a" class="w-full px-5 py-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-400 transition-all text-sm">
-            <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white  py-4 mt-2 rounded-xl shadow-md active:scale-[0.98] transition-all">Iniciar SesiÃ³n</button>
+            <input type="email" id="login-email" placeholder="Correo electrónico" class="w-full px-5 py-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-400 transition-all text-sm">
+            <input type="password" id="login-password" placeholder="Contraseña" class="w-full px-5 py-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white outline-none focus:ring-2 focus:ring-slate-900 dark:focus:ring-slate-400 transition-all text-sm">
+            <button onclick="login()" class="w-full bg-blue-600 hover:bg-blue-700 text-white  py-4 mt-2 rounded-xl shadow-md active:scale-[0.98] transition-all">Iniciar Sesión</button>
         </div>
     </div>
 </div>
@@ -126,10 +126,10 @@
                   Inventario
              </button>
 
-             <!-- ProducciÃ³n (PP) -->
+             <!-- Producción (PP) -->
              <button onclick="cambiarModulo('pp'); closeMobileMenu();" id="btn-nav-pp" data-target="pp" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all ">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                  ProducciÃ³n
+                  Producción
              </button>
 
              <!-- Finanzas (FI) -->
@@ -140,7 +140,7 @@
              
              <div class="h-px bg-slate-100 dark:bg-slate-800/50 my-4 mx-4"></div>
 
-             <!-- ConfiguraciÃ³n -->
+             <!-- Configuración -->
              <button onclick="cambiarModulo('settings'); closeMobileMenu();" id="btn-nav-settings" data-target="settings" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all  hidden">
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                   Ajustes
@@ -150,7 +150,7 @@
         <!-- Footer Sidebar -->
         <div class="p-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
             <button onclick="toggleTheme()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-colors" title="Cambiar Tema" id="btn-theme-toggle">
-                 <!-- Se inyectarÃ¡ icono dinÃ¡mico por JS -->
+                 <!-- Se inyectar� icono dinámico por JS -->
                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
             </button>
             <button onclick="logout()" class="text-[11px]  text-slate-400 hover:text-slate-900 dark:hover:text-white uppercase tracking-widest transition-colors">
@@ -159,7 +159,7 @@
         </div>
     </aside>
 
-    <!-- Overlay para mÃ³viles -->
+    <!-- Overlay para móviles -->
     <div id="mobile-overlay" class="fixed inset-0 bg-slate-950/80 z-40 hidden md:hidden" onclick="toggleMobileMenu()"></div>
 
     <!-- Main Content Area -->
@@ -180,12 +180,12 @@
         <div class="flex-1 overflow-y-auto p-4 md:p-8 pb-24 md:pb-8 custom-scrollbar">
             <div class="max-w-7xl mx-auto w-full">
                 
-                <!-- Cabecera de MÃ³dulos Estilo iQuote (Se oculta en Inicio) -->
+                <!-- Cabecera de Módulos Estilo iQuote (Se oculta en Inicio) -->
                 <div id="modulo-header" class="mb-8" style="display: none;">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                         <div>
-                            <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500  mb-1">ADMINISTRACIÃ“N</p>
-                            <h2 class="text-xl md:text-2xl  text-slate-700 dark:text-slate-200" id="modulo-titulo">MÃ³dulo</h2>
+                            <p class="text-[10px] uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500  mb-1">ADMINISTRACIÓN</p>
+                            <h2 class="text-xl md:text-2xl  text-slate-700 dark:text-slate-200" id="modulo-titulo">Módulo</h2>
                         </div>
                         <div class="flex items-center gap-3">
                             <button class="w-10 h-10 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
@@ -198,9 +198,9 @@
                     </div>
                 </div>
 
-                <!-- CONTENEDOR DINÃMICO DE PLACAS -->
+                <!-- CONTENEDOR DINÁMICO DE PLACAS -->
                 <div id="module-container" class="transition-opacity duration-300">
-                    <!-- Las vistas de los mÃ³dulos se inyectan dinÃ¡micamente -->
+                    <!-- Las vistas de los módulos se inyectan dinámicamente -->
                 </div>
                 
             </div> <!-- End max-w-7xl -->
@@ -265,7 +265,7 @@
 </script>
 
     <script>
-        // Forzar actualización eliminando Service Workers anteriores y cachéÃ©s
+        // Forzar actualización eliminando Service Workers anteriores y cachés
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(function(registrations) {
                 for(let registration of registrations) {
@@ -274,12 +274,12 @@
             });
         }
     </script>
-    <script src="./app.js?v=39"></script>
-    <script src="./auth.js?v=39"></script>
-    <script src="./data.js?v=39"></script>
-    <script src="./chart.js?v=39"></script>
-    <script src="./ui.js?v=39"></script>
-    <script src="./reports.js?v=39"></script>
+    <script src="./app.js?v=42"></script>
+    <script src="./auth.js?v=42"></script>
+    <script src="./data.js?v=42"></script>
+    <script src="./chart.js?v=42"></script>
+    <script src="./ui.js?v=42"></script>
+    <script src="./reports.js?v=42"></script>
 </body>
 </html>
 

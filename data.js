@@ -1,4 +1,4 @@
-﻿// Estado global de datos
+// Estado global de datos
 let pedidosDB = [];
 let gastosDB = [];
 let inventarioDB = [];
@@ -11,7 +11,7 @@ let inventarioActual = [];
 let proveedoresActual = [];
 let ppActual = [];
 
-// ConfiguraciÃ³n global (Marca Blanca)
+// Configuración global (Marca Blanca)
 window.configuracionGlobal = {
     nombre_empresa: 'Mi Empresa',
     ruc: '',
@@ -162,7 +162,7 @@ async function guardarPedido() {
         productoText = document.getElementById('producto-nuevo').value.trim();
         inventarioId = null;
         if (!productoText) {
-            Swal.fire('AtenciÃ³n', 'Por favor, ingresa el nombre del producto libre.', 'warning');
+            Swal.fire('Atención', 'Por favor, ingresa el nombre del producto libre.', 'warning');
             return;
         }
     } else {
@@ -175,7 +175,7 @@ async function guardarPedido() {
     let nombreClienteText = '';
     const tipoComprobante = document.getElementById('tipo-comprobante') ? document.getElementById('tipo-comprobante').value : 'Nota de Venta';
     
-    // Generar un nÃºmero de comprobante bÃ¡sico por ahora (luego se puede vincular a un correlativo real)
+    // Generar un número de comprobante básico por ahora (luego se puede vincular a un correlativo real)
     const randomNum = Math.floor(1000 + Math.random() * 9000);
     const prefijo = tipoComprobante === 'Factura' ? 'F001' : tipoComprobante === 'Boleta' ? 'B001' : 'T001';
     const numeroComprobante = `${prefijo}-${randomNum}`;
@@ -186,7 +186,7 @@ async function guardarPedido() {
         const numDoc = document.getElementById('numero-documento') ? document.getElementById('numero-documento').value.trim() : '';
         
         if (!nuevoNombre || (!inventarioId && productoText === '') || !precio) {
-            Swal.fire('AtenciÃ³n', 'Por favor, completa todos los campos del pedido.', 'warning');
+            Swal.fire('Atención', 'Por favor, completa todos los campos del pedido.', 'warning');
             return;
         }
         
@@ -202,7 +202,7 @@ async function guardarPedido() {
         clienteId = nuevoC[0].id;
         nombreClienteText = nuevoNombre;
     } else if (!clienteId || (!inventarioId && productoText === '') || !precio) {
-        Swal.fire('AtenciÃ³n', 'Por favor, completa todos los campos del pedido.', 'warning');
+        Swal.fire('Atención', 'Por favor, completa todos los campos del pedido.', 'warning');
         return;
     } else {
         nombreClienteText = clienteSelect.options[clienteSelect.selectedIndex].text;
@@ -225,7 +225,7 @@ async function guardarPedido() {
         return;
     }
 
-    Swal.fire({ title: 'Â¡Ã‰xito!', text: 'Pedido registrado correctamente.', icon: 'success', timer: 1500, showConfirmButton: false });
+    Swal.fire({ title: '¡Éxito!', text: 'Pedido registrado correctamente.', icon: 'success', timer: 1500, showConfirmButton: false });
     
     clienteSelect.value = '';
     const clienteNuevoInput = document.getElementById('cliente-nuevo');
@@ -251,7 +251,7 @@ async function guardarGasto() {
     const monto = parseFloat(document.getElementById('gasto-monto').value);
 
     if (!descripcion || !monto) {
-        Swal.fire('AtenciÃ³n', 'Por favor, ingresa la descripciÃ³n y el monto del gasto.', 'warning');
+        Swal.fire('Atención', 'Por favor, ingresa la descripción y el monto del gasto.', 'warning');
         return;
     }
 
@@ -262,7 +262,7 @@ async function guardarGasto() {
         return;
     }
 
-    Swal.fire({ title: 'Â¡Ã‰xito!', text: 'Gasto registrado correctamente.', icon: 'success', timer: 1500, showConfirmButton: false });
+    Swal.fire({ title: '¡Éxito!', text: 'Gasto registrado correctamente.', icon: 'success', timer: 1500, showConfirmButton: false });
     
     document.getElementById('gasto-desc').value = '';
     document.getElementById('gasto-monto').value = '';
@@ -276,7 +276,7 @@ async function guardarInventario() {
     const categoria = categoriaEl ? categoriaEl.value : 'PRODUCTO_TERMINADO';
 
     if (!nombre || !Number.isFinite(stock)) {
-        Swal.fire('AtenciÃ³n', 'Por favor, ingresa el nombre y el stock vÃ¡lido.', 'warning');
+        Swal.fire('Atención', 'Por favor, ingresa el nombre y el stock válido.', 'warning');
         return;
     }
 
@@ -285,10 +285,10 @@ async function guardarInventario() {
         if (error) throw error;
         inventarioDB.unshift(nuevoInventario[0]);
         inventarioActual = [...inventarioDB];
-        Swal.fire({ title: 'Â¡Ã‰xito!', text: 'Producto agregado al inventario.', icon: 'success', timer: 1500, showConfirmButton: false });
+        Swal.fire({ title: '¡Éxito!', text: 'Producto agregado al inventario.', icon: 'success', timer: 1500, showConfirmButton: false });
     } catch (error) {
         console.warn('No se pudo guardar inventario en la base de datos. Usando estado local.', error);
-        Swal.fire('Advertencia', 'Guardado localmente. Revisa la conexiÃ³n a la base de datos.', 'warning');
+        Swal.fire('Advertencia', 'Guardado localmente. Revisa la conexión a la base de datos.', 'warning');
         const nuevo = { id: `inv-${Date.now()}`, nombre, stock, categoria };
         inventarioDB.unshift(nuevo);
         inventarioActual = [...inventarioDB];
@@ -304,7 +304,7 @@ async function guardarProveedor() {
     const nombre = document.getElementById('proveedor-nombre').value.trim();
     
     if (!nombre) {
-        Swal.fire('AtenciÃ³n', 'Por favor, ingresa el nombre del proveedor.', 'warning');
+        Swal.fire('Atención', 'Por favor, ingresa el nombre del proveedor.', 'warning');
         return;
     }
     
@@ -313,10 +313,10 @@ async function guardarProveedor() {
         if (error) throw error;
         proveedoresDB.unshift(nuevoProveedor[0]);
         proveedoresActual = [...proveedoresDB];
-        Swal.fire({ title: 'Â¡Ã‰xito!', text: 'Proveedor registrado correctamente.', icon: 'success', timer: 1500, showConfirmButton: false });
+        Swal.fire({ title: '¡Éxito!', text: 'Proveedor registrado correctamente.', icon: 'success', timer: 1500, showConfirmButton: false });
     } catch (error) {
         console.warn('No se pudo guardar proveedor en la base de datos. Usando estado local.', error);
-        Swal.fire('Advertencia', 'Guardado localmente. Revisa la conexiÃ³n a la base de datos.', 'warning');
+        Swal.fire('Advertencia', 'Guardado localmente. Revisa la conexión a la base de datos.', 'warning');
         const nuevo = { id: `prov-${Date.now()}`, nombre };
         proveedoresDB.unshift(nuevo);
         proveedoresActual = [...proveedoresDB];
@@ -335,7 +335,7 @@ async function guardarOrdenPP() {
     const estado = document.getElementById('pp-estado').value;
 
     if (!inventario_id || !Number.isFinite(cantidad) || !fechaEntrega || !estado) {
-        Swal.fire('AtenciÃ³n', 'Por favor, completa todos los datos de la orden de producciÃ³n.', 'warning');
+        Swal.fire('Atención', 'Por favor, completa todos los datos de la orden de producción.', 'warning');
         return;
     }
 
@@ -344,10 +344,10 @@ async function guardarOrdenPP() {
         if (error) throw error;
         ppDB.unshift(nuevaOrden[0]);
         ppActual = [...ppDB];
-        Swal.fire({ title: 'Â¡Ã‰xito!', text: 'Orden de producciÃ³n creada.', icon: 'success', timer: 1500, showConfirmButton: false });
+        Swal.fire({ title: '¡Éxito!', text: 'Orden de producción creada.', icon: 'success', timer: 1500, showConfirmButton: false });
     } catch (error) {
         console.warn('No se pudo guardar orden PP en la base de datos. Usando estado local.', error);
-        Swal.fire('Advertencia', 'Guardado localmente. Revisa la conexiÃ³n a la base de datos.', 'warning');
+        Swal.fire('Advertencia', 'Guardado localmente. Revisa la conexión a la base de datos.', 'warning');
         const nuevaOrden = {
             id: `pp-${Date.now()}`,
             producto,
@@ -412,13 +412,13 @@ async function marcarEntregado(id) {
 
 async function eliminarPedido(id) {
     const result = await Swal.fire({
-        title: 'Â¿EstÃ¡s seguro?',
-        text: 'Se eliminarÃ¡ este pedido.',
+        title: '¿Estás seguro?',
+        text: 'Se eliminará este pedido.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
-        confirmButtonText: 'SÃ­, eliminar',
+        confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar'
     });
 
@@ -435,13 +435,13 @@ async function eliminarPedido(id) {
 
 async function eliminarGasto(id) {
     const result = await Swal.fire({
-        title: 'Â¿EstÃ¡s seguro?',
-        text: 'Se eliminarÃ¡ este gasto.',
+        title: '¿Estás seguro?',
+        text: 'Se eliminará este gasto.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
-        confirmButtonText: 'SÃ­, eliminar',
+        confirmButtonText: 'Sí, eliminar',
         cancelButtonText: 'Cancelar'
     });
 
@@ -492,10 +492,10 @@ async function finalizarProduccion(id) {
         </div>`;
 
     const { value: consumos } = await Swal.fire({
-        title: 'Finalizar ProducciÃ³n',
+        title: 'Finalizar Producción',
         html: `
             <div class="text-left mb-4">
-                <p class="text-sm text-slate-600 dark:text-slate-200">Seleccione los insumos consumidos y su cantidad. El stock disponible se muestra entre parÃ©ntesis.</p>
+                <p class="text-sm text-slate-600 dark:text-slate-200">Seleccione los insumos consumidos y su cantidad. El stock disponible se muestra entre paréntesis.</p>
             </div>
             <div id="sw-insumo-rows"></div>
             <button type="button" id="sw-add-row" class="mt-3 inline-flex items-center justify-center rounded-2xl bg-slate-900 text-white px-4 py-2 text-sm">Agregar insumo</button>
@@ -541,7 +541,7 @@ async function finalizarProduccion(id) {
             for (const fila of datos) {
                 const item = insumos.find((i) => String(i.id) === String(fila.id));
                 if (!item) {
-                    Swal.showValidationMessage('SelecciÃ³n de insumo invÃ¡lida.');
+                    Swal.showValidationMessage('Selección de insumo inválida.');
                     return false;
                 }
                 if (fila.cantidad > Number(item.stock || 0)) {
@@ -583,7 +583,7 @@ async function finalizarProduccion(id) {
         }
     }
 
-    // La actualizaciÃ³n del stock del producto terminado ahora se maneja automÃ¡ticamente
+    // La actualización del stock del producto terminado ahora se maneja automáticamente
     // mediante un Trigger en la base de datos (supabase-faseC-produccion.sql)
     // cuando el estado de plan_produccion cambia a 'COMPLETADO'.
 
@@ -600,12 +600,12 @@ async function finalizarProduccion(id) {
 
     await cargarInventario();
     actualizarPlanProduccion();
-    Swal.fire('Listo', 'ProducciÃ³n finalizada y stock actualizado.', 'success');
+    Swal.fire('Listo', 'Producción finalizada y stock actualizado.', 'success');
 }
 
 window.finalizarProduccion = finalizarProduccion;
 
-// --- ConfiguraciÃ³n (Marca Blanca) ---
+// --- Configuración (Marca Blanca) ---
 async function cargarConfiguracion() {
     try {
         const { data: config, error } = await _supabase.from('configuracion').select('*').eq('id', 1).maybeSingle();
@@ -630,7 +630,7 @@ async function cargarConfiguracion() {
             }
         }
     } catch (error) {
-        console.warn('No se pudo cargar configuraciÃ³n:', error);
+        console.warn('No se pudo cargar configuraci�n:', error);
     }
 }
 
@@ -661,11 +661,11 @@ async function guardarConfiguracion() {
         if (typeof Swal !== 'undefined') {
             Swal.fire('Guardado', 'Los datos de la empresa se actualizaron correctamente.', 'success');
         } else {
-            alert('ConfiguraciÃ³n guardada.');
+            alert('Configuración guardada.');
         }
     } catch (error) {
         console.error('Error guardando config:', error);
-        alert('Error guardando configuraciÃ³n. Verifica tus permisos (Admin).');
+        alert('Error guardando configuraci�n. Verifica tus permisos (Admin).');
     }
 }
 window.guardarConfiguracion = guardarConfiguracion;
@@ -682,7 +682,7 @@ function actualizarHome() {
         return d.getMonth() === hoy.getMonth() && d.getFullYear() === hoy.getFullYear();
     };
 
-    // 1. Ventas y Pedidos del dÃ­a
+    // 1. Ventas y Pedidos del día
     let ventasHoy = 0;
     let pedidosEntregadosHoy = 0;
     

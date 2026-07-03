@@ -25,9 +25,9 @@ async function cambiarModulo(modulo) {
     }, 150);
     
     try {
-        // Cargar placa dinÃƒÂ¡micamente
+        // Cargar placa dinÒ¡micamente
         const response = await fetch(`./views/${modulo}.html`);
-        if (!response.ok) throw new Error('MÃƒÂ³dulo no encontrado');
+        if (!response.ok) throw new Error('MÒ³dulo no encontrado');
         const html = await response.text();
         
         setTimeout(() => {
@@ -35,7 +35,7 @@ async function cambiarModulo(modulo) {
             // Animación de entrada
             container.style.opacity = '1';
             
-            // Post-carga: configurar UI especÃƒÂ­fica
+            // Post-carga: configurar UI especÒ­fica
             const moduloHeader = document.getElementById('modulo-header');
             if (moduloHeader) {
                 moduloHeader.style.display = (modulo === 'home' || modulo === 'settings') ? 'none' : 'block';
@@ -71,14 +71,14 @@ async function cambiarModulo(modulo) {
                 : modulo === 'fi'
                     ? 'Registra gastos, analiza utilidades y controla el flujo financiero de la empresa.'
                     : modulo === 'mm'
-                        ? 'Administra inventario, proveedores y stock con visibilidad completa del almacÃƒÂ©n.'
+                        ? 'Administra inventario, proveedores y stock con visibilidad completa del almacÒ©n.'
                         : modulo === 'pp' ? 'Planifica la producción con órdenes y estados para asegurar fabricación y entrega.' : 'Ajustes globales y datos de la empresa (Marca Blanca).';
 
             const labels = {
                 sd: ['Ventas', 'Gastos', 'Utilidad Neta'],
                 fi: ['Facturación', 'Gastos', 'Resultados'],
                 mm: ['Stock', 'Proveedores', 'Productos'],
-                pp: ['Órdenes', 'Productos', 'Estado'],
+                pp: ['órdenes', 'Productos', 'Estado'],
                 settings: ['Ventas', 'Gastos', 'Utilidad Neta']
             };
             
@@ -98,8 +98,8 @@ async function cambiarModulo(modulo) {
             aplicarPermisosUI(); // Asegurar permisos en nueva vista
         }, 300); // Dar tiempo a fade-out
     } catch (e) {
-        console.error('Error al cargar mÃƒÂ³dulo:', e);
-        container.innerHTML = `<div class="p-8 text-center text-red-500">Error al cargar el mÃƒÂ³dulo ${modulo}</div>`;
+        console.error('Error al cargar mÒ³dulo:', e);
+        container.innerHTML = `<div class="p-8 text-center text-red-500">Error al cargar el mÒ³dulo ${modulo}</div>`;
         container.style.opacity = '1';
     }
 }
@@ -218,7 +218,7 @@ function aplicarPermisosUI() {
         if (card3) card3.style.display = 'none';
         if (card4) card4.style.display = 'none';
     } else {
-        // Si es Admin, mostrar el botÃƒÂ³n de settings
+        // Si es Admin, mostrar el botÒ³n de settings
         const btnSettings = document.getElementById('btn-nav-settings');
         if (btnSettings) btnSettings.classList.remove('hidden');
     }
@@ -383,7 +383,7 @@ function actualizarInventario() {
                         ${item.nombre}
                     </div>
                     <div class="md:col-span-3 md:text-center text-[10px] uppercase  text-slate-500 dark:text-slate-400">
-                        ${item.categoria || 'SIN CATEGORÃƒÂA'}
+                        ${item.categoria || 'SIN CATEGORÒA'}
                     </div>
                     <div class="md:col-span-2 md:text-center text-sm text-slate-800 dark:text-slate-100">
                         ${item.stock}
@@ -509,7 +509,7 @@ function enviarWhatsApp(cliente, producto, total, estadoPedido = 'PENDIENTE') {
 function generarReciboPDF(idPedido) {
     const pedido = pedidosDB.find((item) => String(item.id) === String(idPedido));
     if (!pedido) {
-        alert('No se encontrÃƒÂ³ el pedido');
+        alert('No se encontrÒ³ el pedido');
         return;
     }
 
@@ -524,8 +524,8 @@ function generarReciboPDF(idPedido) {
     const numeroComprobante = pedido.numero_comprobante || `#${idPedido}`;
     
     let tituloDocumento = 'NOTA DE VENTA';
-    if (tipoComprobante === 'Factura') tituloDocumento = 'FACTURA ELECTRÃƒâ€œNICA';
-    if (tipoComprobante === 'Boleta') tituloDocumento = 'BOLETA DE VENTA ELECTRÃƒâ€œNICA';
+    if (tipoComprobante === 'Factura') tituloDocumento = 'FACTURA ELECTRÓNICA';
+    if (tipoComprobante === 'Boleta') tituloDocumento = 'BOLETA DE VENTA ELECTRÓNICA';
     
     const clienteObj = pedido.clientes || {};
     const clienteDocTexto = clienteObj.tipo_documento && clienteObj.numero_documento 
@@ -534,7 +534,7 @@ function generarReciboPDF(idPedido) {
     const jsPDFConstructor = window.jspdf?.jsPDF || window.jsPDF;
 
     if (!jsPDFConstructor) {
-        alert('No se pudo generar el recibo: jsPDF no estÃƒÂ¡ disponible.');
+        alert('No se pudo generar el recibo: jsPDF no estÒ¡ disponible.');
         return;
     }
 
@@ -643,7 +643,7 @@ function generarReciboPDF(idPedido) {
     }
 }
 
-// --- MÃ³dulo CRM (Clientes Avanzado) ---
+// --- Módulo CRM (Clientes Avanzado) ---
 
 function actualizarCRM() {
     const body = document.getElementById('body-crm');
@@ -759,7 +759,7 @@ function abrirHistorialCliente(clienteId) {
     lista.innerHTML = '';
     
     if (pedidosDelCliente.length === 0) {
-        lista.innerHTML = `<div class="text-center text-slate-500 py-6 text-sm">Este cliente aÃºn no tiene compras registradas.</div>`;
+        lista.innerHTML = `<div class="text-center text-slate-500 py-6 text-sm">Este cliente aún no tiene compras registradas.</div>`;
     } else {
         pedidosDelCliente.sort((a, b) => new Date(b.creado_en) - new Date(a.creado_en)).forEach(p => {
             const fecha = new Date(p.creado_en).toLocaleDateString('es-PE', { day:'2-digit', month:'short', year:'numeric' });
@@ -777,7 +777,7 @@ function abrirHistorialCliente(clienteId) {
         });
     }
 
-    // Cambiar acciÃ³n del botÃ³n editar en el modal
+    // Cambiar acción del botón editar en el modal
     const headerTitle = document.getElementById('historial-nombre');
     const editBtn = document.createElement('button');
     editBtn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`;
