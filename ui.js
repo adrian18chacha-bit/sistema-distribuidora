@@ -32,7 +32,7 @@ async function cambiarModulo(modulo) {
         
         setTimeout(() => {
             container.innerHTML = html;
-            // AnimaciÃƒÂ³n de entrada
+            // Animación de entrada
             container.style.opacity = '1';
             
             // Post-carga: configurar UI especÃƒÂ­fica
@@ -41,7 +41,7 @@ async function cambiarModulo(modulo) {
                 moduloHeader.style.display = (modulo === 'home' || modulo === 'settings') ? 'none' : 'block';
             }
 
-            // Actualizar botones de navegaciÃƒÂ³n sidebar
+            // Actualizar botones de navegación sidebar
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 if (btn.dataset.target === modulo) {
                     btn.classList.add('bg-slate-100', 'dark:bg-slate-800', 'text-slate-900', 'dark:text-white');
@@ -52,7 +52,7 @@ async function cambiarModulo(modulo) {
                 }
             });
 
-            // Actualizar botones de navegaciÃƒÂ³n mÃƒÂ³vil (bottom bar)
+            // Actualizar botones de navegación móvil (bottom bar)
             document.querySelectorAll('.bottom-nav-btn').forEach(btn => {
                 if (btn.dataset.target === modulo) {
                     btn.classList.add('text-blue-600', 'dark:text-blue-400');
@@ -65,20 +65,20 @@ async function cambiarModulo(modulo) {
 
             const titulo = document.getElementById('modulo-titulo');
             const subtitulo = document.getElementById('modulo-subtitulo');
-            if (titulo) titulo.textContent = modulo === 'sd' ? 'Ventas' : modulo === 'fi' ? 'Finanzas' : modulo === 'mm' ? 'Inventario' : modulo === 'pp' ? 'Producción' : modulo === 'crm' ? 'Directorio de Clientes' : 'Configuración';
+            if (titulo) titulo.textContent = modulo === 'sd' ? 'Ventas' : modulo === 'fi' ? 'Finanzas' : modulo === 'mm' ? 'Inventario' : modulo === 'pp' ? 'producción' : modulo === 'crm' ? 'Directorio de Clientes' : 'Configuración';
             if (subtitulo) subtitulo.textContent = modulo === 'sd'
-                ? 'Gestiona pedidos, informaciÃƒÂ³n de clientes y control de entregas en tiempo real.'
+                ? 'Gestiona pedidos, información de clientes y control de entregas en tiempo real.'
                 : modulo === 'fi'
                     ? 'Registra gastos, analiza utilidades y controla el flujo financiero de la empresa.'
                     : modulo === 'mm'
                         ? 'Administra inventario, proveedores y stock con visibilidad completa del almacÃƒÂ©n.'
-                        : modulo === 'pp' ? 'Planifica la producciÃƒÂ³n con ÃƒÂ³rdenes y estados para asegurar fabricaciÃƒÂ³n y entrega.' : 'Ajustes globales y datos de la empresa (Marca Blanca).';
+                        : modulo === 'pp' ? 'Planifica la producción con órdenes y estados para asegurar fabricación y entrega.' : 'Ajustes globales y datos de la empresa (Marca Blanca).';
 
             const labels = {
                 sd: ['Ventas', 'Gastos', 'Utilidad Neta'],
-                fi: ['FacturaciÃƒÂ³n', 'Gastos', 'Resultados'],
+                fi: ['Facturación', 'Gastos', 'Resultados'],
                 mm: ['Stock', 'Proveedores', 'Productos'],
-                pp: ['Ãƒâ€œrdenes', 'Productos', 'Estado'],
+                pp: ['Órdenes', 'Productos', 'Estado'],
                 settings: ['Ventas', 'Gastos', 'Utilidad Neta']
             };
             
@@ -113,7 +113,7 @@ function refreshModuloActual() {
     } else if (currentModulo === 'mm') {
         actualizarInventario();
     } else if (currentModulo === 'pp') {
-        actualizarPlanProduccion();
+        actualizarPlanproducción();
     } else if (currentModulo === 'home') {
         actualizarHome();
     } else if (currentModulo === 'crm') {
@@ -195,7 +195,7 @@ function aplicarPermisosUI() {
         const btnSettings = document.getElementById('btn-nav-settings');
         const btnNavMobileSettings = document.querySelector('button[onclick="cambiarModulo(\'settings\')"]');
         const btnNavMobileInventario = document.querySelector('button[onclick="cambiarModulo(\'mm\')"]');
-        const btnNavMobileProduccion = document.querySelector('button[onclick="cambiarModulo(\'pp\')"]');
+        const btnNavMobileproducción = document.querySelector('button[onclick="cambiarModulo(\'pp\')"]');
         const btnNavMobileFinanzas = document.querySelector('button[onclick="cambiarModulo(\'fi\')"]');
         
         if (btnFI) btnFI.style.display = 'none';
@@ -205,7 +205,7 @@ function aplicarPermisosUI() {
         
         if (btnNavMobileSettings) btnNavMobileSettings.style.display = 'none';
         if (btnNavMobileInventario) btnNavMobileInventario.style.display = 'none';
-        if (btnNavMobileProduccion) btnNavMobileProduccion.style.display = 'none';
+        if (btnNavMobileproducción) btnNavMobileproducción.style.display = 'none';
         if (btnNavMobileFinanzas) btnNavMobileFinanzas.style.display = 'none';
         
         if (window.userRol === 'repartidor') {
@@ -418,10 +418,10 @@ function filtrarGastos() {
 }
 
 function filtrarPP() {
-    actualizarPlanProduccion();
+    actualizarPlanproducción();
 }
 
-function actualizarPlanProduccion() {
+function actualizarPlanproducción() {
     const body = document.getElementById('body-pp');
     if (!body) return;
     const query = document.getElementById('buscador-pp')?.value.toLowerCase() || '';
@@ -462,7 +462,7 @@ function actualizarPlanProduccion() {
     });
 
     if (ordenesFiltradas.length === 0) {
-        body.innerHTML = `<div class="text-center text-slate-500 p-10 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">No hay ÃƒÂ³rdenes registradas.</div>`;
+        body.innerHTML = `<div class="text-center text-slate-500 p-10 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">No hay órdenes registradas.</div>`;
     }
 }
 
@@ -500,9 +500,9 @@ function toggleTheme() {
 }
 
 function enviarWhatsApp(cliente, producto, total, estadoPedido = 'PENDIENTE') {
-    const estado = estadoPedido ? 'LISTO para entrega/recojo' : 'PENDIENTE de preparaciÃƒÂ³n';
+    const estado = estadoPedido ? 'LISTO para entrega/recojo' : 'PENDIENTE de preparación';
     const empresa = window.configuracionGlobal?.nombre_empresa || 'Nuestra Empresa';
-    const mensaje = `Ã‚Â¡Hola ${cliente}! Somos ${empresa}. Te confirmamos que tu pedido de ${producto} por el monto de S/. ${total.toFixed(2)} se encuentra ${estado}. Ã‚Â¡Gracias por tu preferencia!`;
+    const mensaje = `Hola ${cliente}! Somos ${empresa}. Te confirmamos que tu pedido de ${producto} por el monto de S/. ${total.toFixed(2)} se encuentra ${estado}. Gracias por tu preferencia!`;
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(mensaje)}`, '_blank');
 }
 
@@ -801,7 +801,7 @@ window.filtrarGastos = filtrarGastos;
 window.filtrarPP = filtrarPP;
 window.actualizarGastos = actualizarGastos;
 window.actualizarInventario = actualizarInventario;
-window.actualizarPlanProduccion = actualizarPlanProduccion;
+window.actualizarPlanproducción = actualizarPlanproducción;
 window.guardarInventario = guardarInventario;
 window.guardarProveedor = guardarProveedor;
 window.guardarOrdenPP = guardarOrdenPP;
@@ -809,6 +809,9 @@ window.eliminarInventario = eliminarInventario;
 window.eliminarProveedor = eliminarProveedor;
 window.eliminarOrdenPP = eliminarOrdenPP;
 window.addEventListener('DOMContentLoaded', actualizarTema);
+
+
+
 
 
 
