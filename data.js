@@ -177,7 +177,7 @@ async function guardarPedido() {
     
     // Generar un número de comprobante básico por ahora (luego se puede vincular a un correlativo real)
     const randomNum = Math.floor(1000 + Math.random() * 9000);
-    const prefijo = tipoComprobante === 'Factura' ? 'F001' : tipoComprobante === 'Boleta' ? 'B001' : 'T001';
+    const prefijo = tipoComprobante === 'Cotización' ? 'C001' : tipoComprobante === 'Factura' ? 'F001' : tipoComprobante === 'Boleta' ? 'B001' : 'T001';
     const numeroComprobante = `${prefijo}-${randomNum}`;
 
     if (clienteId === 'NUEVO') {
@@ -894,3 +894,43 @@ window.eliminarClienteDirecto = async function(id) {
 
 
 
+
+
+window.convertirCotizacionAVenta = async function(id) {
+    if(typeof Swal === 'undefined') return;
+    const { value: formValues } = await Swal.fire({
+        title: 'Convertir Cotización a Venta',
+        html:
+            '<select id="swal-tipo-comprobante" class="swal2-input" style="padding: 14px; border-radius: 12px;">' +
+            '<option value="Nota de Venta">Nota de Venta (Interno)</option>' +
+            '<option value="Boleta">Boleta Electrónica</option>' +
+            '<option value="Factura">Factura Electrónica</option>' +
+            '</select>',
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Convertir',
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+            return document.getElementById('swal-tipo-comprobante').value;
+        }
+    });
+
+    if (formValues) {
+        const randomNum = Math.floor(1000 + Math.random() * 9000);
+        const prefijo = formValues === 'Factura' ? 'F001' : formValues === 'Boleta' ? 'B001' : 'T001';
+        const numeroComprobante = `${prefijo}-${randomNum}`;
+        
+        const { error } = await _supabase.from('pedidos').update({ 
+            tipo_comprobante: formValues,
+            numero_comprobante: numeroComprobante,
+            entregado: false
+        }).eq('id', id);
+        
+        if (error) {
+            Swal.fire('Error', 'No se pudo convertir la cotización.', 'error');
+        } else {
+            Swal.fire('¡Éxito!', 'Cotización convertida a ' + formValues, 'success');
+            cargarTodo();
+        }
+    }
+};

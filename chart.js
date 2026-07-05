@@ -50,6 +50,7 @@ function renderVentasMesChart(pedidos) {
     meses.forEach(m => ventasPorMes[m] = 0);
 
     pedidos.forEach(p => {
+        if (p.tipo_comprobante === 'Cotización') return;
         if (!p.creado_en) return;
         const fecha = new Date(p.creado_en);
         const mesStr = meses[fecha.getMonth()];

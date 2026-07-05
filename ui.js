@@ -130,7 +130,9 @@ function actualizarHome() {
     const hoy = new Date().toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
     
     pedidosActuales.forEach(p => {
-        totalVentas += Number(p.precio_total || 0);
+        if (p.tipo_comprobante !== 'Cotización') {
+            totalVentas += Number(p.precio_total || 0);
+        }
         const fecha = new Date(p.creado_en).toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
         if (p.entregado && fecha === hoy) entregadosHoy++;
     });
@@ -261,7 +263,9 @@ function actualizarInterfaz() {
     const query = document.getElementById('buscador').value.toLowerCase();
 
     pedidosActuales.forEach((pedido) => {
-        totalVentas += Number(pedido.precio_total || 0);
+        if (pedido.tipo_comprobante !== 'Cotización') {
+            totalVentas += Number(pedido.precio_total || 0);
+        }
         if (pedido.entregado) {
             listos += 1;
         } else {
@@ -302,7 +306,7 @@ function actualizarInterfaz() {
                     S/. ${Number(pedido.precio_total || 0).toFixed(2)}
                 </div>
                 <div class="md:col-span-2 md:text-center">
-                    <span class="px-3 py-1 rounded-full text-[10px]  ${pedido.entregado ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'}">${pedido.entregado ? 'LISTO' : 'PENDIENTE'}</span>
+                    <span class="px-3 py-1 rounded-full text-[10px] font-medium tracking-wide ${pedido.tipo_comprobante === 'Cotización' ? 'bg-fuchsia-50 dark:bg-fuchsia-900/30 text-fuchsia-600 dark:text-fuchsia-400' : pedido.entregado ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'}">${pedido.tipo_comprobante === 'Cotización' ? 'COTIZACIÓN' : pedido.entregado ? 'LISTO' : 'PENDIENTE'}</span>
                 </div>
                 <div class="md:col-span-3 flex items-center md:justify-end gap-2">
                     <button onclick="enviarWhatsApp('${pedido.cliente}','${pedido.producto}',${pedido.precio_total}, ${pedido.entregado})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 transition-colors" title="WhatsApp">
@@ -314,7 +318,7 @@ function actualizarInterfaz() {
                     <button onclick="generarReciboPDF(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors" title="Recibo">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 3v4h4" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 13h10" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 17h7" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 21h14a2 2 0 0 0 2-2V8l-6-5H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2z"/></svg>
                     </button>
-                    ${!pedido.entregado ? `<button onclick="marcarEntregado(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30  transition-colors" title="Listo"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></button>` : ''}
+                    ${pedido.tipo_comprobante === 'Cotización' ? `<button onclick="convertirCotizacionAVenta(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-fuchsia-500 hover:bg-fuchsia-50 dark:hover:bg-fuchsia-900/30 transition-colors" title="Convertir a Venta"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg></button>` : !pedido.entregado ? `<button onclick="marcarEntregado(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/30  transition-colors" title="Listo"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></button>` : ''}
                     ${window.userRol !== 'repartidor' ? `<button onclick="eliminarPedido(${pedido.id})" class="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 transition-colors" title="Eliminar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>` : ''}
                 </div>
             </div>`;
@@ -333,7 +337,7 @@ function actualizarGastos() {
     const query = document.getElementById('buscador-gastos')?.value.toLowerCase() || '';
     body.innerHTML = '';
 
-    let totalVentas = pedidosActuales.reduce((sum, pedido) => sum + Number(pedido.precio_total || 0), 0);
+    let totalVentas = pedidosActuales.reduce((sum, pedido) => pedido.tipo_comprobante !== 'Cotización' ? sum + Number(pedido.precio_total || 0) : sum, 0);
     let totalGastos = 0;
 
     const gastosFiltrados = gastosActuales.filter((gasto) => gasto.descripcion.toLowerCase().includes(query));
@@ -526,6 +530,7 @@ function generarReciboPDF(idPedido) {
     let tituloDocumento = 'NOTA DE VENTA';
     if (tipoComprobante === 'Factura') tituloDocumento = 'FACTURA ELECTRÓNICA';
     if (tipoComprobante === 'Boleta') tituloDocumento = 'BOLETA DE VENTA ELECTRÓNICA';
+    if (tipoComprobante === 'Cotización') tituloDocumento = 'COTIZACIÓN';
     
     const clienteObj = pedido.clientes || {};
     const clienteDocTexto = clienteObj.tipo_documento && clienteObj.numero_documento 
@@ -749,7 +754,9 @@ function abrirHistorialCliente(clienteId) {
     const pedidosDelCliente = pedidosActuales.filter(p => String(p.cliente_id) === String(cliente.id));
     
     let totalGastado = 0;
-    pedidosDelCliente.forEach(p => { totalGastado += Number(p.precio_total || 0); });
+    pedidosDelCliente.forEach(p => { 
+        if (p.tipo_comprobante !== 'Cotización') totalGastado += Number(p.precio_total || 0); 
+    });
     
     document.getElementById('historial-total-pedidos').textContent = pedidosDelCliente.length;
     document.getElementById('historial-total-gastado').textContent = window.configuracionGlobal?.moneda + ' ' + totalGastado.toFixed(2);
